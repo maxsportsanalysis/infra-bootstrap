@@ -67,11 +67,11 @@ echo "Installing LIBOQS packages (may require sudo)..."
 cd $BUILD_DIR
 git clone --depth 1 --branch ${LIBOQS_VERSION} https://github.com/open-quantum-safe/liboqs && \
 cd liboqs
-mkdir build && cd build
+mkdir -p build && cd build
 
 cmake -G"Ninja" .. \
   -DOPENSSL_ROOT_DIR=${INSTALLDIR_OPENSSL} \
-  -DCMAKE_INSTALL_PREFIX="${INSTALLDIR_LIBOQS}" \
+  -DCMAKE_INSTALL_PREFIX=${INSTALLDIR_LIBOQS} \
   -DBUILD_SHARED_LIBS=ON \
   -DOQS_USE_OPENSSL=OFF \
   -DOQS_DIST_BUILD=ON \
