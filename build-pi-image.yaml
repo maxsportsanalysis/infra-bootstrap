@@ -1,0 +1,49 @@
+name: Build Pi OS Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-2
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v2
+
+      - name: Generate or verify CA
+        run: |
+          mkdir -p packer/files/ca
+          if [ ! -f packer/files/ca/my-root-ca.crt ]; then
+            openssl genrsa -out packer/files/ca/my-root-ca.key 4096
+            openssl req -x509 -new -nodes -key packer/files/ca/my-root-ca.key \
+              -sha256 -days 3650 -out packer/files/ca/my-root-ca.crt -subj "/CN=infra-bootstrap-CA"
+          fi
+
+      - name: Build Pi OS image
+        run: |
+          packer build -var "ssh_user=pi" -var "ssh_pass=${{ secrets.PACKER_PASS }}" packer/pi-os-lite.json
+
+      - name: Upload CA to AWS Roles Anywhere (optional)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws rolesanywhere create-trust-anchor \
+            --name "pi-root-ca" \
+            --source "sourceType=CERTIFICATE_BUNDLE,x509CertificateBundle=$(cat packer/files/ca/my-root-ca.crt)" \
+            --region $AWS_REGION || echo "Trust anchor may already exist"
+          
+      - name: Upload built image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pi-os-image
+          path: build/pi-image/
