@@ -25,7 +25,7 @@ echo "Installing system packages (may require sudo)..."
 # Install required build tools and system dependencies (excluding rustc/cargo from apt) - gcc, libunwind-dev, linux-headers-$(uname -r), libssl-dev
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends build-essential clang libtool make gcc ninja-build cmake libtool wget git ca-certificates perl python3 python3-pip python3-venv
-sudo apt-get clean && rm -rf /var/lib/apt/lists/*
+sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
 
 
 mkdir -p "$WORKSPACE" "$BUILD_DIR" "$INSTALLDIR_OPENSSL" "$INSTALLDIR_LIBOQS"
