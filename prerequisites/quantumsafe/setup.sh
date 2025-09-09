@@ -98,10 +98,10 @@ sed -i "s/false/true/g" oqs-template/generate.yml
 LIBOQS_SRC_DIR=$BUILD_DIR/liboqs python3 oqs-template/generate.py
 
 liboqs_DIR=${INSTALLDIR_LIBOQS} cmake \
-  -DOPENSSL_ROOT_DIR=${INSTALLDIR_OPENSSL} \
-  -DOPENSSL_LIBRARIES=${INSTALLDIR_OPENSSL}/lib \
-  -DOPENSSL_INCLUDE_DIR=${INSTALLDIR_OPENSSL}/include \
-  -DCMAKE_INSTALL_PREFIX=${INSTALLDIR_OQS_PROVIDER} \
+  -DOPENSSL_ROOT_DIR=${BUILD_DIR}/openssl-${OPENSSL_VERSION} \
+  -DOPENSSL_LIBRARIES=${BUILD_DIR}/openssl-${OPENSSL_VERSION}/lib \
+  -DOPENSSL_INCLUDE_DIR=${BUILD_DIR}/openssl-${OPENSSL_VERSION}/include \
+  -DCMAKE_INSTALL_PREFIX=${BUILD_DIR}/oqs-provider \
   -DCMAKE_BUILD_TYPE=Release \
   -S . -B _build && \
   cmake --build _build && \
