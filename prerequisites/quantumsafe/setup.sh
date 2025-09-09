@@ -44,7 +44,7 @@ cd openssl-$OPENSSL_VERSION
   
 # https://github.com/openssl/openssl/blob/master/INSTALL.md#configure-openssl (for debugging: enable-trace enable-sslkeylog)
 ./config --prefix=$INSTALLDIR_OPENSSL \
-    no-ssl no-ssl3 no-tls1 no-tls1_1 no-tls1_2 no-dtls no-dtls1 no-dtls1_2 no_tls \
+    no-ssl no-ssl3 no-tls1 no-tls1_1 no-tls1_2 no-dtls no-dtls1 no-dtls1_2 \
     no-ssl3-method no-tls1-method no-tls1_1-method no-tls1_2-method no-dtls1-method no-dtls1_2-method \
     no-md2 no-md4 no-mdc2 no-rc2 no-rc4 no-idea no-bf no-cast no-seed no-rmd160 no-whirlpool \
     no-gost no-http no-legacy no-integrity-only-ciphers \
@@ -53,7 +53,7 @@ cd openssl-$OPENSSL_VERSION
     no-static-engine no-quic no-thread-pool no-default-thread-pool \
     no-ts no-ui-console no-uplink disable-weak-ssl-ciphers no-zlib no-zlib-dynamic no-zstd enable-pie \
     no-afalgeng no-shared threads \
-    '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)' -lm
+    '-Wl,-rpath,$(LIBRPATH)' -lm
 
 make -j $(nproc)
 make -j $(nproc) install_sw install_ssldirs
