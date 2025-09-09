@@ -9,9 +9,9 @@ export OQSPROVIDER_VERSION=0.10.0
 
 export WORKSPACE=$HOME/tmp
 export BUILD_DIR=$WORKSPACE/build # this will contain all the build artifacts
-export INSTALLDIR_OPENSSL=/opt/openssl-$OPENSSL_VERSION
-export INSTALLDIR_LIBOQS=/opt/liboqs
-export INSTALLDIR_OQS_PROVIDER=/opt/oqs-provider
+export INSTALLDIR_OPENSSL=$WORKSPACE/openssl-$OPENSSL_VERSION
+export INSTALLDIR_LIBOQS=$WORKSPACE/liboqs
+export INSTALLDIR_OQS_PROVIDER=$WORKSPACE/oqs-provider
 
 # Specify supported signature and key encapsulation mechanisms (KEM) algorithms.
 export SIG_ALG="mldsa65" # mldsa65:mldsa87:falcon512
@@ -27,7 +27,7 @@ sudo apt-get update
 sudo apt-get install -y --no-install-recommends build-essential clang libtool make gcc ninja-build cmake libtool wget git ca-certificates perl python3 python3-pip python3-venv
 sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
 
-
+sudo rm -rf $BUILD_DIR/*
 mkdir -p "$WORKSPACE" "$BUILD_DIR" "$INSTALLDIR_OPENSSL" "$INSTALLDIR_LIBOQS"
 
 
@@ -77,9 +77,10 @@ cmake -G"Ninja" .. \
   -DOQS_DIST_BUILD=ON \
   -DCMAKE_BUILD_TYPE=Release \
   -DOQS_BUILD_ONLY_LIB=ON \
-  -DOQS_DIST_BUILD=ON && \
-  ninja -j"$(nproc)" && \
-  ninja install
+  -DOQS_DIST_BUILD=ON
+
+ninja -j"$(nproc)" 
+ninja install
 
 
 
@@ -98,10 +99,10 @@ sed -i "s/false/true/g" oqs-template/generate.yml
 LIBOQS_SRC_DIR=$BUILD_DIR/liboqs python3 oqs-template/generate.py
 
 liboqs_DIR=${INSTALLDIR_LIBOQS} cmake \
-  -DOPENSSL_ROOT_DIR=${BUILD_DIR}/openssl-${OPENSSL_VERSION} \
-  -DOPENSSL_LIBRARIES=${BUILD_DIR}/openssl-${OPENSSL_VERSION}/lib \
-  -DOPENSSL_INCLUDE_DIR=${BUILD_DIR}/openssl-${OPENSSL_VERSION}/include \
-  -DCMAKE_INSTALL_PREFIX=${BUILD_DIR}/oqs-provider \
+  -DOPENSSL_ROOT_DIR=${INSTALLDIR_OPENSSL} \
+  -DOPENSSL_LIBRARIES=${INSTALLDIR_OPENSSL}/lib \
+  -DOPENSSL_INCLUDE_DIR=${INSTALLDIR_OPENSSL}/include \
+  -DCMAKE_INSTALL_PREFIX=${INSTALLDIR_OQS_PROVIDER} \
   -DCMAKE_BUILD_TYPE=Release \
   -S . -B _build && \
   cmake --build _build && \
