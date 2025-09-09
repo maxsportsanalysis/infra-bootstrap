@@ -69,7 +69,7 @@ git clone --depth 1 --branch ${LIBOQS_VERSION} https://github.com/open-quantum-s
 cd liboqs
 mkdir build && cd build
 
-cmake -G"Ninja" \
+cmake -G"Ninja" .. \
   -DOPENSSL_ROOT_DIR=${INSTALLDIR_OPENSSL} \
   -DCMAKE_INSTALL_PREFIX="${INSTALLDIR_LIBOQS}" \
   -DBUILD_SHARED_LIBS=ON \
@@ -77,10 +77,9 @@ cmake -G"Ninja" \
   -DOQS_DIST_BUILD=ON \
   -DCMAKE_BUILD_TYPE=Release \
   -DOQS_BUILD_ONLY_LIB=ON \
-  -DOQS_DIST_BUILD=ON \
-  ..
-ninja -j"$(nproc)"
-ninja install
+  -DOQS_DIST_BUILD=ON && \
+  ninja -j"$(nproc)" && \
+  ninja install
 
 
 
