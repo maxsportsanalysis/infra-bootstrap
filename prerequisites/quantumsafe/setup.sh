@@ -2,20 +2,20 @@
 set -euo pipefail
 
 # --------- User-configurable ----------
-#export OPENSSL_VERSION=3.5.2
-#export LIBOQS_VERSION=0.14.0
-#export OQSPROVIDER_VERSION=0.10.0
+export OPENSSL_VERSION=3.5.2
+export LIBOQS_VERSION=0.14.0
+export OQSPROVIDER_VERSION=0.10.0
 #export CURL_VERSION=8.15.0
 
-#export WORKSPACE=/tmp
-#export BUILD_DIR=$WORKSPACE/build # this will contain all the build artifacts
-#export INSTALLDIR_OPENSSL=/opt/openssl-$OPENSSL_VERSION
-#export INSTALLDIR_LIBOQS=/opt/liboqs
-#export INSTALLDIR_OQS_PROVIDER=/opt/oqs-provider
+export WORKSPACE=/tmp
+export BUILD_DIR=$WORKSPACE/build # this will contain all the build artifacts
+export INSTALLDIR_OPENSSL=/opt/openssl-$OPENSSL_VERSION
+export INSTALLDIR_LIBOQS=/opt/liboqs
+export INSTALLDIR_OQS_PROVIDER=/opt/oqs-provider
 
 # Specify supported signature and key encapsulation mechanisms (KEM) algorithms.
 export SIG_ALG="mldsa65" # mldsa65:mldsa87:falcon512
-#export DEFAULT_GROUPS="x25519:p256_mlkem768:p384_mlkem768:mlkem768:mlkem1024:kyber768"
+export DEFAULT_GROUPS="x25519:p256_mlkem768:p384_mlkem768:mlkem768:mlkem1024:kyber768"
 
 
 
