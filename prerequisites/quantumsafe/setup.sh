@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -euo pipefail
 
 # --------- User-configurable ----------
@@ -7,7 +7,7 @@ export LIBOQS_VERSION=0.14.0
 export OQSPROVIDER_VERSION=0.10.0
 #export CURL_VERSION=8.15.0
 
-export WORKSPACE=/tmp
+export WORKSPACE=$HOME/tmp
 export BUILD_DIR=$WORKSPACE/build # this will contain all the build artifacts
 export INSTALLDIR_OPENSSL=/opt/openssl-$OPENSSL_VERSION
 export INSTALLDIR_LIBOQS=/opt/liboqs
@@ -23,15 +23,16 @@ export DEFAULT_GROUPS="x25519:p256_mlkem768:p384_mlkem768:mlkem768:mlkem1024:kyb
 echo "Installing system packages (may require sudo)..."
 
 # Install required build tools and system dependencies (excluding rustc/cargo from apt) - gcc, libunwind-dev, linux-headers-$(uname -r), libssl-dev
-apt-get update
-apt-get install -y --no-install-recommends build-essential clang libtool make gcc ninja-build cmake libtool wget git ca-certificates perl python3 python3-pip python3-venv
-apt-get clean && rm -rf /var/lib/apt/lists/*
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends build-essential clang libtool make gcc ninja-build cmake libtool wget git ca-certificates perl python3 python3-pip python3-venv
+sudo apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 mkdir -p "$WORKSPACE" "$BUILD_DIR" "$INSTALLDIR_OPENSSL" "$INSTALLDIR_LIBOQS"
 
 
 # ---------- OpenSSL build ----------
+echo "Installing OPENSSL (may require sudo)..."
 cd $BUILD_DIR
 if [ ! -f "openssl-$OPENSSL_VERSION.tar.gz" ]; then
   wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz"
@@ -61,12 +62,14 @@ make -j $(nproc) install_sw install_ssldirs
 
 
 # ---------- LIBOQS ----------
+echo "Installing LIBOQS packages (may require sudo)..."
+
 cd $BUILD_DIR
 git clone --depth 1 --branch ${LIBOQS_VERSION} https://github.com/open-quantum-safe/liboqs && \
 cd liboqs
 mkdir build && cd build
 
-cmake -G"Ninja" .. \
+cmake -G"Ninja" \
   -DOPENSSL_ROOT_DIR=${INSTALLDIR_OPENSSL} \
   -DCMAKE_INSTALL_PREFIX="${INSTALLDIR_LIBOQS}" \
   -DBUILD_SHARED_LIBS=ON \
@@ -82,6 +85,8 @@ ninja install
 
 
 # ---------- Quantum Safe Provider ----------
+echo "Installing Quantum Safe Provider packages (may require sudo)..."
+
 python3 -m venv $BUILD_DIR/.venv
 $BUILD_DIR/.venv/bin/pip install --no-cache-dir jinja2 tabulate pyyaml
 export PATH="$BUILD_DIR/.venv/bin:$PATH"
