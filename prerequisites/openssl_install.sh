@@ -1,25 +1,36 @@
 #!/bin/bash
 
-# 1. A "make" implementation
-# 2. Perl 5 with core modules
-# 3. The Perl module "Text::Template" (https://github.com/openssl/openssl/blob/master/NOTES-PERL.md): sudo apt-get install libtext-template-perl
-# 4. a C-99 compiler
-# 5. POSIX C library (at least POSIX.1-2008), or compatible types and functionality.
-# 6. A development environment in the form of development libraries and C header files
+set -euo pipefail
 
-cd /usr/local/src
-sudo wget https://github.com/openssl/openssl/releases/download/openssl-3.5.2/openssl-3.5.2.tar.gz
-sudo tar -xf openssl-3.5.2.tar.gz
-sudo rm openssl-3.5.2.tar.gz
+# --------- User-configurable ----------
+export OPENSSL_VERSION=3.5.2
+export LIBOQS_VERSION=0.14.0
+export OQSPROVIDER_VERSION=0.10.0
+#export CURL_VERSION=8.15.0
 
-cd openssl-3.5.2
+export WORKSPACE=$HOME/tmp
+export BUILD_DIR=$WORKSPACE/build # this will contain all the build artifacts
+export INSTALLDIR_OPENSSL=$WORKSPACE/openssl-$OPENSSL_VERSION
+export INSTALLDIR_LIBOQS=$WORKSPACE/liboqs
+export INSTALLDIR_OQS_PROVIDER=$WORKSPACE/oqs-provider
 
+
+# ---------- OpenSSL build ----------
+echo "Installing OPENSSL (may require sudo)..."
+cd $BUILD_DIR
+if [ ! -f "openssl-$OPENSSL_VERSION.tar.gz" ]; then
+  wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz"
+fi
+tar -xf "openssl-$OPENSSL_VERSION.tar.gz"
+
+# Build and install OpenSSL, then configure symbolic links.
+cd openssl-$OPENSSL_VERSION
 
 # Configure with a safe prefix
 # --openssldir (default: /usr/local/ssl) - Directory for OpenSSL configuration files, and also the default certificate and key store.
 # --prefix (default: /usr/local) - The top of the installation directory tree.
-sudo ./config --prefix=/usr/local/openssl-3.5.2 \
-         --openssldir=/usr/local/openssl-3.5.2 \
+sudo ./config --prefix=$INSTALLDIR_OPENSSL \
+         --openssldir=$INSTALLDIR_OPENSSL \
          shared zlib fips \
          '-Wl,-rpath,$(LIBRPATH)'
       
@@ -44,21 +55,23 @@ sudo make install
 sudo apt update
 sudo apt install -y cmake ninja-build build-essential
 
-cd /usr/local/src
+cd $BUILD_DIR
 sudo git clone https://github.com/open-quantum-safe/oqs-provider.git
 cd oqs-provider
 
-sudo chown -R $USER:$USER /usr/local/src/oqs-provider
-export CMAKE_PARAMS="-DOPENSSL_ROOT_DIR=/usr/local/openssl-3.5.2 \
-  -DOPENSSL_LIBRARIES=/usr/local/openssl-3.5.2/lib64 \
-  -DOPENSSL_INCLUDE_DIR=/usr/local/openssl-3.5.2/include \
+#sudo chown -R $USER:$USER /usr/local/src/oqs-provider
+export CMAKE_PARAMS="-DOPENSSL_ROOT_DIR=$INSTALLDIR_OPENSSL \
+  -DOPENSSL_LIBRARIES=$INSTALLDIR_OPENSSL/lib64 \
+  -DOPENSSL_INCLUDE_DIR=$INSTALLDIR_OPENSSL/include \
   -DCMAKE_BUILD_TYPE=Release"
 
-export OPENSSL_MODULES=/usr/local/src/oqs-provider/_build/lib
-/usr/local/openssl-3.5.2/bin/openssl list -signature-algorithms -provider oqsprovider -provider-path $OPENSSL_MODULES
-/usr/local/openssl-3.5.2/bin/openssl list -providers -provider oqsprovider
+export OPENSSL_MODULES=$BUILD_DIR/oqs-provider/_build/lib
+$INSTALLDIR_OPENSSL/bin/openssl list -providers 
+#-signature-algorithms -provider oqsprovider -provider-path $OPENSSL_MODULES
 
-/usr/local/openssl-3.5.2/bin/openssl list -kem-algorithms
+#/usr/local/openssl-3.5.2/bin/openssl list -providers -provider oqsprovider
+
+#/usr/local/openssl-3.5.2/bin/openssl list -kem-algorithms
 
 # { 1.2.840.113549.1.1.1, 2.5.8.1.1, RSA, rsaEncryption } @ default
 # { 1.2.840.10045.2.1, EC, id-ecPublicKey } @ default
