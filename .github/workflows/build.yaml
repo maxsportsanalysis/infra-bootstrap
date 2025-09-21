@@ -37,10 +37,10 @@ jobs:
 
       # 4. Build the PXE server image
       - name: Run `packer init`
-        run: "packer init -var-file=infra-bootstrap/variables.pkr.hcl infra-bootstrap/pxe-server.pkr.hcl"
+        run: "packer init -var-file=variables.pkr.hcl pxe-server.pkr.hcl"
 
       - name: Run `packer validate`
-        run: "packer validate -var-file=infra-bootstrap/variables.pkr.hcl infra-bootstrap/pxe-server.pkr.hcl"
+        run: "packer validate -var-file=variables.pkr.hcl pxe-server.pkr.hcl"
 
 
       #- name: Build PXE server image
