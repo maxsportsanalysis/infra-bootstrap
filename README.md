@@ -1,3 +1,0 @@
-# infra-bootstrap
-
-## Root CA
