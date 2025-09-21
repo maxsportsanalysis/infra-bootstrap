@@ -1,0 +1,58 @@
+name: Build Raspberry Pi PXE Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PACKER_VERSION: "3.1.0"
+
+jobs:
+  build-pxe-image:
+    runs-on: ubuntu-latest
+    env:
+      PACKER_LOG: 1
+      PACKER_LOG_PATH: packer.log
+
+    steps:
+      # 1. Checkout your infra repo
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      # 2. Install dependencies for Packer / qemu
+      #- name: Install dependencies
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install -y qemu qemu-user-static qemu-system-arm qemu-utils \
+      #                            libvirt-daemon-system libvirt-clients \
+      #                            binfmt-support
+
+      # 3. Install Packer
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: ${{ env.PACKER_VERSION }}
+
+      # 4. Build the PXE server image
+      - name: Run `packer init`
+        run: "packer init -var-file=infra-bootstrap/variables.pkr.hcl infra-bootstrap/pxe-server.pkr.hcl"
+
+      - name: Run `packer validate`
+        run: "packer validate -var-file=infra-bootstrap/variables.pkr.hcl infra-bootstrap/pxe-server.pkr.hcl"
+
+
+      #- name: Build PXE server image
+      #  run: |
+      #    packer build -color=false \
+      #      -var "ssh_user=pi" \
+      #      -var "ssh_pass=raspberry" \
+      #      pxe-server.pkr.hcl
+
+      # 5. Archive the resulting image artifact
+      #- name: Upload built image
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: pxe-server-image
+      #    path: build/pi-image/
