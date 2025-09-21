@@ -4,7 +4,7 @@ packer {
   required_plugins {
     arm-image = {
       version = ">= 0.2.7"
-      source  = "arm-image"
+      source  = "github.com/solo-io/packer-plugin-arm-image"
     }
   }
 }
