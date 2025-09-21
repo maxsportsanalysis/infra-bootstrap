@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  PACKER_VERSION: "3.1.0"
+  PACKER_VERSION: "1.14.2"
 
 jobs:
   build-pxe-image:
