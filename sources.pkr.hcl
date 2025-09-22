@@ -12,6 +12,6 @@ source "arm-image" "raspberry_pi_os" {
         ["bind", "/dev", "/dev"],
         ["devpts", "devpts", "/dev/pts"],
         ["binfmt_misc", "binfmt_misc", "/proc/sys/fs/binfmt_misc"],
-        ["bind", "/run/systemd", "/run/systemd"]
+        ["bind", "/tmp", "/tmp"]
   ]
 }
