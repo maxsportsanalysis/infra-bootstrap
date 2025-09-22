@@ -17,8 +17,3 @@ variable "disable_embedded" {
   type    = bool
   default = true
 }
-
-variable "target_image_size" {
-  type    = number
-  default = 3221225472 # 3*1024*1024*1024
-}
