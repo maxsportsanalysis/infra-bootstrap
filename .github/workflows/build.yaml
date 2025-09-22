@@ -35,13 +35,13 @@ jobs:
 
       # 4. Build the PXE server image
       - name: Run `packer init`
-        run: packer init .
+        run: sudo packer init .
 
       - name: Run `packer validate`
-        run: packer validate -var-file=pi.pkrvars.hcl .
+        run: sudo packer validate -var-file=pi.pkrvars.hcl .
 
       - name: Run `packer build`
-        run: packer build -var-file=pi.pkrvars.hcl .
+        run: sudo packer build -var-file=pi.pkrvars.hcl .
 
       # 5. Archive the resulting image artifact
       - name: Upload built image
