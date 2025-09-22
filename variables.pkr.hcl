@@ -28,6 +28,11 @@ variable "file_checksum_type" {
     default = "sha256"
 }
 
+variable "image_path" {
+    type = string
+    default = ""
+}
+
 variable "ssh_user" {
     type = string
     default = "admin"
