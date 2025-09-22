@@ -14,4 +14,9 @@ source "arm-image" "raspberry_pi_os" {
         ["bind", "/run/systemd", "/run/systemd"],
         ["bind", "/tmp", "/tmp"]
   ]
+
+  image_mounts = [
+    "/",    # root partition (2nd)
+    "/boot" # boot partition (1st)
+  ]
 }

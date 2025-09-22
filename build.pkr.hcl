@@ -9,14 +9,4 @@ build {
       "mkdir -p /srv/tftpboot/pxelinux/pxelinux.cfg"
     ]
   }
-
-  provisioner "file" {
-    source      = "configs/dnsmasq.conf"
-    destination = "/etc/dnsmasq.d/dnsmasq.conf"
-  }
-
-  provisioner "file" {
-    source      = "configs/pxelinux.cfg/default"
-    destination = "/srv/tftpboot/pxelinux/pxelinux.cfg/default"
-  }
 }
