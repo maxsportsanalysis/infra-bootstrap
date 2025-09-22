@@ -5,8 +5,13 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /boot"
+      "echo 'hello'", 
+      "mount"
     ]
+  }
+
+  provisioner "shell" {
+    inline = ["touch /boot/ssh"]
   }
 
 
