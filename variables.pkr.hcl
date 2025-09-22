@@ -1,3 +1,4 @@
+# variables.pkr.hcl
 
 variable "file_url" {
     type = string

@@ -1,6 +1,6 @@
 source "arm-image" "raspberry_pi_os" {
   file_urls      = [var.file_url]
-  file_target_extension = var.file_target_extension
+  file_target_extension = "img.xz"
 
   file_checksum         = var.file_checksum
   file_checksum_url     = var.file_checksum_url
