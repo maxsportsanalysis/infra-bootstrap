@@ -12,8 +12,4 @@ build {
     source      = "configs/pxelinux.cfg/default"
     destination = "/srv/tftpboot/pxelinux/pxelinux.cfg/default"
   }
-
-  provisioner "shell" {
-    script = "provisioners/setup-pxe.sh"
-  }
 }
