@@ -1,15 +1,8 @@
 source "arm-image" "raspberry_pi_os" {
-  file_urls      = [var.file_url]
-  file_target_extension = "img.xz"
-
-  file_checksum         = var.file_checksum
-  file_checksum_url     = var.file_checksum_url
-  file_checksum_type    = var.file_checksum_type
-
-  image_build_method    = "reuse"
-  image_path = var.image_path
-
-  ssh_username    = var.ssh_user
-  ssh_password    = var.ssh_pass
-  ssh_timeout     = "10m"
+  iso_urls = [var.iso_url]
+  iso_checksum = var.iso_checksum
+  
+  output_filename = var.image_path
+  disable_embedded = var.disable_embedded
+  target_image_size = var.target_image_size
 }
