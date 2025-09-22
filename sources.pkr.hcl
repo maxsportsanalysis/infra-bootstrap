@@ -16,7 +16,7 @@ source "arm-image" "raspberry_pi_os" {
   ]
 
   image_mounts = [
-    "/",
-    "/boot"
+    "/boot",
+    "/"
   ]
 }
