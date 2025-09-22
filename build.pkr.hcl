@@ -3,7 +3,7 @@ build {
 
   sources = ["source.arm-image.raspberry_pi_os"]
 
-  chroot_mounts: [
+  chroot_mounts = [
     ["proc", "proc", "/proc"],
     ["sysfs", "sysfs", "/sys"],
     ["bind", "/dev", "/dev"],
