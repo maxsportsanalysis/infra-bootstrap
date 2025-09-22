@@ -4,9 +4,14 @@ variable "file_url" {
     description = "The URL of the OS image file."
 }
 
+variable "file_target_extension" {
+  type    = string
+  default = "xz"
+}
+
 variable "file_checksum" {
     type = string
-    description = "The checksum value of `file_url`."
+    description = "The checksum value of `file_checksum_url`."
     default = ""
 }
 
@@ -22,19 +27,12 @@ variable "file_checksum_type" {
     default = "sha256"
 }
 
-variable "ssh_host" {
-    type = string
-    description = ""
-}
-
 variable "ssh_user" {
     type = string
-    description = ""
-    default = "pi"
+    default = "admin"
 }
 
 variable "ssh_pass" {
     type = string
-    description = ""
-    default = "raspberry"
+    default = "password"
 }
