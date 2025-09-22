@@ -10,7 +10,6 @@ variable "file_checksum" {
     default = ""
 }
 
-
 variable "file_checksum_url" {
     type = string
     description = "The checksum file URL of `file_url`."

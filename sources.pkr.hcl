@@ -1,15 +1,15 @@
 source "arm-image" "raspberry_pi_os" {
-  iso_url      = "https://downloads.raspberrypi.org/raspios_lite_arm64_latest"
-  iso_checksum = "62d025b9bc7ca0e1facfec74ae56ac13978b6745c58177f081d39fbb8041ed45"
+  file_urls      = [var.file_url]
+  file_target_extension = var.file_target_extension
 
-  output_directory  = "build/pi-pxe-server"
-  qemu_binary  = "/usr/bin/qemu-aarch64-static"
-  format       = "raw"
-  target_image_size = "8G"
+  file_checksum         = var.file_checksum
+  file_checksum_url     = var.file_checksum_url
+  file_checksum_type    = var.file_checksum_type
 
+  image_build_method    = "reuse"
+  image_path = var.image_path
 
-  host            = var.ssh_host
   ssh_username    = var.ssh_user
   ssh_password    = var.ssh_pass
-  ssh_timeout     = "15m"
+  ssh_timeout     = "10m"
 }
