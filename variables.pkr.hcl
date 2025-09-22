@@ -12,8 +12,3 @@ variable "image_path" {
   type    = string
   default = "rpi-pxe.img"
 }
-
-variable "disable_embedded" {
-  type    = bool
-  default = true
-}

@@ -3,10 +3,9 @@ source "arm-image" "raspberry_pi_os" {
   iso_checksum = var.iso_checksum
   
   output_filename = var.image_path
-  disable_embedded = var.disable_embedded
 
   image_mounts = [
-    "/boot",
+    "/boot/firmware",
     "/"
   ]
 }
