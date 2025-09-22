@@ -12,4 +12,9 @@ source "arm-image" "raspberry_pi_os" {
     ["devpts", "devpts", "/dev/pts"],
     ["bind", "/tmp", "/tmp"]
   ]
+
+  image_mounts = [
+    "/",
+    "/boot"
+  ]
 }
