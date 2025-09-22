@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: '1.25.1'
+          cache-dependency-path: packer-plugin-arm-image/go.sum
 
       # 2. Install dependencies for Packer / qemu
       - name: Install dependencies
@@ -34,9 +35,10 @@ jobs:
         run: |
           git clone https://github.com/solo-io/packer-plugin-arm-image
           cd packer-plugin-arm-image
-          go build
+          go mod download
+          go build -o packer-plugin-arm-image
           mkdir -p ~/.packer.d/plugins/github.com/solo-io/arm-image
-          mv packer-plugin-arm-image ~/.packer.d/plugins/github.com/solo-io/arm-image/
+          mv packer-plugin-arm-image ~/.packer.d/plugins/github.com/solo-io/arm-image/packer-plugin-arm-image
 
 
       # 3. Install Packer

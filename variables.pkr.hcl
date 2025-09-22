@@ -12,3 +12,8 @@ variable "image_path" {
   type    = string
   default = "rpi-pxe.img"
 }
+
+variable "qemu_binary" {
+  type    = string
+  default = null
+}
