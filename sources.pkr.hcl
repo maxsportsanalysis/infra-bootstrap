@@ -16,7 +16,7 @@ source "arm-image" "raspberry_pi_os" {
   ]
 
   image_mounts = [
-    "/",    # root partition (2nd)
-    "/boot" # boot partition (1st)
+    "/boot",    # root partition (2nd)
+    "/" # boot partition (1st)
   ]
 }
