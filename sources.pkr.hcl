@@ -5,12 +5,8 @@ source "arm-image" "raspberry_pi_os" {
   output_filename = var.image_path
   disable_embedded = var.disable_embedded
 
-  additional_chroot_mounts = [
-    ["bind", "/tmp", "/tmp"]
-  ]
-
   image_mounts = [
-    "/boot/firmware",
+    "/boot",
     "/"
   ]
 }
