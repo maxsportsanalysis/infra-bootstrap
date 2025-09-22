@@ -18,12 +18,26 @@ jobs:
       # 1. Checkout your infra repo
       - name: Checkout repo
         uses: actions/checkout@v5
+      
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.1'
 
       # 2. Install dependencies for Packer / qemu
-      - name: Install dependencies
+      #- name: Install dependencies
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install -y qemu-user-static
+
+      - name: Build packer arm-image plugin
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
+          git clone https://github.com/solo-io/packer-plugin-arm-image
+          cd packer-plugin-arm-image
+          go build
+          mkdir -p ~/.packer.d/plugins/github.com/solo-io/arm-image
+          mv packer-plugin-arm-image ~/.packer.d/plugins/github.com/solo-io/arm-image/
+
 
       # 3. Install Packer
       - name: Setup `packer`
