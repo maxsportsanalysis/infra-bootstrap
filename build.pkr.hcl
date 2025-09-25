@@ -10,13 +10,17 @@ build {
 
   provisioner "file" {
     source      = "provisioners/firstrun.sh"
-    destination = "/boot/firstrun.sh"
+    destination = "/boot/firmware/firstrun.sh"
   }
 
   provisioner "shell" {
     inline = [
-      "chmod +x /boot/firstrun.sh",
-      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/cmdline.txt"
+      "chmod +x /boot/firmware/firstrun.sh",
+      # Clean out any old systemd.run entries
+      "sed -i 's| systemd.run=.*||g' /boot/firmware/cmdline.txt",
+      # Append the first-run hook
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
     ]
   }
+
 }
