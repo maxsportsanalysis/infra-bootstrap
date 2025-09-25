@@ -15,7 +15,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "chmod +x /bootfs/firstrun.sh",
+      "chmod +x /boot/firstrun.sh",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/cmdline.txt"
     ]
   }
