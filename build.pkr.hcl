@@ -5,24 +5,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /boot/firmware",
-      "touch /boot/ssh",
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
       "HASH=$(openssl passwd -6 '${var.rpi_password}')",
       "echo '${var.rpi_username}:$HASH' | sudo tee /boot/firmware/userconf"
-    ]
-  }
-
-
-  provisioner "shell" {
-    inline = [
-      "ROOT_DEV=$(blkid -t TYPE=ext4 -o device | head -n1)",
-      "ROOT_UUID=$(blkid -s PARTUUID -o value $ROOT_DEV)",
-      "sudo sed -i \"s|root=PARTUUID=[^ ]*|root=PARTUUID=$ROOT_UUID|\" /boot/firmware/cmdline.txt"
     ]
   }
 }
