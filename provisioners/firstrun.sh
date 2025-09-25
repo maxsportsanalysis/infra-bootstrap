@@ -4,7 +4,7 @@ set +e
 
 # --- Variables from packer (templated in) ---
 USERNAME="${RPI_USERNAME:-mcilek}"
-PASSWORD_HASH="${RPI_PASSWORD_HASH}"
+PASSWORD="${RPI_PASSWORD}"
 HOSTNAME="${RPI_HOSTNAME:-maxsportsanalysis-pi}"
 KEYMAP="${RPI_KEYMAP:-us}"
 TIMEZONE="${RPI_TIMEZONE:-America/Chicago}"
