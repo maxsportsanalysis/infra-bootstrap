@@ -59,10 +59,7 @@ jobs:
         run: sudo packer validate -var "rpi_username=${RPI_USERNAME}" -var "rpi_password=${RPI_PASSWORD}" -var-file=pi.pkrvars.hcl .
 
       - name: Run `packer build`
-        run: sudo packer build \
-            -var "rpi_username=${RPI_USERNAME}" \
-            -var "rpi_password=${RPI_PASSWORD}" \
-            -var-file=pi.pkrvars.hcl .
+        run: sudo packer build -var "rpi_username=${RPI_USERNAME}" -var "rpi_password=${RPI_PASSWORD}" -var-file=pi.pkrvars.hcl .
 
       # 5. Archive the resulting image artifact
       - name: Upload built image
