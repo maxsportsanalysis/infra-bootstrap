@@ -9,4 +9,17 @@ build {
       "echo '${var.rpi_username}:$HASH' | sudo tee /boot/firmware/userconf"
     ]
   }
+
+  provisioner "shell" {
+    inline = [
+      # Find the backing loop device
+      "LOOPDEV=$(losetup -j /dev/disk/by-label/rootfs | cut -d: -f1 || true)",
+      # Fallback if not found
+      "[ -z \"$LOOPDEV\" ] && LOOPDEV=$(losetup -a | grep rootfs | cut -d: -f1 || true)",
+      "if [ -n \"$LOOPDEV\" ]; then",
+      "  PARTUUID=$(blkid -s PARTUUID -o value ${LOOPDEV})",
+      "  sudo sed -i \"s|root=PARTUUID=[^ ]*|root=PARTUUID=$PARTUUID|\" /boot/firmware/cmdline.txt",
+      "fi"
+    ]
+  }
 }
