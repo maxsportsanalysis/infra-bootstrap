@@ -4,22 +4,21 @@ build {
 
   provisioner "shell" {
     inline = [
-      # Ensure boot directory exists
       "mkdir -p /boot/firmware",
-
-      "HASH=$(openssl passwd -6 '${var.rpi_password}')",
-      "echo \"${var.rpi_username}:$HASH\" | sudo tee /boot/firmware/userconf"
     ]
+  }
+
+  provisioner "file" {
+    source      = "provisioners/firstrun.sh"
+    destination = "/boot/firstrun.sh"
   }
 
   provisioner "shell" {
     inline = [
-      "LOOPDEV=$(losetup -j /dev/disk/by-label/rootfs | cut -d: -f1 || true)",
-      "[ -z \"$LOOPDEV\" ] && LOOPDEV=$(losetup -a | grep rootfs | cut -d: -f1 || true)",
-      "if [ -n \"$LOOPDEV\" ]; then",
-      "  PARTUUID=$(blkid -s PARTUUID -o value $LOOPDEV)",
-      "  sudo sed -i \"s|root=PARTUUID=[^ ]*|root=PARTUUID=$PARTUUID|\" /boot/firmware/cmdline.txt",
-      "fi"
+      # Copy firstrun.sh
+      "chmod +x /boot/firstrun.sh",
+      # Patch cmdline.txt so Pi runs it on first boot
+      "sudo sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/cmdline.txt"
     ]
   }
 }
