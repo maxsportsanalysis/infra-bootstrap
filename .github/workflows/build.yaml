@@ -10,6 +10,8 @@ env:
   PACKER_VERSION: "1.14.2"
   PACKER_LOG: 1
   PACKER_LOG_PATH: packer.log
+  RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
+  RPI_PASSWORD: ${{ secrets.RPI_PASSWORD }}
 
 jobs:
   build-pxe-image:
@@ -57,7 +59,10 @@ jobs:
         run: sudo packer validate -var-file=pi.pkrvars.hcl .
 
       - name: Run `packer build`
-        run: sudo packer build -var-file=pi.pkrvars.hcl .
+        run: sudo packer build \
+            -var "rpi_username=${RPI_USERNAME}" \
+            -var "rpi_password=${RPI_PASSWORD}" \
+            -var-file=pi.pkrvars.hcl .
 
       # 5. Archive the resulting image artifact
       - name: Upload built image
