@@ -5,7 +5,7 @@ source "arm-image" "raspberry_pi_os" {
   output_filename = var.image_path
 
   image_mounts = [
-    "/boot",
+    "/boot/firmware",
     "/"
   ]
 }
