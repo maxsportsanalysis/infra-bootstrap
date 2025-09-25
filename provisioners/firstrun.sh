@@ -2,6 +2,11 @@
 
 set +e
 
+exec > /boot/firmware/firstrun.log 2>&1
+set -x
+echo "==== firstrun.sh starting at $(date) ===="
+
+
 # --- Variables from packer (templated in) ---
 USERNAME="${RPI_USERNAME:-mcilek}"
 PASSWORD="${RPI_PASSWORD}"
@@ -63,4 +68,7 @@ fi
 # --- Cleanup ---
 rm -f /boot/firmware/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/firmware/cmdline.txt
+
+touch /boot/firmware/FIRSTRUN_COMPLETED
+
 exit 0

@@ -19,7 +19,7 @@ build {
       # Clean out any old systemd.run entries
       "sed -i 's| systemd.run=.*||g' /boot/firmware/cmdline.txt",
       # Append the first-run hook
-      "sed -i 's|$| systemd.run=/boot/firmwarefirstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
+      "sed -i 's|$| systemd.run=/boot/firmwarefirstrun.sh systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
     ]
   }
 
