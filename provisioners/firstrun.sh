@@ -62,5 +62,5 @@ fi
 
 # --- Cleanup ---
 rm -f /boot/firmware/firstrun.sh
-sed -i 's| systemd.run.*||g' /boot/cmdline.txt
+sed -i 's| systemd.run.*||g' /boot/firmware/cmdline.txt
 exit 0
