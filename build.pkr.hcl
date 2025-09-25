@@ -10,15 +10,13 @@ build {
     ]
   }
 
-
   provisioner "shell" {
     inline = [
-      "LOOPDEV=$(losetup -j /dev/disk/by-label/rootfs | cut -d: -f1 || true)",
-      "[ -z \"$LOOPDEV\" ] && LOOPDEV=$(losetup -a | grep rootfs | cut -d: -f1 || true)",
-      "if [ -n \"$LOOPDEV\" ]; then",
-      "  PARTUUID=$(blkid -s PARTUUID -o value $LOOPDEV)",
-      "  sudo sed -i \"s|root=PARTUUID=[^ ]*|root=PARTUUID=$PARTUUID|\" /boot/firmware/cmdline.txt",
-      "fi"
+      "BOOT_UUID=$(blkid -s PARTUUID -o value /dev/loop0p1)",
+      "ROOT_UUID=$(blkid -s PARTUUID -o value /dev/loop0p2)",
+      "sudo sed -i \"s|root=PARTUUID=[^ ]*|root=PARTUUID=$ROOT_UUID|\" /bootfs/cmdline.txt",
+      "echo \"PARTUUID=$BOOT_UUID  /boot  vfat  defaults  0  2\" | sudo tee /rootfs/etc/fstab",
+      "echo \"PARTUUID=$ROOT_UUID  /      ext4  defaults,noatime  0  1\" | sudo tee -a /rootfs/etc/fstab"
     ]
   }
 }
