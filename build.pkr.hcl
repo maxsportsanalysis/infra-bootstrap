@@ -6,9 +6,10 @@ build {
   provisioner "shell" {
     inline = [
       "HASH=$(openssl passwd -6 '${var.rpi_password}')",
-      "echo '${var.rpi_username}:$HASH' | sudo tee /boot/firmware/userconf"
+      "echo \"${var.rpi_username}:$HASH\" | sudo tee /boot/firmware/userconf"
     ]
   }
+
 
   provisioner "shell" {
     inline = [
