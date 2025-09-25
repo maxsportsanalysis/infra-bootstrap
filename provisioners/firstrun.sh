@@ -2,7 +2,7 @@
 
 set +e
 
-exec > /boot/firmware/firstrun.log 2>&1
+exec > /boot/firstrun.log 2>&1
 echo "==== firstrun.sh starting at $(date) ===="
 
 
@@ -65,9 +65,9 @@ KBEOF
 fi
 
 # --- Cleanup ---
-rm -f /boot/firmware/firstrun.sh
-sed -i 's| systemd.run.*||g' /boot/firmware/cmdline.txt
+rm -f /boot/firstrun.sh
+sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 
-touch /boot/firmware/FIRSTRUN_COMPLETED
+touch /boot/FIRSTRUN_COMPLETED
 
 exit 0
