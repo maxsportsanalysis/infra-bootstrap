@@ -8,7 +8,7 @@ build {
       "mkdir -p /boot/firmware",
       "HASH=$(openssl passwd -6 '${var.rpi_password}')",
       "echo \"${var.rpi_username}:$HASH\" | sudo tee /boot/firmware/userconf",
-      "touch /boot/ssh"
+      "touch /boot/firmware/ssh"
     ]
   }
 
