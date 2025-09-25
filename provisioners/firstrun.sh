@@ -3,7 +3,6 @@
 set +e
 
 exec > /boot/firmware/firstrun.log 2>&1
-set -x
 echo "==== firstrun.sh starting at $(date) ===="
 
 
