@@ -17,12 +17,3 @@ variable "qemu_binary" {
   type    = string
   default = null
 }
-
-variable "rpi_username" {
-  type = string
-}
-
-variable "rpi_password" {
-  type = string
-  sensitive = true
-}

@@ -6,8 +6,15 @@ build {
     inline = [
       "apt-get update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux nfs-kernel-server",
-      "mkdir -p /srv/tftp/pxelinux.cfg"
+      "mkdir -p /srv/tftp/pxelinux.cfg",
+      "mkdir -p /boot/firmware",
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/cmdline.txt"
     ]
+  }
+
+  provisioner "file" {
+    source      = "provisioners/firstrun.sh"
+    destination = "/boot/firstrun.sh"
   }
   
   provisioner "file" {
@@ -22,6 +29,7 @@ build {
 
   provisioner "shell" {
     inline = [
+      "chmod +x /boot/firstrun.sh",
       "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/",
       "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/",
       "systemctl enable dnsmasq",
