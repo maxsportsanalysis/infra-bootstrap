@@ -21,12 +21,6 @@ LABEL ubuntu-22.04
     INITRD ubuntu/22.04/initrd.gz
     APPEND root=/dev/ram0 --- quiet
 
-LABEL ubuntu-20.04
-    MENU LABEL Install Ubuntu Server 20.04 LTS
-    KERNEL ubuntu/20.04/vmlinuz
-    INITRD ubuntu/20.04/initrd.gz
-    APPEND root=/dev/ram0 --- quiet
-
 # ----------------------
 # Rescue / troubleshooting shell
 # ----------------------
