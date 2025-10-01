@@ -16,14 +16,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      # Add firstboot init if it's not already in cmdline.txt
-      "grep -q 'init=/usr/lib/raspberrypi-sys-mods/firstboot' /boot/firmware/cmdline.txt || sed -i 's|rootwait|rootwait quiet init=/usr/lib/raspberrypi-sys-mods/firstboot|' /boot/firmware/cmdline.txt"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux"
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux",
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/cmdline.txt"
     ]
   }
 }
