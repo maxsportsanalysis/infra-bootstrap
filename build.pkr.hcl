@@ -17,7 +17,7 @@ build {
   provisioner "shell" {
     inline = [
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux",
-      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/cmdline.txt"
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
     ]
   }
 }
