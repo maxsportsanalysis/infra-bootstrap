@@ -4,7 +4,6 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo apt-get update",
       "mkdir -p /boot/firmware"
     ]
   }
