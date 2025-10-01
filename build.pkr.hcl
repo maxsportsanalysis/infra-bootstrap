@@ -43,7 +43,7 @@ build {
   # Enable SSH at first boot
   provisioner "shell" {
     inline = [
-      "touch /boot/ssh"
+      "apt update"
     ]
   }
 }
