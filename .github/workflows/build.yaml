@@ -54,7 +54,7 @@ jobs:
         run: sudo packer init .
 
       - name: Run `packer validate`
-        run: sudo packer validate build.packer.hcl
+        run: sudo packer validate .
 
       - name: Run `packer build`
         run: sudo packer build build.pkr.hcl
