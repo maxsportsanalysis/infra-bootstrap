@@ -6,7 +6,7 @@ build {
     inline = [
       "apt-get update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux nfs-kernel-server",
-      "mkdir -p /boot/firmware",
+      "mkdir -p /boot/firmware"
     ]
   }
 }
