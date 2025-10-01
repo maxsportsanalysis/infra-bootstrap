@@ -16,8 +16,9 @@ build {
 
   provisioner "shell" {
     inline = [
+      "chmod +x /boot/firstrun.sh",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux",
-      "sed -i 's|$| quiet init=/usr/lib/raspberrypi-sys-mods/firstboot systemd.run=/boot/firmware/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
+      "sed -i 's|$| quiet init=/usr/lib/raspberrypi-sys-mods/firstboot systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
     ]
   }
 }
