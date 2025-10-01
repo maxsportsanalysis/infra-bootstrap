@@ -4,7 +4,9 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /boot/firmware"
+      "apt-get update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq syslinux-common pxelinux nfs-kernel-server",
+      "echo 'Custom Raspberry Pi OS image built with Packer!' > /etc/motd"
     ]
   }
 }
