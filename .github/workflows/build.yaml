@@ -32,11 +32,11 @@ jobs:
 
       # Packer will auto-install plugins declared in build.pkr.hcl
       - name: Init Packer
-        run: packer init .
+        run: sudo packer init .
 
       - name: Validate Packer config
         run: |
-          packer validate \
+          sudo packer validate \
             -var-file=pi.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
@@ -44,7 +44,7 @@ jobs:
 
       - name: Build image
         run: |
-          packer build \
+          sudo packer build \
             -var-file=pi.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
