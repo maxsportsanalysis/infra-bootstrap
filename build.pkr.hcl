@@ -48,10 +48,8 @@ build {
   name    = "raspios-arm64-ssh"
   sources = ["source.arm-image.raspberry_pi_os"]
 
-  # Enable SSH at first boot
-  provisioner "shell" {
-    inline = [
-      "apt update"
-    ]
+  provisioner "file" {
+    source      = "provisioners/firstrun.sh"
+    destination = "/boot/firstrun.sh"
   }
 }
