@@ -1,3 +1,5 @@
+# variables.pkr.hcl
+
 variable "iso_url" {
   type = string
   description = "URL to the OS image."
@@ -43,10 +45,12 @@ variable "rpi_username" {
   type        = string
   description = "Username for Raspberry Pi"
   sensitive   = true
+  default = null
 }
 
 variable "rpi_password" {
   type        = string
   description = "Password for Raspberry Pi"
   sensitive   = true
+  default = null
 }
