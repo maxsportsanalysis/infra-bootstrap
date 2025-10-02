@@ -39,11 +39,11 @@ build {
   # Patch cmdline.txt so firstrun.sh executes
   provisioner "shell" {
     environment_vars = [
-      "RPI_USERNAME=${var.rpi_username}",
-      "RPI_PASSWORD=${var.rpi_password}",
+      "RPI_USERNAME=${env.rpi_username}",
+      "RPI_PASSWORD=${env.rpi_password}",
       "RPI_HOSTNAME=${var.rpi_hostname}"
     ]
-    
+
     inline = [
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
     ]
