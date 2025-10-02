@@ -5,11 +5,33 @@ set +e
 echo "==== firstrun.sh starting at $(date) ===="
 
 # --- Variables from packer (templated in) ---
-USERNAME="${RPI_USERNAME}"
-PASSWORD="${RPI_PASSWORD}"
+USERNAME=""
+PASSWORD=""
 HOSTNAME="${RPI_HOSTNAME}"
 KEYMAP="${RPI_KEYMAP:-us}"
 TIMEZONE="${RPI_TIMEZONE:-America/Chicago}"
+
+# Parse flags
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --username)
+      USERNAME="$2"
+      shift 2
+      ;;
+    --password)
+      PASSWORD="$2"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$USERNAME" || -z "$PASSWORD" ]]; then
+  echo "Error: --username and --password are required"
+  exit 1
+fi
 
 PASSWORD_HASH=$(openssl passwd -6 "$PASSWORD")
 
