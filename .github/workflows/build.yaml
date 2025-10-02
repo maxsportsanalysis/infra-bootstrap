@@ -14,7 +14,7 @@ jobs:
   build-pxe-image:
     runs-on: ubuntu-24.04
     env:
-      RPI_USERNAME: ${{ secrets.RPI_PASSWORD }}
+      RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
       RPI_PASSWORD: ${{ secrets.RPI_PASSWORD }}
     steps:
       - name: Checkout repo
@@ -35,10 +35,10 @@ jobs:
         run: packer init .
 
       - name: Validate Packer config
-        run: packer validate -var-file=pi.pkrvars.hcl build.pkr.hcl
+        run: packer validate -var-file=pi.pkrvars.hcl -var "rpi_username=${{ env.RPI_USERNAME }}" -var "rpi_password=${{ env.RPI_PASSWORD }}" build.pkr.hcl
 
       - name: Build image
-        run: sudo packer build -var-file=pi.pkrvars.hcl build.pkr.hcl
+        run: sudo packer build -var-file=pi.pkrvars.hcl -var "rpi_username=${{ env.RPI_USERNAME }}" -var "rpi_password=${{ env.RPI_PASSWORD }}" build.pkr.hcl
 
       - name: Upload built image
         uses: actions/upload-artifact@v4
