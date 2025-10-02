@@ -35,6 +35,7 @@ jobs:
         run: packer init .
 
       - name: Validate Packer config
+        working-directory: infra-bootstrap
         run: |
           packer validate \
             -var-file=pi.pkrvars.hcl \
@@ -43,8 +44,9 @@ jobs:
             build.pkr.hcl
 
       - name: Build image
+        working-directory: infra-bootstrap
         run: |
-          sudo packer build \
+          packer build \
             -var-file=pi.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
