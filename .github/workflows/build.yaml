@@ -40,7 +40,7 @@ jobs:
             -var-file=../pi.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
-            ../build.pkr.hcl
+            build.pkr.hcl
 
       - name: Build image
         working-directory: infra-bootstrap
@@ -49,7 +49,7 @@ jobs:
             -var-file=../pi.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
-            ../build.pkr.hcl
+            build.pkr.hcl
 
       - name: Upload built image
         uses: actions/upload-artifact@v4
