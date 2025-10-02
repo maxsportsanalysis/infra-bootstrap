@@ -12,18 +12,15 @@ packer {
 variable "iso_url" {
   type = string
   description = "URL to the OS image."
-  default = null
 }
 
 variable "iso_checksum" {
   type = string
   description = "Checksum of the image, with type prefix (e.g. sha256:)."
-  default = null
 }
 
 variable "image_path" {
   type = string
-  default = null
 }
 
 variable "qemu_binary" {
