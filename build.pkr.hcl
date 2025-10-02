@@ -88,12 +88,16 @@ build {
 
   # Patch cmdline.txt so firstrun.sh executes
   provisioner "shell" {
-    environment_vars = [
-      "RPI_HOSTNAME=${var.rpi_hostname}"
-    ]
+    #environment_vars = [
+    #  "RPI_HOSTNAME=${var.rpi_hostname}"
+    #]
 
     inline = [
-      "sed -i \"s|$| systemd.run=/boot/firstrun.sh --username ${var.rpi_username} --password ${var.rpi_password} systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|\" /boot/firmware/cmdline.txt"
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh --username ${var.rpi_username} --password ${var.rpi_password} systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
+      "chmod +x /boot/firmware/firstrun.sh",
+      "sed -i 's|RPI_USERNAME=.*|RPI_USERNAME=${var.rpi_username}|' /boot/firmware/firstrun.sh",
+      "sed -i 's|RPI_PASSWORD=.*|RPI_PASSWORD=${var.rpi_password}|' /boot/firmware/firstrun.sh",
+      "sed -i 's|RPI_HOSTNAME=.*|RPI_HOSTNAME=${var.rpi_hostname}|' /boot/firmware/firstrun.sh"
     ]
   }
 }
