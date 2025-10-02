@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  #workflow_dispatch:
 
 env:
   PACKER_VERSION: "1.14.2"
@@ -13,53 +12,31 @@ env:
 
 jobs:
   build-pxe-image:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
     steps:
-      # 1. Checkout your infra repo
       - name: Checkout repo
         uses: actions/checkout@v5
-      
-      - name: Clone arm-image plugin repo
-        run: git clone https://github.com/solo-io/packer-plugin-arm-image
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.25.1'
-          cache-dependency-path: packer-plugin-arm-image/go.sum
-
-      # 2. Install dependencies for Packer / qemu
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt install -y qemu-user-static
+          sudo apt-get install -y qemu-user-static
 
-      - name: Build packer arm-image plugin
-        run: |
-          cd packer-plugin-arm-image
-          go mod download
-          go build -o packer-plugin-arm-image
-          mkdir -p ~/.packer.d/plugins/github.com/solo-io/arm-image
-          mv packer-plugin-arm-image ~/.packer.d/plugins/github.com/solo-io/arm-image/packer-plugin-arm-image
-
-
-      # 3. Install Packer
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3
         with:
           version: ${{ env.PACKER_VERSION }}
 
-      # 4. Build the PXE server image
-      - name: Run `packer init`
-        run: sudo packer init .
+      # Packer will auto-install plugins declared in build.pkr.hcl
+      - name: Init Packer
+        run: packer init .
 
-      - name: Run `packer validate`
-        run: sudo packer validate .
+      - name: Validate Packer config
+        run: packer validate .
 
-      - name: Run `packer build`
+      - name: Build image
         run: sudo packer build build.pkr.hcl
 
-      # 5. Archive the resulting image artifact
       - name: Upload built image
         uses: actions/upload-artifact@v4
         with:
