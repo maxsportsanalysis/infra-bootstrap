@@ -42,15 +42,13 @@ variable "rpi_hostname" {
 }
 
 variable "rpi_username" {
-  type        = string
+  type      = string
   description = "Username for Raspberry Pi"
-  sensitive   = true
-  default = null
+  sensitive = true
 }
 
 variable "rpi_password" {
-  type        = string
+  type      = string
   description = "Password for Raspberry Pi"
-  sensitive   = true
-  default = null
+  sensitive = true
 }
