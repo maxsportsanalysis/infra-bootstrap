@@ -45,11 +45,25 @@ source "arm-image" "raspberry_pi_os" {
 }
 
 build {
-  name    = "raspios-arm64-ssh"
+  name    = "raspios-arm64-prod"
   sources = ["source.arm-image.raspberry_pi_os"]
 
+  # Enable SSH
+  provisioner "file" {
+    source      = "/dev/null"
+    destination = "/boot/firmware/ssh"
+  }
+
+  # Drop first-run provisioning script
   provisioner "file" {
     source      = "provisioners/firstrun.sh"
-    destination = "/boot/firstrun.sh"
+    destination = "/boot/firmware/firstrun.sh"
+  }
+
+  # Patch cmdline.txt so firstrun.sh executes
+  provisioner "shell" {
+    inline = [
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
+    ]
   }
 }
