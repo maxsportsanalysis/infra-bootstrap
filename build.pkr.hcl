@@ -93,7 +93,7 @@ build {
     ]
 
     inline = [
-      "sed -i 's|$| systemd.run=/boot/firstrun.sh --username ${ var.RPI_USERNAME } --password ${ var.RPI_PASSWORD } systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh --username ${ var.rpi_username } --password ${ var.rpi_password } systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt"
     ]
   }
 }
