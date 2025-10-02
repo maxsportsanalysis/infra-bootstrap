@@ -92,8 +92,8 @@ build {
   # Patch cmdline.txt so firstrun.sh executes
   provisioner "shell" {
     environment_vars = [
-      "RPI_USERNAME=${env.rpi_username}",
-      "RPI_PASSWORD=${env.rpi_password}",
+      "RPI_USERNAME=${var.rpi_username}",
+      "RPI_PASSWORD=${var.rpi_password}",
       "RPI_HOSTNAME=${var.rpi_hostname}"
     ]
 
