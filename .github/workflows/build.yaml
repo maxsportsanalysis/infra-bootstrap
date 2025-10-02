@@ -37,6 +37,7 @@ jobs:
       - name: Validate Packer config
         run: |
           sudo packer validate \
+            -var-file=pi.auto.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
             build.pkr.hcl
@@ -44,6 +45,7 @@ jobs:
       - name: Build image
         run: |
           sudo packer build \
+            -var-file=pi.auto.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
             build.pkr.hcl
