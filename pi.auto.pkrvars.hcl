@@ -13,3 +13,5 @@ chroot_mounts = [
     ["binfmt_misc", "binfmt_misc", "/proc/sys/fs/binfmt_misc"]
   ]
 rpi_hostname = "pxe-bootstrap"
+rpi_username = "${env.RPI_USERNAME}"
+rpi_password = "${env.RPI_PASSWORD}"
