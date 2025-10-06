@@ -88,7 +88,7 @@ build {
   provisioner "shell" {
     inline = [
       "mkdir -p /boot/firmware",
-      "echo '${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')' > /boot/userconf.txt",
+      "echo '${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')' > /boot/firmware/userconf.txt",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh",
       "sed -i 's|RPI_USERNAME=.*|RPI_USERNAME=${var.rpi_username}|' /boot/firmware/firstrun.sh",
