@@ -80,13 +80,11 @@ build {
     destination = "/boot/firmware/ssh"
   }
 
-  # Drop first-run provisioning script
   provisioner "file" {
     source      = "provisioners/firstrun.sh"
     destination = "/boot/firmware/firstrun.sh"
   }
 
-  # Patch cmdline.txt so firstrun.sh executes
   provisioner "shell" {
 
     inline = [
