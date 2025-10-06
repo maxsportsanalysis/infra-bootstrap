@@ -25,6 +25,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
+      jobs:
+  build-pxe-image:
+    runs-on: ubuntu-24.04
+    env:
+      RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
+      RPI_PASSWORD: ${{ secrets.RPI_PASSWORD }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static openssl
+
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3
         with:
