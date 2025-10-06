@@ -23,29 +23,32 @@ else
 fi
 
 # --- User setup ---
-FIRSTUSER=$(getent passwd 1000 | cut -d: -f1)
-FIRSTGROUP=$(getent group 1000 | cut -d: -f1)
-FIRSTUSERHOME=$(getent passwd 1000 | cut -d: -f6)
+# Detect default user if exists, otherwise use desired username
+FIRSTUSER=$(getent passwd 1000 | cut -d: -f1 || true)
+FIRSTGROUP=$(getent group 1000 | cut -d: -f1 || true)
 
-# If userconf exists, use it
-if [ -x /usr/lib/userconf-pi/userconf ]; then
-    /usr/lib/userconf-pi/userconf "$FIRSTUSER" "$USERNAME" "$PASSWORD"
+# If no user with UID 1000 exists, create one
+if [ -z "$FIRSTUSER" ]; then
+    useradd -m -s /bin/bash "$USERNAME"
+    echo "$USERNAME:$PASSWORD_HASH" | chpasswd -e
+    FIRSTUSER="$USERNAME"
+    FIRSTGROUP="$USERNAME"
 else
-    # Set password hash directly
+    # Set password for existing user
     echo "$FIRSTUSER:$PASSWORD_HASH" | chpasswd -e
 
-    # Rename user if needed
+    # Rename user if different
     if [ "$FIRSTUSER" != "$USERNAME" ]; then
         usermod -l "$USERNAME" "$FIRSTUSER"
         usermod -m -d "/home/$USERNAME" "$USERNAME"
         groupmod -n "$USERNAME" "$FIRSTGROUP"
 
-        # Update autologin for LightDM if present
+        # Update LightDM autologin
         if [ -f /etc/lightdm/lightdm.conf ] && grep -q "^autologin-user=" /etc/lightdm/lightdm.conf; then
             sed -i "s/^autologin-user=.*/autologin-user=$USERNAME/" /etc/lightdm/lightdm.conf
         fi
 
-        # Update getty autologin if present
+        # Update getty autologin
         if [ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]; then
             sed -i "s/$FIRSTUSER/$USERNAME/" /etc/systemd/system/getty@tty1.service.d/autologin.conf
         fi

@@ -25,16 +25,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
-      - name: Compute password hash (safe, no logging)
-        env:
-          PASSWORD: ${{ secrets.RPI_PASSWORD }}    # secret from GH
-        run: |
-          set -euo pipefail
-          mkdir -p build/secrets
-          # create the hash from the plaintext secret (do NOT echo)
-          openssl passwd -6 -stdin <<<"$PASSWORD" > build/secrets/pwhash
-          chmod 600 build/secrets/pwhash
-
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3
         with:
@@ -50,7 +40,6 @@ jobs:
             -var-file=pi.auto.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
-            -var 'pwhash_src=build/secrets/pwhash' \
             build.pkr.hcl
 
       - name: Build image
@@ -59,7 +48,6 @@ jobs:
             -var-file=pi.auto.pkrvars.hcl \
             -var "rpi_username=${{ secrets.RPI_USERNAME }}" \
             -var "rpi_password=${{ secrets.RPI_PASSWORD }}" \
-            -var 'pwhash_src=build/secrets/pwhash' \
             build.pkr.hcl
 
       - name: Upload built image
