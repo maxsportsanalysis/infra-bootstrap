@@ -59,6 +59,10 @@ variable "rpi_password" {
   sensitive = true
 }
 
+variable "pwhash_src" {
+  type      = string
+}
+
 source "arm-image" "raspberry_pi_os" {
   iso_urls        = [var.iso_url]
   iso_checksum    = var.iso_checksum
@@ -79,6 +83,13 @@ build {
     source      = "/dev/null"
     destination = "/boot/firmware/ssh"
   }
+
+  provisioner "file" {
+    # local source on the packer runner (create it in GitHub Actions)
+    source      = "build/secrets/pwhash"
+    destination = "/etc/firstboot/pwhash"
+  }
+
 
   provisioner "file" {
     source      = "provisioners/firstrun.sh"
