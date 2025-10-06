@@ -46,7 +46,6 @@ jobs:
         with:
           version: ${{ env.PACKER_VERSION }}
 
-      # Packer will auto-install plugins declared in build.pkr.hcl
       - name: Init Packer
         run: sudo packer init .
 
