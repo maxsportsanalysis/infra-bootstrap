@@ -84,6 +84,10 @@ build {
     destination = "/boot/firmware/ssh"
   }
 
+  provisioner "shell" {
+    inline = ["mkdir -p /etc/firstboot"]
+  }
+
   provisioner "file" {
     # local source on the packer runner (create it in GitHub Actions)
     source      = "build/secrets/pwhash"
