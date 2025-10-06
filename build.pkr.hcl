@@ -84,17 +84,6 @@ build {
     destination = "/boot/firmware/ssh"
   }
 
-  provisioner "shell" {
-    inline = ["mkdir -p /etc/firstboot"]
-  }
-
-  provisioner "file" {
-    # local source on the packer runner (create it in GitHub Actions)
-    source      = "build/secrets/pwhash"
-    destination = "/etc/firstboot/pwhash"
-  }
-
-
   provisioner "file" {
     source      = "provisioners/firstrun.sh"
     destination = "/boot/firmware/firstrun.sh"
@@ -103,7 +92,7 @@ build {
   provisioner "shell" {
 
     inline = [
-      "sed -i 's|$| systemd.run=/boot/firstrun.sh --username ${var.rpi_username} --password ${var.rpi_password} systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
+      "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh",
       "sed -i 's|RPI_USERNAME=.*|RPI_USERNAME=${var.rpi_username}|' /boot/firmware/firstrun.sh",
       "sed -i 's|RPI_PASSWORD=.*|RPI_PASSWORD=${var.rpi_password}|' /boot/firmware/firstrun.sh",
