@@ -87,7 +87,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/dnsmasq.d /srv/tftp"
+      "mkdir -p /etc/dnsmasq.d /srv/tftp/pxelinux"
     ]
   }
 
