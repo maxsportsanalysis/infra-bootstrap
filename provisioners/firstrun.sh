@@ -5,7 +5,7 @@ set +e
 echo "==== firstrun.sh starting at $(date) ===="
 
 # --- Variables from packer (templated in) ---
-HOSTNAME="${RPI_HOSTNAME}"
+HOSTNAME="${RPI_HOSTNAME:-raspberrypi}"
 KEYMAP="${RPI_KEYMAP:-us}"
 TIMEZONE="${RPI_TIMEZONE:-America/Chicago}"
 
