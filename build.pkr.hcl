@@ -91,7 +91,6 @@ build {
     ]
   }
 
-
   provisioner "file" {
     source      = "configs/dnsmasq.conf"
     destination = "/etc/dnsmasq.d/pxe.conf"
