@@ -110,7 +110,7 @@ build {
         export HASHED_PASS=$(openssl passwd -6 "${var.rpi_password}")
 
         echo "${var.rpi_username}:$(openssl passwd -6 "${var.rpi_password}")" > /boot/firmware/userconf.txt
-        echo '${var.rpi_hostname}' > /boot/firmware/hostname
+        export RPI_HOSTNAME=${var.rpi_hostname}
 
         sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt
         chmod +x /boot/firmware/firstrun.sh
@@ -122,8 +122,8 @@ build {
   provisioner "shell" {
     inline = [
       "mkdir -p /srv/tftp/pxelinux",
-      "sudo apt update",
-      "sudo apt-get install -y dnsmasq tftp-hpa syslinux-common pxelinux nfs-kernel-server",
+      "DEBIAN_FRONTEND=noninteractive apt update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq tftp-hpa syslinux-common pxelinux nfs-kernel-server",
       # Copy PXELINUX bootloader files (from syslinux package) into TFTP root
       "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/pxelinux/",
       "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/pxelinux/",
