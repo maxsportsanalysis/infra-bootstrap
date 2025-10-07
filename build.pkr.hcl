@@ -131,10 +131,9 @@ build {
       "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/pxelinux/",
       "cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/pxelinux/",
       "cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/pxelinux/",
-      "systemctl enable dnsmasq",
-      "systemctl restart dnsmasq",
-      "systemctl enable tftpd-hpa",
-      "systemctl restart tftpd-hpa"
+      "systemctl enable dnsmasq || true",
+      "systemctl restart dnsmasq || true",
+      "echo 'ENABLE_TFTP=true' | tee /etc/default/tftpd-hpa"
     ]
 
   }
