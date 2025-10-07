@@ -85,6 +85,13 @@ build {
     destination = "/boot/firmware/firstrun.sh"
   }
 
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /etc/dnsmasq.d"
+    ]
+  }
+
+
   provisioner "file" {
     source      = "configs/dnsmasq.conf"
     destination = "/etc/dnsmasq.d/pxe.conf"
