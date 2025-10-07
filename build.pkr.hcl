@@ -85,6 +85,16 @@ build {
     destination = "/boot/firmware/firstrun.sh"
   }
 
+  provisioner "file" {
+    source      = "configs/dnsmasq.conf"
+    destination = "/etc/dnsmasq.d/pxe.conf"
+  }
+
+  provisioner "file" {
+    source      = "tftpboot/pxelinux.cfg/default"
+    destination = "/srv/tftp/default"
+  }
+
   provisioner "shell" {
     inline = [
       <<-EOF
@@ -103,6 +113,23 @@ build {
         sed -i "s|RPI_HOSTNAME=.*|RPI_HOSTNAME=${var.rpi_hostname}|" /boot/firmware/firstrun.sh
       EOF
     ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo apt update",
+      "sudo apt-get install -y dnsmasq tftp-hpa syslinux-common pxelinux nfs-kernel-server",
+      # Copy PXELINUX bootloader files (from syslinux package) into TFTP root
+      "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftpboot/pxelinux/",
+      "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftpboot/pxelinux/",
+      "cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftpboot/pxelinux/",
+      "cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftpboot/pxelinux/",
+      "systemctl enable dnsmasq",
+      "systemctl restart dnsmasq",
+      "systemctl enable tftpd-hpa",
+      "systemctl restart tftpd-hpa"
+    ]
+
   }
 
 }
