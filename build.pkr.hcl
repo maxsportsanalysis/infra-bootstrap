@@ -117,6 +117,7 @@ build {
 
   provisioner "shell" {
     inline = [
+      "mkdir -p /srv/tftp/pxelinux",
       "sudo apt update",
       "sudo apt-get install -y dnsmasq tftp-hpa syslinux-common pxelinux nfs-kernel-server",
       # Copy PXELINUX bootloader files (from syslinux package) into TFTP root
