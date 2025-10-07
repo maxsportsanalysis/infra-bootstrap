@@ -91,7 +91,7 @@ build {
         #!/bin/bash
         set -e
 
-        HASHED_PASS=$(openssl passwd -6 "${var.rpi_password}")
+        export HASHED_PASS=$(openssl passwd -6 "${var.rpi_password}")
 
         echo "${var.rpi_username}:${HASHED_PASS}" > /boot/userconf.txt
 
