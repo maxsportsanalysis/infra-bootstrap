@@ -4,20 +4,17 @@ set +e
 
 echo "==== firstrun.sh starting at $(date) ===="
 
-HOSTNAME="${RPI_HOSTNAME:-raspberrypi}"
 KEYMAP="${RPI_KEYMAP:-us}"
 TIMEZONE="${RPI_TIMEZONE:-America/Chicago}"
 
-PASSWORD_HASH=$(openssl passwd -6 "$PASSWORD")
-
 # --- Hostname ---
-CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
-if [ -f /usr/lib/raspberrypi-sys-mods/imager_custom ]; then
-   /usr/lib/raspberrypi-sys-mods/imager_custom set_hostname "$HOSTNAME"
-else
-   echo "$HOSTNAME" >/etc/hostname
-   sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$HOSTNAME/g" /etc/hosts
-fi
+#CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
+#if [ -f /usr/lib/raspberrypi-sys-mods/imager_custom ]; then
+#   /usr/lib/raspberrypi-sys-mods/imager_custom set_hostname "$HOSTNAME"
+#else
+#   echo "$HOSTNAME" >/etc/hostname
+#   sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$HOSTNAME/g" /etc/hosts
+#fi
 
 # --- User setup ---
 # Detect default user if exists, otherwise use desired username
@@ -25,11 +22,10 @@ FIRSTUSER=$(getent passwd 1000 | cut -d: -f1 || true)
 FIRSTGROUP=$(getent group 1000 | cut -d: -f1 || true)
 
 # If no user with UID 1000 exists, create one
-if [ -z "$FIRSTUSER" ]; then
-    useradd -m -s /bin/bash "$USERNAME"
-    echo "$USERNAME:$PASSWORD_HASH" | chpasswd -e
-    FIRSTUSER="$USERNAME"
-    FIRSTGROUP="$USERNAME"
+FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
+FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
+if [ -f /usr/lib/userconf-pi/userconf ]; then
+   /usr/lib/userconf-pi/userconf "$USERNAME" "$PASSWORD"
 else
     # Set password for existing user
     echo "$FIRSTUSER:$PASSWORD_HASH" | chpasswd -e
