@@ -4,21 +4,19 @@ set +e
 
 echo "==== firstrun.sh starting at $(date) ===="
 
-# --- Variables from packer (templated in) ---
-HOSTNAME="${RPI_HOSTNAME:-raspberrypi}"
 KEYMAP="${RPI_KEYMAP:-us}"
 TIMEZONE="${RPI_TIMEZONE:-America/Chicago}"
 
 PASSWORD_HASH=$(openssl passwd -6 "$PASSWORD")
 
 # --- Hostname ---
-CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
-if [ -f /usr/lib/raspberrypi-sys-mods/imager_custom ]; then
-   /usr/lib/raspberrypi-sys-mods/imager_custom set_hostname "$HOSTNAME"
-else
-   echo "$HOSTNAME" >/etc/hostname
-   sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$HOSTNAME/g" /etc/hosts
-fi
+#CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
+#if [ -f /usr/lib/raspberrypi-sys-mods/imager_custom ]; then
+#   /usr/lib/raspberrypi-sys-mods/imager_custom set_hostname "$HOSTNAME"
+#else
+#   echo "$HOSTNAME" >/etc/hostname
+#   sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$HOSTNAME/g" /etc/hosts
+#fi
 
 # --- User setup ---
 # Detect default user if exists, otherwise use desired username
