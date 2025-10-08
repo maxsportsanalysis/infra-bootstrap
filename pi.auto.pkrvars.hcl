@@ -12,4 +12,3 @@ chroot_mounts = [
     ["devpts", "devpts", "/dev/pts"],
     ["binfmt_misc", "binfmt_misc", "/proc/sys/fs/binfmt_misc"]
   ]
-rpi_hostname = "pxe-bootstrap"

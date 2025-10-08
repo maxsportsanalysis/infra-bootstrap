@@ -41,12 +41,6 @@ variable "chroot_mounts" {
   default = []
 }
 
-variable "rpi_hostname" {
-  type        = string
-  description = "Default hostname for Raspberry Pi"
-  default     = "pxe-bootstrap"
-}
-
 variable "rpi_username" {
   type      = string
   description = "Username for Raspberry Pi"
