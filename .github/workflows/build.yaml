@@ -13,9 +13,6 @@ env:
 jobs:
   build-pxe-image:
     runs-on: ubuntu-24.04
-    env:
-      RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
-      RPI_PASSWORD: ${{ secrets.RPI_PASSWORD }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
