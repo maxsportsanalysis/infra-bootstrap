@@ -119,7 +119,6 @@ build {
       "systemctl restart dnsmasq || true",
       "echo 'ENABLE_TFTP=true' | tee /etc/default/tftpd-hpa"
     ]
-
   }
 
 }
