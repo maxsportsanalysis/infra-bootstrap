@@ -95,6 +95,11 @@ build {
     destination = "/var/www/html/pxe/boot.ipxe"
   }
 
+  provisioner "file" {
+    source      = "scripts/policy-rc.d"
+    destination = "/usr/sbin/policy-rc.d"
+  }
+
   provisioner "shell" {
     inline = [
       "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
@@ -114,8 +119,14 @@ build {
 
       # Download Ubuntu netboot kernel/initrd
       "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/22.04/vmlinuz",
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz"
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz",
+
+      # Enable services
+      "systemctl enable dnsmasq || true",
+      "systemctl restart dnsmasq || true",
+      "systemctl enable nginx || true",
+      "systemctl restart nginx || true",
+      "rm -f /usr/sbin/policy-rc.d"
     ]
   }
-
 }
