@@ -118,9 +118,7 @@ build {
 
       # Enable services
       "systemctl enable dnsmasq || true",
-      "systemctl restart dnsmasq || true",
-      "systemctl enable nginx || true",
-      "systemctl restart nginx || true"
+      "systemctl restart dnsmasq || true"
     ]
   }
 
