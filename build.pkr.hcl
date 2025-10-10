@@ -121,7 +121,11 @@ build {
 
       # Download Ubuntu netboot kernel/initrd
       "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/22.04/vmlinuz",
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz"
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz",
+
+      # Enable services at boot
+      "ln -s /lib/systemd/system/dnsmasq.service /etc/systemd/system/multi-user.target.wants/dnsmasq.service",
+      "ln -s /lib/systemd/system/nginx.service /etc/systemd/system/multi-user.target.wants/nginx.service"
     ]
   }
 }
