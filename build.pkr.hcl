@@ -105,7 +105,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
       "DEBIAN_FRONTEND=noninteractive apt update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
 
