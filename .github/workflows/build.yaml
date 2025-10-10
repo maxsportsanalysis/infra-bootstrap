@@ -22,14 +22,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
-      - name: Download iPXE and Ubuntu netboot files
-        run: |
-          mkdir -p assets/ipxe assets/ubuntu
-          # iPXE binary
-          wget -q https://boot.ipxe.org/ipxe.efi -O assets/ipxe/ipxe.efi
-          # Ubuntu 24.04 netboot kernel and initrd
-          wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O assets/ubuntu/vmlinuz
-          wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O assets/ubuntu/initrd.gz
+      #- name: Download iPXE and Ubuntu netboot files
+      #  run: |
+      #    mkdir -p assets/ipxe assets/ubuntu
+      #    # iPXE binary
+      #    wget -q https://boot.ipxe.org/ipxe.efi -O assets/ipxe/ipxe.efi
+      #    # Ubuntu 24.04 netboot kernel and initrd
+      #    wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O assets/ubuntu/vmlinuz
+      #    wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O assets/ubuntu/initrd.gz
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3

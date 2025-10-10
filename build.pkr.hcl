@@ -81,25 +81,9 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/dnsmasq.d /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue"
+      "mkdir -p /etc/dnsmasq.d /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue"
     ]
   }
-
-  provisioner "file" {
-    source      = "assets/ipxe/ipxe.efi"
-    destination = "/var/www/html/ipxe/ipxe.efi"
-  }
-
-  provisioner "file" {
-    source      = "assets/ubuntu/vmlinuz"
-    destination = "/var/www/html/pxe/ubuntu/24.04/vmlinuz"
-  }
-
-  provisioner "file" {
-    source      = "assets/ubuntu/initrd.gz"
-    destination = "/var/www/html/pxe/ubuntu/24.04/initrd.gz"
-  }
-
 
   provisioner "file" {
     source      = "configs/dnsmasq.conf"
@@ -127,8 +111,14 @@ build {
 
       "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wge ca-certificates",
 
+      # Download iPXE for UEFI
+      "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi",
+
+      # Download Ubuntu netboot kernel/initrd
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/22.04/vmlinuz",
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz"
     ]
   }
 }
