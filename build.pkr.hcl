@@ -81,9 +81,25 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/dnsmasq.d /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue"
+      "mkdir -p /etc/dnsmasq.d /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue"
     ]
   }
+
+  provisioner "file" {
+    source      = "assets/ipxe/ipxe.efi"
+    destination = "/var/www/html/ipxe/ipxe.efi"
+  }
+
+  provisioner "file" {
+    source      = "assets/ubuntu/vmlinuz"
+    destination = "/var/www/html/pxe/ubuntu/22.04/vmlinuz"
+  }
+
+  provisioner "file" {
+    source      = "assets/ubuntu/initrd.gz"
+    destination = "/var/www/html/pxe/ubuntu/22.04/initrd.gz"
+  }
+
 
   provisioner "file" {
     source      = "configs/dnsmasq.conf"
@@ -100,6 +116,19 @@ build {
       "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "echo exit 101 > /usr/sbin/policy-rc.d",
+      "chmod +x /usr/sbin/policy-rc.d",
+
+
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
+      "DEBIAN_FRONTEND=noninteractive apt update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
+
     ]
   }
 }
