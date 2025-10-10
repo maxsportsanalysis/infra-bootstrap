@@ -21,7 +21,13 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
+systemctl enable dnsmasq || true
+systemctl restart dnsmasq || true
+systemctl enable nginx || true
+systemctl restart nginx || true
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
+rm -f /usr/sbin/policy-rc.d
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 exit 0

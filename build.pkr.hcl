@@ -110,7 +110,7 @@ build {
       "exit 101",
       "EOF",
       "chmod +x /usr/sbin/policy-rc.d",
-      
+
 
       "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
       "DEBIAN_FRONTEND=noninteractive apt update",
@@ -121,14 +121,7 @@ build {
 
       # Download Ubuntu netboot kernel/initrd
       "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/22.04/vmlinuz",
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz",
-
-      # Enable services
-      "systemctl enable dnsmasq || true",
-      "systemctl restart dnsmasq || true",
-      "systemctl enable nginx || true",
-      "systemctl restart nginx || true",
-      "rm -f /usr/sbin/policy-rc.d"
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz"
     ]
   }
 }
