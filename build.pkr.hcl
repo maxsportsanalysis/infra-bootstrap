@@ -124,6 +124,5 @@ build {
       "ln -s /lib/systemd/system/dnsmasq.service /etc/systemd/system/multi-user.target.wants/dnsmasq.service",
       "ln -s /lib/systemd/system/nginx.service /etc/systemd/system/multi-user.target.wants/nginx.service"
     ]
-    override_exit_codes = [0, 101]
   }
 }
