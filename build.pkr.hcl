@@ -109,7 +109,7 @@ build {
       "chmod +x /usr/sbin/policy-rc.d",
 
 
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue",
       "DEBIAN_FRONTEND=noninteractive apt update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget ca-certificates nginx",
 
