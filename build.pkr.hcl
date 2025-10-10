@@ -92,12 +92,12 @@ build {
 
   provisioner "file" {
     source      = "assets/ubuntu/vmlinuz"
-    destination = "/var/www/html/pxe/ubuntu/22.04/vmlinuz"
+    destination = "/var/www/html/pxe/ubuntu/24.04/vmlinuz"
   }
 
   provisioner "file" {
     source      = "assets/ubuntu/initrd.gz"
-    destination = "/var/www/html/pxe/ubuntu/22.04/initrd.gz"
+    destination = "/var/www/html/pxe/ubuntu/24.04/initrd.gz"
   }
 
 
