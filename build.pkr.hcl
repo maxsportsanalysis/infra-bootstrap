@@ -95,11 +95,6 @@ build {
     destination = "/var/www/html/pxe/boot.ipxe"
   }
 
-  provisioner "file" {
-    source      = "scripts/policy-rc.d"
-    destination = "/usr/sbin/policy-rc.d"
-  }
-
   provisioner "shell" {
     inline = [
       "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
@@ -110,6 +105,13 @@ build {
 
   provisioner "shell" {
     inline = [
+      "cat <<'EOF' > /usr/sbin/policy-rc.d",
+      "#!/bin/sh",
+      "exit 101",
+      "EOF",
+      "chmod +x /usr/sbin/policy-rc.d",
+      
+
       "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
       "DEBIAN_FRONTEND=noninteractive apt update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
