@@ -81,7 +81,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/dnsmasq.d /srv/tftp/pxelinux"
+      "mkdir -p /etc/dnsmasq.d /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue"
     ]
   }
 
@@ -91,8 +91,8 @@ build {
   }
 
   provisioner "file" {
-    source      = "tftpboot/pxelinux.cfg/default"
-    destination = "/srv/tftp/default"
+    source      = "configs/boot.ipxe"
+    destination = "/var/www/html/pxe/boot.ipxe"
   }
 
   provisioner "shell" {
@@ -103,21 +103,17 @@ build {
     ]
   }
 
-
-
   provisioner "shell" {
     inline = [
-      "mkdir -p /srv/tftp/pxelinux",
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq tftp-hpa syslinux-common pxelinux nfs-kernel-server",
-      # Copy PXELINUX bootloader files (from syslinux package) into TFTP root
-      "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/pxelinux/",
-      "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/pxelinux/",
-      "cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/pxelinux/",
-      "cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/pxelinux/",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
+      "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi",
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/22.04/vmlinuz",
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz",
       "systemctl enable dnsmasq || true",
       "systemctl restart dnsmasq || true",
-      "echo 'ENABLE_TFTP=true' | tee /etc/default/tftpd-hpa"
+      "systemctl enable nginx || true",
+      "systemctl restart nginx || true"
     ]
   }
 

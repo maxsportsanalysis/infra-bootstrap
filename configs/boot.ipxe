@@ -1,0 +1,22 @@
+#!ipxe
+echo "Starting iPXE boot with dynamic HTTP server IP"
+
+# Fetch network configuration via DHCP
+dhcp
+
+# Determine HTTP server dynamically
+# ${next-server} is automatically set by DHCP to the PXE server (Raspberry Pi)
+set base-url http://${next-server}/pxe
+
+# Menu
+menu Boot Menu
+item --gap -- -----------------------------
+# item local Local Boot
+item ubuntu Ubuntu Server 24.04 LTS Installer
+choose target && goto ${target}
+
+:ubuntu
+echo "Booting Ubuntu 24.04 Server installer..."
+kernel ${base-url}/ubuntu/22.04/vmlinuz initrd=initrd.gz ip=dhcp
+initrd ${base-url}/ubuntu/22.04/initrd.gz
+boot
