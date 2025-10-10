@@ -102,27 +102,4 @@ build {
       "chmod +x /boot/firmware/firstrun.sh"
     ]
   }
-
-  provisioner "shell" {
-    inline = [
-      "echo exit 101 > /usr/sbin/policy-rc.d",
-      "chmod +x /usr/sbin/policy-rc.d",
-
-
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
-      "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
-
-      # Download iPXE for UEFI
-      "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi",
-
-      # Download Ubuntu netboot kernel/initrd
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/22.04/vmlinuz",
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd.gz -O /var/www/html/pxe/ubuntu/22.04/initrd.gz",
-
-      # Enable services at boot
-      "ln -s /lib/systemd/system/dnsmasq.service /etc/systemd/system/multi-user.target.wants/dnsmasq.service",
-      "ln -s /lib/systemd/system/nginx.service /etc/systemd/system/multi-user.target.wants/nginx.service"
-    ]
-  }
 }
