@@ -105,10 +105,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "cat <<'EOF' > /usr/sbin/policy-rc.d",
-      "#!/bin/sh",
-      "exit 101",
-      "EOF",
+      "echo exit 101 > /usr/sbin/policy-rc.d",
       "chmod +x /usr/sbin/policy-rc.d",
 
 
