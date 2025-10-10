@@ -111,7 +111,10 @@ build {
 
       "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/22.04 /var/www/html/pxe/rescue",
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq wget ca-certificates nginx"
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget ca-certificates",
+
+      # Download iPXE for UEFI
+      "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi"
     ]
   }
 }
