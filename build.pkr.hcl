@@ -118,8 +118,8 @@ build {
       "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi",
 
       # Download Ubuntu netboot kernel/initrd
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
-      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/arm64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
+      "wget -q https://cdimage.ubuntu.com/releases/24.04/release/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
       "systemctl enable dnsmasq || true",
       "systemctl restart dnsmasq || true",
       "systemctl enable nginx || true",
