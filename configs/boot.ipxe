@@ -17,6 +17,6 @@ choose target && goto ${target}
 
 :ubuntu
 echo "Booting Ubuntu 24.04 Server installer..."
-kernel ${base-url}/ubuntu/22.04/vmlinuz initrd=initrd.gz ip=dhcp
-initrd ${base-url}/ubuntu/22.04/initrd.gz
+kernel ${base-url}/ubuntu/24.04/vmlinuz initrd=initrd ip=dhcp
+initrd ${base-url}/ubuntu/24.04/initrd
 boot
