@@ -122,7 +122,7 @@ build {
 
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
-      "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd.gz -O /var/www/html/pxe/ubuntu/24.04/initrd",
+      "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
 
       # Enable & restart services
       "systemctl enable dnsmasq || true",
