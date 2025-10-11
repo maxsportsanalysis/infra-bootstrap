@@ -1,11 +1,10 @@
 #!ipxe
 echo "Starting iPXE boot"
 
-# HTTP server IP dynamically
-set base-url http://192.168.50.251
+dhcp                     # get IP info
 
-echo "iPXE is booting..."
-dhcp
+# HTTP server IP dynamically (from DHCP/PXE)
+set base-url http://${next-server}
 
 echo "Booting Ubuntu 24.04 Server Installer..."
 kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz ip=dhcp

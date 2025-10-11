@@ -111,14 +111,15 @@ build {
   provisioner "shell" {
     inline = [
       # Create directories
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue /srv/tftpboot/ipxe",
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa",
 
       # Download iPXE for UEFI
-      "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi",
+      # "wget -q https://boot.ipxe.org/ipxe.efi -O /var/www/html/ipxe/ipxe.efi",
+      "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
 
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
