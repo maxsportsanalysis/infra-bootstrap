@@ -6,7 +6,10 @@ dhcp                     # get IP info
 # HTTP server IP dynamically (from DHCP/PXE)
 set base-url http://${next-server}
 
+# Optional debugging
+echo "Base URL: ${base-url}"
+
 echo "Booting Ubuntu 24.04 Server Installer..."
-kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz ip=dhcp
+kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz ip=dhcp ---
 initrd ${base-url}/pxe/ubuntu/24.04/initrd
 boot
