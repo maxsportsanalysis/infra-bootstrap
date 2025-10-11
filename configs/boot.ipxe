@@ -15,16 +15,6 @@ choose target && goto ${target}
 
 :ubuntu
 echo "Booting Ubuntu 24.04 Server installer..."
-kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz initrd=initrd ip=dhcp
+kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz ip=dhcp
 initrd ${base-url}/pxe/ubuntu/24.04/initrd
 boot
-
-:rescue
-echo "Booting rescue environment..."
-kernel ${base-url}/pxe/rescue/vmlinuz initrd=initrd ip=dhcp
-initrd ${base-url}/pxe/rescue/initrd
-boot
-
-:local
-echo "Booting locally..."
-exit
