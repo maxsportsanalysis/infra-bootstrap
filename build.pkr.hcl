@@ -109,40 +109,23 @@ build {
   }
 
   provisioner "shell" {
-  inline = [
-    "# Install dependencies for iPXE build and PXE server",
-    "DEBIAN_FRONTEND=noninteractive apt-get update",
-    "DEBIAN_FRONTEND=noninteractive apt-get install -y git build-essential dnsmasq tftp-hpa nginx wget",
+    inline = [
+      # Create directories
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue /srv/tftpboot/ipxe",
+      
+      # Install dependencies
+      "DEBIAN_FRONTEND=noninteractive apt update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa",
 
-    "# Create PXE and TFTP directories",
-    "mkdir -p /srv/tftpboot/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue",
+      # Download iPXE for UEFI
+      "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
+      "wget -q https://boot.ipxe.org/undionly.kpxe -O /srv/tftpboot/ipxe/undionly.kpxe",
 
-    "# -------------------------",
-    "# Build minimal iPXE stub <32KB for BIOS",
-    "# -------------------------",
-    "git clone https://github.com/ipxe/ipxe.git /tmp/ipxe-src",
-    "cd /tmp/ipxe-src/src && make bin/undionly.kpxe EMBED=\"\"",
-    "cp /tmp/ipxe-src/src/bin/undionly.kpxe /srv/tftpboot/ipxe/undionly.kpxe",
-
-    "# Download UEFI iPXE binary (no build needed)",
-    "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
-
-    "# -------------------------",
-    "# Download Ubuntu 24.04 netboot kernel/initrd",
-    "# -------------------------",
-    "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
-    "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
-
-    "# Fix permissions",
-    "chmod -R 755 /srv/tftpboot /var/www/html/pxe",
-
-    "# -------------------------",
-    "# Restart services",
-    "# -------------------------",
-    "systemctl restart dnsmasq",
-    "systemctl restart nginx"
-  ]
-}
-
+      # Download Ubuntu 24.04 amd64 netboot kernel/initrd
+      "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
+      "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
+      "chmod -R 755 /var/www/html"
+    ]
+  }
 
 }
