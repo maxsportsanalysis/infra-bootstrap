@@ -126,8 +126,8 @@ build {
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
       # "wget -q https://boot.ipxe.org/undionly.kpxe -O /srv/tftpboot/ipxe/undionly.kpxe",
 
-      "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/",
-      "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/",
+      "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftpboot/",
+      "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftpboot/",
       #"cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/",
       #"cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/",
 
