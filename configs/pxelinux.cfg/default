@@ -1,8 +1,10 @@
-DEFAULT ubuntu-24.04
+DEFAULT install
 PROMPT 0
-TIMEOUT 5
+TIMEOUT 50
+ONTIMEOUT install
 
-LABEL ubuntu-24.04
-    KERNEL http://${next-server}/pxe/ubuntu/24.04/vmlinuz
-    INITRD http://${next-server}/pxe/ubuntu/24.04/initrd
-    APPEND root=/dev/ram0 ip=dhcp --- quiet
+LABEL install
+    MENU LABEL Install Ubuntu Server 24.04 LTS
+    KERNEL ubuntu/24.04/vmlinuz
+    INITRD ubuntu/24.04/initrd
+    APPEND ip=dhcp --- quiet
