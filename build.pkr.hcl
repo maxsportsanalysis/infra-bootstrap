@@ -116,7 +116,7 @@ build {
   provisioner "shell" {
     inline = [
       # Create directories
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue /srv/tftpboot/ipxe",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /var/www/html/pxe/rescue",
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
@@ -129,7 +129,8 @@ build {
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
-      "chmod -R 755 /var/www/html"
+      "chmod -R 755 /var/www/html",
+      "chmod -R 755 /srv/tftpboot/ipxe"
     ]
   }
 
