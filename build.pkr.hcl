@@ -81,7 +81,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/dnsmasq.d /etc/nginx/sites-available /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue /srv/tftpboot/ipxe"
+      "mkdir -p /etc/dnsmasq.d /etc/nginx/sites-available /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue /srv/tftpboot/ipxe /srv/tftpboot/pxelinux.cfg"
     ]
   }
 
