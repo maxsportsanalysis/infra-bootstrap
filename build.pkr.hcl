@@ -312,13 +312,10 @@ build {
               fstype: ext4
               volume: lv_home
               mountpoint: /home
-
-
         apt:
           sources:
             kubernetes:
               source: "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
-
         packages:
           - htop
           - vim
@@ -335,6 +332,4 @@ build {
       EOT
     ]
   }
-
-
 }
