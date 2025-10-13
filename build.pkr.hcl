@@ -115,7 +115,7 @@ build {
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa git make",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa git make gcc binutils",
 
       "git clone https://github.com/ipxe/ipxe.git /tmp/ipxe",
       "cd /tmp/ipxe/src && make bin/undionly.kpxe EMBED=/dev/null",
