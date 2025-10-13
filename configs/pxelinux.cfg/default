@@ -8,3 +8,4 @@ LABEL install
     KERNEL ubuntu/24.04/vmlinuz
     INITRD ubuntu/24.04/initrd
     APPEND ip=dhcp --- quiet
+    APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=https://releases.ubuntu.com/noble/ubuntu-24.04.3-live-server-amd64.iso
