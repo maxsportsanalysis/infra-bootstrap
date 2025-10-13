@@ -101,8 +101,8 @@ build {
   }
 
   provisioner "file" {
-    source      = "/tmp/ipxe/src/bin/undionly.kpxe"
-    destination = "/srv/tftpboot/ipxe/undionly.kpxe"
+    source      = "/configs/pxelinux.cfg/default"
+    destination = "/srv/tftpboot/pxelinux.cfg/default"
   }
 
   provisioner "shell" {
@@ -120,11 +120,16 @@ build {
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa syslinux-common pxelinux",
 
       # Download iPXE for UEFI
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
       # "wget -q https://boot.ipxe.org/undionly.kpxe -O /srv/tftpboot/ipxe/undionly.kpxe",
+
+      "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/",
+      "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/",
+      #"cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/",
+      #"cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/",
 
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",

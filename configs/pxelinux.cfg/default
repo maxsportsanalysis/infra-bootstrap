@@ -1,0 +1,8 @@
+DEFAULT ubuntu-24.04
+PROMPT 0
+TIMEOUT 5
+
+LABEL ubuntu-24.04
+    KERNEL http://${next-server}/pxe/ubuntu/24.04/vmlinuz
+    INITRD http://${next-server}/pxe/ubuntu/24.04/initrd
+    APPEND root=/dev/ram0 ip=dhcp --- quiet

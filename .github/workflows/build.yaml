@@ -20,15 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static git make gcc binutils liblzma-dev
-
-      - name: Download iPXE and Ubuntu netboot files
-        run: |
-          mkdir -p tmp/ipxe
-          git clone https://github.com/ipxe/ipxe.git /tmp/ipxe
-          cd /tmp/ipxe/src
-          touch empty.ipxe
-          make bin/undionly.kpxe EMBED=empty.ipxe
+          sudo apt-get install -y qemu-user-static
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3
