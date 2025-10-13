@@ -117,8 +117,9 @@ build {
       "DEBIAN_FRONTEND=noninteractive apt update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa git make",
 
-      "git clone https://github.com/ipxe/ipxe.git",
-      "make ipxe/src/bin/undionly.kpxe EMBED=/dev/null",
+      "git clone https://github.com/ipxe/ipxe.git /tmp/ipxe",
+      "cd /tmp/ipxe/src && make bin/undionly.kpxe EMBED=/dev/null",
+      "cp /tmp/ipxe/src/bin/undionly.kpxe /srv/tftpboot/ipxe/undionly.kpxe",
 
       # Download iPXE for UEFI
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
