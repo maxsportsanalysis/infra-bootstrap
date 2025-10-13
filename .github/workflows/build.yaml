@@ -26,7 +26,9 @@ jobs:
         run: |
           mkdir -p tmp/ipxe
           git clone https://github.com/ipxe/ipxe.git /tmp/ipxe
-          cd /tmp/ipxe/src && make bin/undionly.kpxe EMBED=/dev/null
+          cd /tmp/ipxe/src
+          touch empty.ipxe
+          make bin/undionly.kpxe EMBED=empty.ipxe
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3
