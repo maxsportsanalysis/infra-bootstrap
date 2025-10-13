@@ -101,7 +101,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "/configs/pxelinux.cfg/default"
+    source      = "configs/pxelinux.cfg/default"
     destination = "/srv/tftpboot/pxelinux.cfg/default"
   }
 
