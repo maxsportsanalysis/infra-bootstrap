@@ -53,6 +53,18 @@ variable "rpi_password" {
   sensitive = true
 }
 
+variable "k8s_username" {
+  type      = string
+  description = "Username for Kubernetes"
+  sensitive = true
+}
+
+variable "k8s_password" {
+  type      = string
+  description = "Password for Kubernetes"
+  sensitive = true
+}
+
 source "arm-image" "raspberry_pi_os" {
   iso_urls        = [var.iso_url]
   iso_checksum    = var.iso_checksum
@@ -142,5 +154,187 @@ build {
       "chmod -R 755 /srv/tftpboot"
     ]
   }
+
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /var/www/html/autoinstall",
+      <<-EOT
+      cat <<EOF >/var/www/html/autoinstall/user-data
+      #cloud-config
+      autoinstall:
+        version: 1
+
+        early-commands:
+          - curtin in-target --target=/target -- ping -c1 8.8.8.8 || true
+        
+        locale: en_US.UTF-8
+        keyboard:
+          layout: us
+          variant: ''
+
+        identity:
+          hostname: ubuntu-server
+          username: ${var.k8s_username}
+          password: $(openssl passwd -6 '${var.k8s_password}')
+        storage:
+          layout:
+            name: lvm
+        ssh:
+          install-server: yes
+          allow-pw: yes
+        storage:
+          config:
+            # -----------------------------
+            # Physical Disk
+            # -----------------------------
+            - type: disk
+              id: disk0
+              match:
+                size: largest
+              wipe: superblock
+              ptable: gpt
+              name: disk0
+
+            # -----------------------------
+            # Boot Partition
+            # -----------------------------
+            - type: partition
+              id: boot-partition
+              device: disk0
+              size: 1G
+              flag: boot
+
+            # -----------------------------
+            # LVM PV: use remaining space
+            # -----------------------------
+            - type: partition
+              id: lvm-partition
+              device: disk0
+              size: 900G
+            
+            - type: lvm_volgroup
+              id: vg0
+              name: vg0
+              devices: [lvm-partition]
+
+            # -----------------------------
+            # Core OS
+            # -----------------------------
+            - type: lvm_volume
+              id: lv_root
+              name: root
+              volgroup: vg0
+              size: 50G
+
+            - type: lvm_volume
+              id: lv_var
+              name: var
+              volgroup: vg0
+              size: 40G
+
+            # -----------------------------
+            # Container Runtime (containerd)
+            # -----------------------------
+            - type: lvm_volume
+              id: lv_containerd
+              name: containerd
+              volgroup: vg0
+              size: 120G
+
+            # -----------------------------
+            # Kubernetes Local Storage (Longhorn)
+            # -----------------------------
+            - type: lvm_volume
+              id: lv_longhorn
+              name: longhorn
+              volgroup: vg0
+              size: 250G
+
+            # -----------------------------
+            # Kafka / Logs / Stateful apps
+            # -----------------------------
+            - type: lvm_volume
+              id: lv_kafka
+              name: kafka
+              volgroup: vg0
+              size: 200G
+
+            # -----------------------------
+            # Desktop / Home
+            # -----------------------------
+            - type: lvm_volume
+              id: lv_home
+              name: home
+              volgroup: vg0
+              size: 50G
+
+            # -----------------------------
+            # Mount Points
+            # -----------------------------
+            - type: format
+              id: fmt_boot
+              fstype: ext4
+              volume: boot-partition
+              mountpoint: /boot
+
+            - type: format
+              id: fmt_root
+              fstype: ext4
+              volume: lv_root
+              mountpoint: /
+
+            - type: format
+              id: fmt_var
+              fstype: ext4
+              volume: lv_var
+              mountpoint: /var
+
+            - type: format
+              id: fmt_containerd
+              fstype: ext4
+              volume: lv_containerd
+              mountpoint: /var/lib/containerd
+
+            - type: format
+              id: fmt_longhorn
+              fstype: ext4
+              volume: lv_longhorn
+              mountpoint: /var/lib/longhorn
+
+            - type: format
+              id: fmt_kafka
+              fstype: ext4
+              volume: lv_kafka
+              mountpoint: /var/lib/kafka
+
+            - type: format
+              id: fmt_home
+              fstype: ext4
+              volume: lv_home
+              mountpoint: /home
+
+
+        apt:
+          sources:
+            kubernetes:
+              source: "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+
+        packages:
+          - htop
+          - vim
+          - apt-transport-https
+          - ca-certificates
+          - curl
+        late-commands:
+          - curtin in-target --target=/target -- swapoff -a || true
+          - curtin in-target --target=/target -- sed -i '/ swap / s/^/#/' /etc/fstab || true
+          - curtin in-target --target=/target -- bash -c "curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
+        error-commands:
+          - curtin in-target --target=/target -- bash -c "tar -czf /tmp/install-logs.tgz /var/log/installer || true"
+      EOF
+      EOT
+    ]
+  }
+
 
 }
