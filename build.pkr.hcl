@@ -81,7 +81,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/dnsmasq.d /etc/nginx/sites-available /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue"
+      "mkdir -p /etc/dnsmasq.d /etc/nginx/sites-available /var/www/html/pxe/ubuntu/ /var/www/html/pxe/rescue /srv/tftpboot/ipxe"
     ]
   }
 
@@ -100,6 +100,11 @@ build {
     destination = "/etc/nginx/sites-available/pxe.conf"
   }
 
+  provisioner "file" {
+    source      = "/tmp/ipxe/src/bin/undionly.kpxe"
+    destination = "/srv/tftpboot/ipxe/undionly.kpxe"
+  }
+
   provisioner "shell" {
     inline = [
       "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
@@ -115,11 +120,7 @@ build {
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa git make gcc binutils",
-
-      "git clone https://github.com/ipxe/ipxe.git /tmp/ipxe",
-      "cd /tmp/ipxe/src && make bin/undionly.kpxe EMBED=/dev/null",
-      "cp /tmp/ipxe/src/bin/undionly.kpxe /srv/tftpboot/ipxe/undionly.kpxe",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa",
 
       # Download iPXE for UEFI
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
