@@ -115,11 +115,14 @@ build {
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa git make",
+
+      "git clone https://github.com/ipxe/ipxe.git",
+      "make ipxe/src/bin/undionly.kpxe EMBED=/dev/null",
 
       # Download iPXE for UEFI
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
-      "wget -q https://boot.ipxe.org/undionly.kpxe -O /srv/tftpboot/ipxe/undionly.kpxe",
+      # "wget -q https://boot.ipxe.org/undionly.kpxe -O /srv/tftpboot/ipxe/undionly.kpxe",
 
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
