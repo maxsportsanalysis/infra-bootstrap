@@ -171,6 +171,8 @@ build {
         keyboard:
           layout: us
           variant: ''
+        network:
+          version: 2
 
         identity:
           hostname: ubuntu-server
