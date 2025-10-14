@@ -3,6 +3,7 @@ PROMPT 0
 TIMEOUT 50
 ONTIMEOUT install
 
+
 LABEL install
     MENU LABEL Install Ubuntu Server 24.04 LTS
     KERNEL ubuntu/24.04/vmlinuz
