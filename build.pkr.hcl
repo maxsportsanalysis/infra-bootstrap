@@ -173,6 +173,10 @@ build {
           variant: ''
         network:
           version: 2
+          ethernets:
+            enp0s25:
+              dhcp4: true
+              dhcp6: true
 
         identity:
           hostname: ubuntu-server
