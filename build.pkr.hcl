@@ -155,6 +155,11 @@ build {
     ]
   }
 
+  provisioner "file" {
+    source      = "/dev/null"
+    destination = "/var/www/html/autoinstall/meta-data"
+  }
+
   provisioner "shell" {
     inline = [
       "mkdir -p /var/www/html/autoinstall",
@@ -174,13 +179,16 @@ build {
         network:
           version: 2
           ethernets:
-            enp0s25:
+            default:
+              match:
+                name: e*
               dhcp4: true
-              dhcp6: true
-
+              optional: true
+              nameservers:
+                addresses: [8.8.8.8, 1.1.1.1]
         identity:
           hostname: ubuntu-server
-          username: ${var.k8s_username}
+          username: ubuntu
           password: $(openssl passwd -6 '${var.k8s_password}')
         storage:
           layout:
