@@ -189,7 +189,7 @@ build {
         network:
           version: 2
           ethernets:
-            all-eth:
+            all-interfaces:
               match:
                 name: "*"
               dhcp4: true
