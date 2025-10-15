@@ -190,7 +190,7 @@ build {
         identity:
           hostname: ubuntu-server
           username: ubuntu
-          password: ${openssl passwd -6 '${var.k8s_password}'}
+          password: $${openssl passwd -6 "${var.k8s_password}"}
         ssh:
           install-server: yes
           allow-pw: yes
