@@ -198,7 +198,7 @@ build {
                 addresses: [8.8.8.8, 1.1.1.1]
         identity:
           hostname: maxs-sports-analysis-server
-          password: $6$Vxa7rcozU6JYl53Y$6NSeNBYAPCxriSqjGnr83jHcMYQl6R3TUSdT4AVqJP71l8gsUMc9lerQKXHf/lCI3KYMoXOcTpmHQYnDYLvcz.
+          password: $${openssl passwd -6 "${var.k8s_password}"}
           realname: Maxim Cilek
           username: mcilek
         ssh:
