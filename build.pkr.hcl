@@ -155,16 +155,17 @@ build {
     ]
   }
 
-  provisioner "file" {
-    source      = "/dev/null"
-    destination = "/var/www/html/autoinstall/meta-data"
-  }
-
   provisioner "shell" {
     inline = [
+      # Create the directory for the autoinstall files
       "mkdir -p /var/www/html/autoinstall",
+
+      # Create an empty meta-data file (required for NoCloud)
+      "touch /var/www/html/autoinstall/meta-data",
+
+      # Write the user-data configuration to the correct path
       <<-EOT
-      cat <<EOF >/var/www/html/autoinstall/user-data
+      cat <<'EOF' >/var/www/html/autoinstall/user-data
       #cloud-config
       autoinstall:
         version: 1
@@ -189,18 +190,14 @@ build {
         identity:
           hostname: ubuntu-server
           username: ubuntu
-          password: $(openssl passwd -6 '${var.k8s_password}')
-        storage:
-          layout:
-            name: lvm
+          password: ${openssl passwd -6 '${var.k8s_password}'}
         ssh:
           install-server: yes
           allow-pw: yes
+
         storage:
           config:
-            # -----------------------------
             # Physical Disk
-            # -----------------------------
             - type: disk
               id: disk0
               match:
@@ -209,31 +206,25 @@ build {
               ptable: gpt
               name: disk0
 
-            # -----------------------------
             # Boot Partition
-            # -----------------------------
             - type: partition
               id: boot-partition
               device: disk0
               size: 1G
               flag: boot
 
-            # -----------------------------
-            # LVM PV: use remaining space
-            # -----------------------------
+            # LVM PV
             - type: partition
               id: lvm-partition
               device: disk0
               size: 900G
-            
+
             - type: lvm_volgroup
               id: vg0
               name: vg0
               devices: [lvm-partition]
 
-            # -----------------------------
             # Core OS
-            # -----------------------------
             - type: lvm_volume
               id: lv_root
               name: root
@@ -246,45 +237,35 @@ build {
               volgroup: vg0
               size: 40G
 
-            # -----------------------------
-            # Container Runtime (containerd)
-            # -----------------------------
+            # Container Runtime
             - type: lvm_volume
               id: lv_containerd
               name: containerd
               volgroup: vg0
               size: 120G
 
-            # -----------------------------
-            # Kubernetes Local Storage (Longhorn)
-            # -----------------------------
+            # Kubernetes Storage
             - type: lvm_volume
               id: lv_longhorn
               name: longhorn
               volgroup: vg0
               size: 250G
 
-            # -----------------------------
-            # Kafka / Logs / Stateful apps
-            # -----------------------------
+            # Kafka / Logs
             - type: lvm_volume
               id: lv_kafka
               name: kafka
               volgroup: vg0
               size: 200G
 
-            # -----------------------------
-            # Desktop / Home
-            # -----------------------------
+            # Home
             - type: lvm_volume
               id: lv_home
               name: home
               volgroup: vg0
               size: 50G
 
-            # -----------------------------
             # Mount Points
-            # -----------------------------
             - type: format
               id: fmt_boot
               fstype: ext4
@@ -326,24 +307,29 @@ build {
               fstype: ext4
               volume: lv_home
               mountpoint: /home
+
         apt:
           sources:
             kubernetes:
               source: "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+
         packages:
           - htop
           - vim
           - apt-transport-https
           - ca-certificates
           - curl
+
         late-commands:
           - curtin in-target --target=/target -- swapoff -a || true
           - curtin in-target --target=/target -- sed -i '/ swap / s/^/#/' /etc/fstab || true
           - curtin in-target --target=/target -- bash -c "curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
+
         error-commands:
           - curtin in-target --target=/target -- bash -c "tar -czf /tmp/install-logs.tgz /var/log/installer || true"
       EOF
       EOT
     ]
   }
+
 }
