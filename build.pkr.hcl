@@ -177,23 +177,30 @@ build {
         keyboard:
           layout: us
           variant: ''
+        codecs:
+          install: false
+        drivers:
+          install: false
+        oem:
+          install: auto
+        source:
+          id: ubuntu-server
+          search_drivers: false
         network:
           version: 2
           ethernets:
-            default:
+            all-eth:
               match:
-                name: e*
+                name: "*"
               dhcp4: true
-              optional: true
-              nameservers:
-                addresses: [8.8.8.8, 1.1.1.1]
         identity:
           hostname: ubuntu-server
           username: ubuntu
           password: $${openssl passwd -6 "${var.k8s_password}"}
         ssh:
-          install-server: yes
-          allow-pw: yes
+          allow-pw: true
+          authorized-keys: []
+          install-server: false
 
         storage:
           config:
