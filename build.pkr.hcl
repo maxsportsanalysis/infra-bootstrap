@@ -189,12 +189,15 @@ build {
         network:
           version: 2
           ethernets:
-            all-interfaces:
+            all-eth:
               match:
                 name: "*"
               dhcp4: true
+              optional: true
+              nameservers:
+                addresses: [8.8.8.8, 1.1.1.1]
         identity:
-          hostname: maxs-sports-analysis-desktop
+          hostname: maxs-sports-analysis-server
           password: $6$Vxa7rcozU6JYl53Y$6NSeNBYAPCxriSqjGnr83jHcMYQl6R3TUSdT4AVqJP71l8gsUMc9lerQKXHf/lCI3KYMoXOcTpmHQYnDYLvcz.
           realname: Maxim Cilek
           username: mcilek
