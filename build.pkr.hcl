@@ -161,7 +161,8 @@ build {
       "mkdir -p /var/www/html/autoinstall",
 
       # Create an empty meta-data file (required for NoCloud)
-      "touch /var/www/html/autoinstall/meta-data",
+      "echo 'instance-id: ubuntu-server' > /var/www/html/autoinstall/meta-data",
+      "echo 'local-hostname: maxs-sports-analysis-server' >> /var/www/html/autoinstall/meta-data",
 
       # Write the user-data configuration to the correct path
       <<-EOT
