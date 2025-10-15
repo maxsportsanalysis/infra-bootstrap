@@ -194,9 +194,10 @@ build {
                 name: "*"
               dhcp4: true
         identity:
-          hostname: ubuntu-server
-          username: ubuntu
-          password: $${openssl passwd -6 "${var.k8s_password}"}
+          hostname: maxs-sports-analysis-desktop
+          password: $6$Vxa7rcozU6JYl53Y$6NSeNBYAPCxriSqjGnr83jHcMYQl6R3TUSdT4AVqJP71l8gsUMc9lerQKXHf/lCI3KYMoXOcTpmHQYnDYLvcz.
+          realname: Maxim Cilek
+          username: mcilek
         ssh:
           allow-pw: true
           authorized-keys: []
