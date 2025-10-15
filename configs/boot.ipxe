@@ -1,15 +1,19 @@
 #!ipxe
 echo "Starting iPXE boot"
 
-dhcp                     # get IP info
+dhcp
 
-# HTTP server IP dynamically (from DHCP/PXE)
-set base-url http://${next-server}
+# Adjust to your web server's IP
+set base-url http://192.168.50.251
 
-# Optional debugging
-echo "Base URL: ${base-url}"
+echo "Booting Ubuntu 24.04 Server Autoinstall..."
 
-echo "Booting Ubuntu 24.04 Server Installer..."
-kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz ip=dhcp ---
+kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz \
+    ip=dhcp \
+    url=https://releases.ubuntu.com/noble/ubuntu-24.04.3-live-server-amd64.iso \
+    autoinstall \
+    ds=nocloud-net;s=${base-url}/autoinstall/ \
+    debug verbose \
+    ---
 initrd ${base-url}/pxe/ubuntu/24.04/initrd
 boot
