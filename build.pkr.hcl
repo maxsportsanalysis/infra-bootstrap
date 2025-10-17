@@ -170,10 +170,11 @@ build {
       #cloud-config
       autoinstall:
         version: 1
-
         early-commands:
-          - curtin in-target --target=/target -- ping -c1 8.8.8.8 || true
-        
+          - ping -c1 8.8.8.8 || true
+          - ip link
+          - ip addr
+          - dhclient -v enp0s25 || true
         locale: en_US.UTF-8
         keyboard:
           layout: us
@@ -205,7 +206,7 @@ build {
         ssh:
           allow-pw: true
           authorized-keys: []
-          install-server: false
+          install-server: true
 
         storage:
           config:
