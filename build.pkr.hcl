@@ -202,6 +202,9 @@ build {
           allow-pw: true
           authorized-keys: []
           install-server: false
+        storage:
+          layout:
+            name: lvm
       EOF
       EOT
     ]
