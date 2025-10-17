@@ -170,6 +170,7 @@ build {
       #cloud-config
       autoinstall:
         version: 1
+        shutdown: reboot
         locale: en_US.UTF-8
         keyboard:
           layout: us
@@ -190,9 +191,6 @@ build {
               match:
                 name: "*"
               dhcp4: true
-              optional: true
-              nameservers:
-                addresses: [8.8.8.8, 1.1.1.1]
         identity:
           hostname: maxs-sports-analysis-server
           password: $${openssl passwd -6 "${var.k8s_password}"}
