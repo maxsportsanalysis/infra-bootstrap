@@ -8,4 +8,4 @@ LABEL install
     MENU LABEL Install Ubuntu Server 24.04 LTS
     KERNEL ubuntu/24.04/vmlinuz
     INITRD ubuntu/24.04/initrd
-    APPEND root=/dev/ram0 ramdisk_size=2000000 ip=dhcp autoinstall ds=nocloud-net;s=http://192.168.50.251/autoinstall/ debug verbose ---
+    APPEND ip=dhcp autoinstall ds=nocloud-net;s=http://192.168.50.251/autoinstall/ console=tty0 console=ttyS0,115200n8 debug verbose ---

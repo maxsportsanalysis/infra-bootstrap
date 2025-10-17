@@ -206,8 +206,7 @@ build {
         ssh:
           allow-pw: true
           authorized-keys: []
-          install-server: true
-
+          install-server: false
         storage:
           config:
             # Physical Disk
@@ -332,6 +331,7 @@ build {
           - apt-transport-https
           - ca-certificates
           - curl
+          - openssh-server
 
         late-commands:
           - curtin in-target --target=/target -- swapoff -a || true
