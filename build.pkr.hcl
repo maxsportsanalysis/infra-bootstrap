@@ -109,11 +109,6 @@ build {
     ]
   }
 
-  
-  #########################
-  PXE Server Configuration
-  #########################
-
   provisioner "shell" {
     inline = [
       "mkdir -p /etc/nginx/sites-available",

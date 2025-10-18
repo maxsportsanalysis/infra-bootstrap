@@ -26,6 +26,9 @@ PXE_IP=$(hostname -I | awk '{print $1}')
 sed -i "s|\${pxe_server_ip}|${PXE_IP}|g" /srv/tftpboot/pxelinux.cfg/default
 sed -i "s|\${pxe_server_ip}|${ESCAPED_PXE_IP}|g" /etc/dnsmasq.d/pxe.conf
 
+systemctl restart dnsmasq
+systemctl restart nginx
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
