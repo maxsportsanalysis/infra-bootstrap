@@ -138,8 +138,9 @@ build {
       <<-EOT
       cat <<EOF >/etc/dnsmasq.d/pxe.conf
       ${templatefile("${path.root}/templates/dnsmasq.pxe.pkrtpl.hcl", {
-        dhcp_range = var.dhcp_range
-        tftp_root  = var.tftp_root
+        dhcp_range     = var.dhcp_range,
+        tftp_root      = var.tftp_root,
+        pxe_server_ip  = var.pxe_server_ip
       })}
       EOF
       EOT
@@ -152,13 +153,15 @@ build {
       <<-EOT
       cat <<EOF >${var.tftp_root}/ipxe/boot.ipxe
       ${templatefile("${path.root}/templates/boot.ipxe.pkrtpl.hcl", {
-        k8s_ubuntu_version = var.k8s_ubuntu_version
-        k8s_iso_url        = local.k8s_iso_url
+        k8s_ubuntu_version = var.k8s_ubuntu_version,
+        k8s_iso_url        = local.k8s_iso_url,
+        next_server        = var.pxe_server_ip
       })}
       EOF
       EOT
     ]
   }
+
 
   provisioner "shell" {
     inline = [
@@ -166,8 +169,9 @@ build {
       <<-EOT
       cat <<EOF >/srv/tftpboot/pxelinux.cfg/default
       ${templatefile("${path.root}/templates/pxelinux.cfg/default.pkrtpl.hcl", {
-        k8s_ubuntu_version = var.k8s_ubuntu_version
-        k8s_iso_url        = local.k8s_iso_url
+        k8s_ubuntu_version = var.k8s_ubuntu_version,
+        k8s_iso_url        = local.k8s_iso_url,
+        pxe_server_ip      = var.pxe_server_ip
       })}
       EOF
       EOT
