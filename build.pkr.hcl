@@ -146,6 +146,7 @@ build {
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
+      "wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso -O /var/www/html/pxe/iso/ubuntu-24.04.iso",
 
       "cp /var/www/html/pxe/ubuntu/24.04/vmlinuz /srv/tftpboot/ubuntu/24.04/vmlinuz",
       "cp /var/www/html/pxe/ubuntu/24.04/initrd /srv/tftpboot/ubuntu/24.04/initrd",
@@ -215,8 +216,11 @@ build {
           variant: ''
         locale: en_US.UTF-8
         network:
+          version: 2
           ethernets:
-            eno2:
+            all-eth:
+              match:
+                name: "*"
               dhcp4: true
           version: 2
           wifis: {}
