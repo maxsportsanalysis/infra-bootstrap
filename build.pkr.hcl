@@ -148,7 +148,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "templates/boot.ipxe"
+    source      = "templates/boot.ipxe.pkrtpl.hcl"
     destination = "${var.tftp_root}/ipxe/boot.ipxe"
   }
 
