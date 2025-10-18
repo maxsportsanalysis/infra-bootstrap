@@ -154,7 +154,8 @@ build {
       cat <<EOF >${var.tftp_root}/ipxe/boot.ipxe
       ${templatefile("${path.root}/templates/boot.ipxe.pkrtpl.hcl", {
         k8s_ubuntu_version = var.k8s_ubuntu_version,
-        k8s_iso_url        = local.k8s_iso_url
+        k8s_iso_url        = local.k8s_iso_url,
+        pxe_server_ip  = var.pxe_server_ip
       })}
       EOF
       EOT

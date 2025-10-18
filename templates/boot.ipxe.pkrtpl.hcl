@@ -4,7 +4,7 @@ echo "Starting iPXE boot"
 dhcp
 
 # Adjust to your web server's IP
-set base-url http://\\${next-server}
+set base-url http://${pxe_server_ip}
 set k8s_ubuntu_version ${k8s_ubuntu_version}
 set k8s_iso_url ${k8s_iso_url}
 
