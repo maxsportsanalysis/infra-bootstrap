@@ -146,7 +146,6 @@ build {
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
-      #"wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso -O /var/www/html/pxe/ubuntu/24.04/ubuntu-24.04.3-live-server-amd64.iso",
 
       "cp /var/www/html/pxe/ubuntu/24.04/vmlinuz /srv/tftpboot/ubuntu/24.04/vmlinuz",
       "cp /var/www/html/pxe/ubuntu/24.04/initrd /srv/tftpboot/ubuntu/24.04/initrd",
@@ -156,9 +155,10 @@ build {
     ]
   }
 
-  provisioner "file" {
-    source      = "ubuntu-24.04.3-live-server-amd64.iso"
-    destination = "/var/www/html/pxe/ubuntu/24.04/ubuntu-24.04.3-live-server-amd64.iso"
+  provisioner "shell" {
+    inline = [
+      "wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso -O /var/www/html/pxe/ubuntu/24.04/ubuntu-24.04.3-live-server-amd64.iso"
+    ]
   }
 
   provisioner "shell" {
