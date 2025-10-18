@@ -176,10 +176,11 @@ build {
       autoinstall:
         early-commands:
           - curtin in-target --target=/target -- ping -c1 8.8.8.8 || true
+          - curtin in-target --target=/target -- sh -c 'tail -f /var/log/installer/syslog > /dev/tty0 &'
         apt:
           disable_components: []
           fallback: offline-install
-          geoip: true
+          geoip: false
           mirror-selection:
             primary:
             - country-mirror
