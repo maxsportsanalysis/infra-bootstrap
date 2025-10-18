@@ -224,6 +224,9 @@ build {
               match:
                 name: "*"
               dhcp4: true
+              optional: false
+              nameservers:
+                addresses: [8.8.8.8, 1.1.1.1]
           version: 2
           wifis: {}
         oem:
