@@ -135,36 +135,42 @@ build {
   provisioner "shell" {
     inline = [
       "mkdir -p /etc/dnsmasq.d",
-      "cat <<EOF >/etc/dnsmasq.d/pxe.conf",
-      "${templatefile("${path.module}/templates/dnsmasq.pxe.pkrtpl.hcl", {
-          dhcp_range = var.dhcp_range
-          tftp_root  = var.tftp_root
-      })}",
-      "EOF"
+      <<-EOT
+      cat <<EOF >/etc/dnsmasq.d/pxe.conf
+      ${templatefile("${path.root}/templates/dnsmasq.pxe.pkrtpl.hcl", {
+        dhcp_range = var.dhcp_range
+        tftp_root  = var.tftp_root
+      })}
+      EOF
+      EOT
     ]
   }
 
   provisioner "shell" {
     inline = [
       "mkdir -p ${var.tftp_root}/ipxe",
-      "cat <<EOF >${var.tftp_root}/ipxe/boot.ipxe",
-      "${templatefile("${path.module}/templates/boot.ipxe.pkrtpl.hcl", {
-          k8s_ubuntu_version = var.k8s_ubuntu_version
-          k8s_iso_url        = "${local.k8s_iso_url}"
-      })}",
-      "EOF"
+      <<-EOT
+      cat <<EOF >${var.tftp_root}/ipxe/boot.ipxe
+      ${templatefile("${path.root}/templates/boot.ipxe.pkrtpl.hcl", {
+        k8s_ubuntu_version = var.k8s_ubuntu_version
+        k8s_iso_url        = local.k8s_iso_url
+      })}
+      EOF
+      EOT
     ]
   }
 
   provisioner "shell" {
     inline = [
       "mkdir -p /srv/tftpboot/pxelinux.cfg",
-      "cat <<EOF >/srv/tftpboot/pxelinux.cfg/default",
-      "${templatefile("${path.module}/templates/pxelinux.cfg/default.pkrtpl.hcl", {
-          k8s_ubuntu_version = var.k8s_ubuntu_version,
-          k8s_iso_url        = "${local.k8s_iso_url}"
-      })}",
-      "EOF"
+      <<-EOT
+      cat <<EOF >/srv/tftpboot/pxelinux.cfg/default
+      ${templatefile("${path.root}/templates/pxelinux.cfg/default.pkrtpl.hcl", {
+        k8s_ubuntu_version = var.k8s_ubuntu_version
+        k8s_iso_url        = local.k8s_iso_url
+      })}
+      EOF
+      EOT
     ]
   }
 
