@@ -162,6 +162,7 @@ build {
   }
 
 
+
   provisioner "shell" {
     inline = [
       "mkdir -p /srv/tftpboot/pxelinux.cfg",
