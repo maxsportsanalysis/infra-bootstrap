@@ -128,7 +128,7 @@ build {
   provisioner "shell" {
     inline = [
       # Create directories
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /srv/tftpboot/ubuntu/24.04 /var/www/html/pxe/rescue",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /srv/tftpboot/ubuntu/24.04 /var/www/html/pxe/rescue /var/www/html/pxe/iso",
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
