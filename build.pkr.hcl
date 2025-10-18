@@ -128,11 +128,11 @@ build {
   provisioner "shell" {
     inline = [
       # Create directories
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /srv/tftpboot/ubuntu/24.04 /var/www/html/pxe/rescue /var/www/html/install-logs",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /srv/tftpboot/ubuntu/24.04 /var/www/html/pxe/rescue",
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa syslinux-common pxelinux netcat-openbsd",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa syslinux-common pxelinux",
 
       # Download iPXE for UEFI
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
@@ -146,7 +146,7 @@ build {
       # Download Ubuntu 24.04 amd64 netboot kernel/initrd
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/24.04/vmlinuz",
       "wget -q https://releases.ubuntu.com/24.04/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/24.04/initrd",
-      #"wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso -O /var/www/html/pxe/iso/ubuntu-24.04.3.iso",
+      "wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso -O /var/www/html/pxe/ubuntu/24.04/ubuntu-24.04.3-live-server-amd64.iso",
 
       "cp /var/www/html/pxe/ubuntu/24.04/vmlinuz /srv/tftpboot/ubuntu/24.04/vmlinuz",
       "cp /var/www/html/pxe/ubuntu/24.04/initrd /srv/tftpboot/ubuntu/24.04/initrd",
@@ -176,9 +176,6 @@ build {
       autoinstall:
         early-commands:
           - curtin in-target --target=/target -- ping -c1 8.8.8.8 || true
-          - curtin in-target --target=/target -- apt update
-          - curtin in-target --target=/target -- apt install -y curl
-          - curtin in-target --target=/target -- sh -c "tail -f /var/log/installer/syslog | curl -T - http://192.168.50.251/install-logs/ubuntu-install.log"
         apt:
           disable_components: []
           fallback: offline-install
@@ -227,9 +224,6 @@ build {
               match:
                 name: "*"
               dhcp4: true
-              optional: false
-              nameservers:
-                addresses: [8.8.8.8, 1.1.1.1]
           version: 2
           wifis: {}
         oem:
@@ -242,8 +236,117 @@ build {
           authorized-keys: []
           install-server: false
         storage:
-          layout:
-            name: direct
+          config:
+            # Physical Disk
+            - type: disk
+              id: disk0
+              match:
+                size: largest
+              wipe: superblock
+              ptable: gpt
+              name: disk0
+
+            # Boot Partition
+            - type: partition
+              id: boot-partition
+              device: disk0
+              size: 1G
+              flag: boot
+
+            # LVM PV
+            - type: partition
+              id: lvm-partition
+              device: disk0
+              size: 900G
+
+            - type: lvm_volgroup
+              id: vg0
+              name: vg0
+              devices: [lvm-partition]
+
+            # Core OS
+            - type: lvm_volume
+              id: lv_root
+              name: root
+              volgroup: vg0
+              size: 50G
+
+            - type: lvm_volume
+              id: lv_var
+              name: var
+              volgroup: vg0
+              size: 40G
+
+            # Container Runtime
+            - type: lvm_volume
+              id: lv_containerd
+              name: containerd
+              volgroup: vg0
+              size: 120G
+
+            # Kubernetes Storage
+            - type: lvm_volume
+              id: lv_longhorn
+              name: longhorn
+              volgroup: vg0
+              size: 250G
+
+            # Kafka / Logs
+            - type: lvm_volume
+              id: lv_kafka
+              name: kafka
+              volgroup: vg0
+              size: 200G
+
+            # Home
+            - type: lvm_volume
+              id: lv_home
+              name: home
+              volgroup: vg0
+              size: 50G
+
+            # Mount Points
+            - type: format
+              id: fmt_boot
+              fstype: ext4
+              volume: boot-partition
+              mountpoint: /boot
+
+            - type: format
+              id: fmt_root
+              fstype: ext4
+              volume: lv_root
+              mountpoint: /
+
+            - type: format
+              id: fmt_var
+              fstype: ext4
+              volume: lv_var
+              mountpoint: /var
+
+            - type: format
+              id: fmt_containerd
+              fstype: ext4
+              volume: lv_containerd
+              mountpoint: /var/lib/containerd
+
+            - type: format
+              id: fmt_longhorn
+              fstype: ext4
+              volume: lv_longhorn
+              mountpoint: /var/lib/longhorn
+
+            - type: format
+              id: fmt_kafka
+              fstype: ext4
+              volume: lv_kafka
+              mountpoint: /var/lib/kafka
+
+            - type: format
+              id: fmt_home
+              fstype: ext4
+              volume: lv_home
+              mountpoint: /home
         updates: security
         version: 1
       EOF
