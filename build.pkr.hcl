@@ -157,12 +157,6 @@ build {
 
   provisioner "shell" {
     inline = [
-      "wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso -O /var/www/html/pxe/ubuntu/24.04/ubuntu-24.04.3-live-server-amd64.iso"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
       # Create the directory for the autoinstall files
       "mkdir -p /var/www/html/autoinstall",
 
