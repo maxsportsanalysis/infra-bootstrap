@@ -128,7 +128,7 @@ build {
   provisioner "shell" {
     inline = [
       # Create directories
-      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /srv/tftpboot/ubuntu/24.04 /var/www/html/pxe/rescue",
+      "mkdir -p /var/www/html/ipxe /var/www/html/pxe/ubuntu/24.04 /srv/tftpboot/ubuntu/24.04 /var/www/html/pxe/rescue /var/www/html/install-logs",
       
       # Install dependencies
       "DEBIAN_FRONTEND=noninteractive apt update",
@@ -176,7 +176,9 @@ build {
       autoinstall:
         early-commands:
           - curtin in-target --target=/target -- ping -c1 8.8.8.8 || true
-          - curtin in-target --target=/target -- sh -c 'tail -f /var/log/installer/syslog > /dev/tty0 &'
+          - curtin in-target --target=/target -- apt update
+          - curtin in-target --target=/target -- apt install -y curl
+          - curtin in-target --target=/target -- sh -c "tail -f /var/log/installer/syslog | curl -T - http://192.168.50.251/install-logs/ubuntu-install.log"
         apt:
           disable_components: []
           fallback: offline-install

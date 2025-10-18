@@ -15,7 +15,6 @@ kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz \
     ds=nocloud-net;s=${base-url}/autoinstall/ \
     console=tty0 \
     console=ttyS0,115200n8 \
-    netconsole=@192.168.50.37/enp0s25,@192.168.50.251/6666
     --- autoinstall-verbose debug
 initrd ${base-url}/pxe/ubuntu/24.04/initrd
 boot
