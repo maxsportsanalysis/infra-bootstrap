@@ -13,9 +13,6 @@ kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz \
     url=https://releases.ubuntu.com/noble/ubuntu-24.04.3-live-server-amd64.iso \
     autoinstall \
     ds=nocloud-net;s=${base-url}/autoinstall/ \
-    console=tty0 \
-    console=ttyS0,115200n8 \
-    debug verbose \
-    ---
+    --- autoinstall-verbose debug
 initrd ${base-url}/pxe/ubuntu/24.04/initrd
 boot

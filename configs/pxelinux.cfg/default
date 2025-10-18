@@ -3,9 +3,8 @@ PROMPT 0
 TIMEOUT 50
 ONTIMEOUT install
 
-
 LABEL install
     MENU LABEL Install Ubuntu Server 24.04 LTS
     KERNEL ubuntu/24.04/vmlinuz
     INITRD ubuntu/24.04/initrd
-    APPEND ip=dhcp url=https://releases.ubuntu.com/noble/ubuntu-24.04.3-live-server-amd64.iso autoinstall ds=nocloud-net;s=http://192.168.50.251/autoinstall/ console=tty0 console=ttyS0,115200n8 debug verbose ---
+    APPEND ip=dhcp url=https://releases.ubuntu.com/noble/ubuntu-24.04.3-live-server-amd64.iso autoinstall ds=nocloud-net;s=http://192.168.50.251/autoinstall/ --- autoinstall-verbose debug

@@ -170,34 +170,61 @@ build {
       <<-EOT
       cat <<'EOF' >/var/www/html/autoinstall/user-data
       #cloud-config
+      # See the autoinstall documentation at:
+      # https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html
       autoinstall:
-        version: 1
-        shutdown: reboot
-        locale: en_US.UTF-8
-        keyboard:
-          layout: us
-          variant: ''
+        apt:
+          disable_components: []
+          fallback: offline-install
+          geoip: true
+          mirror-selection:
+            primary:
+            - country-mirror
+            - arches: &id001
+              - amd64
+              - i386
+              uri: http://archive.ubuntu.com/ubuntu/
+            - arches: &id002
+              - s390x
+              - arm64
+              - armhf
+              - powerpc
+              - ppc64el
+              - riscv64
+              uri: http://ports.ubuntu.com/ubuntu-ports
+          preserve_sources_list: false
+          security:
+          - arches: *id001
+            uri: http://security.ubuntu.com/ubuntu/
+          - arches: *id002
+            uri: http://ports.ubuntu.com/ubuntu-ports
         codecs:
           install: false
         drivers:
           install: false
+        identity:
+          hostname: maxs-sports-analysis-server
+          password: $6$Vxa7rcozU6JYl53Y$6NSeNBYAPCxriSqjGnr83jHcMYQl6R3TUSdT4AVqJP71l8gsUMc9lerQKXHf/lCI3KYMoXOcTpmHQYnDYLvcz.
+          realname: Maxim Cilek
+          username: mcilek
+        kernel:
+          package: linux-generic-hwe-24.04
+        keyboard:
+          layout: us
+          toggle: null
+          variant: ''
+        locale: en_US.UTF-8
+        network:
+          ethernets:
+            eno2:
+              dhcp4: true
+          version: 2
+          wifis: {}
         oem:
           install: auto
         source:
           id: ubuntu-server
           search_drivers: false
-        network:
-          version: 2
-          ethernets:
-            all-eth:
-              match:
-                name: "*"
-              dhcp4: true
-        identity:
-          hostname: maxs-sports-analysis-server
-          password: $${openssl passwd -6 "${var.k8s_password}"}
-          realname: Maxim Cilek
-          username: mcilek
         ssh:
           allow-pw: true
           authorized-keys: []
@@ -205,6 +232,8 @@ build {
         storage:
           layout:
             name: lvm
+        updates: security
+        version: 1
       EOF
       EOT
     ]
