@@ -241,7 +241,7 @@ build {
           install-server: false
         storage:
           layout:
-            name: lvm
+            name: direct
         updates: security
         version: 1
       EOF
