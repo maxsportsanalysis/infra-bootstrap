@@ -4,7 +4,6 @@ TIMEOUT 50
 ONTIMEOUT install
 
 LABEL install
-    MENU LABEL Install Ubuntu Server 24.04 LTS
     KERNEL ubuntu/24.04/vmlinuz
     INITRD ubuntu/24.04/initrd
     APPEND ip=dhcp url=http://192.168.50.251/pxe/iso/ubuntu-24.04.3.iso autoinstall ds=nocloud-net;s=http://192.168.50.251/autoinstall/ --- autoinstall-verbose debug
