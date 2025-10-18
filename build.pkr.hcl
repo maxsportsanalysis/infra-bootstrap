@@ -174,6 +174,8 @@ build {
       # See the autoinstall documentation at:
       # https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html
       autoinstall:
+        early-commands:
+          - curtin in-target --target=/target -- ping -c1 8.8.8.8 || true
         apt:
           disable_components: []
           fallback: offline-install
