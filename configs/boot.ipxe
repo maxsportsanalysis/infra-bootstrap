@@ -9,6 +9,7 @@ set base-url http://192.168.50.251
 echo "Booting Ubuntu 24.04 Server Autoinstall..."
 
 kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz \
+    root=/dev/ram0 ramdisk_size=1500000 \
     ip=dhcp \
     autoinstall \
     ds=nocloud-net;s=${base-url}/autoinstall/ \
