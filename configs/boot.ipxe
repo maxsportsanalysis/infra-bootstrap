@@ -10,7 +10,6 @@ echo "Booting Ubuntu 24.04 Server Autoinstall..."
 
 kernel ${base-url}/pxe/ubuntu/24.04/vmlinuz \
     ip=dhcp \
-    url=https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso \
     autoinstall \
     ds=nocloud-net;s=${base-url}/autoinstall/ \
     --- autoinstall-verbose debug
