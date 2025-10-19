@@ -112,7 +112,7 @@ build {
   provisioner "shell" {
     inline = [
       "mkdir -p /etc/nginx/sites-available",
-      "mkdir -p /srv/tftpboot/pxelinux.cfg /srv/tftpboot/ubuntu/${var.k8s_ubuntu_version}",
+      "mkdir -p /srv/tftpboot/pxelinux.cfg ${var.tftp_root}/ubuntu/${var.k8s_ubuntu_version} ${var.tftp_root}/ipxe",
       "mkdir -p /var/www/html/pxe/rescue /var/www/html/ipxe /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version} /var/www/html/autoinstall"
     ]
   }
