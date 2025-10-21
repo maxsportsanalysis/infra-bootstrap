@@ -9,6 +9,7 @@ log-facility=/var/log/dnsmasq-pxe.log
 
 # ProxyDHCP mode (router hands out IPs)
 dhcp-range=192.168.50.0,proxy,255.255.255.0
+
 dhcp-no-override
 
 # Enable TFTP
