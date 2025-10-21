@@ -103,6 +103,7 @@ build {
   # Set PXE server SSH credentials
   provisioner "shell" {
     inline = [
+      "echo "${var.pxe_server}" > /etc/hostname",
       "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh"
@@ -186,8 +187,7 @@ build {
       "cp /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version}/initrd /srv/tftpboot/ubuntu/${var.k8s_ubuntu_version}/initrd",
 
       "chmod -R 755 /var/www/html",
-      "chmod -R 755 /srv/tftpboot",
-      "hostnamectl set-hostname ${var.pxe_server}"
+      "chmod -R 755 /srv/tftpboot"
     ]
   }
 }
