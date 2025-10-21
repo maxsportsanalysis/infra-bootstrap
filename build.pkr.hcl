@@ -96,7 +96,7 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev postgresql redis-server",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev postgresql redis-server locales",
       "python3 -m venv /opt/ansible-env",
       "/opt/ansible-env/bin/pip install --upgrade pip",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
@@ -104,6 +104,8 @@ build {
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
       "mkdir -p /root/.ansible/collections",
+      "locale-gen en_US.UTF-8",
+      "update-locale LANG=en_US.UTF-8",
       "if [ ! -f /var/lib/postgresql/$(ls /usr/lib/postgresql)/main/PG_VERSION ]; then pg_createcluster $(ls /usr/lib/postgresql) main --start; fi",
       "pg_ctlcluster $(ls /usr/lib/postgresql) main start"
     ]
