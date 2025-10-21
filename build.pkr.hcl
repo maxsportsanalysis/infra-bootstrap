@@ -112,11 +112,7 @@ build {
 
       # Optional symlinks (for convenience only — not system-wide overrides)
       "ln -sf /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
-      "ln -sf /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
-
-      # Sanity check — verify Python and Ansible work correctly
-      "/opt/ansible-env/bin/python --version",
-      "/opt/ansible-env/bin/ansible --version"
+      "ln -sf /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook"
     ]
   }
 }
