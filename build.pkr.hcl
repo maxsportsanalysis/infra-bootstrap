@@ -6,6 +6,10 @@ packer {
       version = ">= 0.2.7"
       source  = "github.com/solo-io/arm-image"
     }
+    ansible = {
+      version = ">= 1.1.4"
+      source  = "github.com/hashicorp/ansible"
+    }
   }
 }
 
