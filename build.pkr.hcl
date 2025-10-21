@@ -104,7 +104,7 @@ build {
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
       "mkdir -p /root/.ansible/collections",
-      "sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen",
+      "sed -i 's/^# *\\(en_US.UTF-8\\)/\\1/' /etc/locale.gen",
       "locale-gen",
       "update-locale LANG=en_US.UTF-8",
       "if [ ! -f /var/lib/postgresql/$(ls /usr/lib/postgresql)/main/PG_VERSION ]; then pg_createcluster $(ls /usr/lib/postgresql) main --start; fi",
