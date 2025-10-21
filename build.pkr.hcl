@@ -101,7 +101,8 @@ build {
       "/opt/ansible-env/bin/pip install --upgrade pip",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
-      "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook"
+      "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
+      "mkdir -p /root/.ansible/collections"
     ]
   }
 
