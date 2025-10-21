@@ -8,8 +8,9 @@ log-dhcp
 log-facility=/var/log/dnsmasq-pxe.log
 
 # ProxyDHCP mode (router hands out IPs)
-# dhcp-range=${dhcp_range}
 dhcp-range=tag:us-central-1,192.168.50.2,192.168.50.250,255.255.255.0
+dhcp-option=tag:us-central-1,option:router,192.168.50.1
+
 dhcp-no-override
 
 # Enable TFTP
