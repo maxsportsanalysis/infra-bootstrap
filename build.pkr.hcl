@@ -187,8 +187,7 @@ build {
 
       "chmod -R 755 /var/www/html",
       "chmod -R 755 /srv/tftpboot",
-      "hostnamectl set-hostname ${var.pxe_server}",
-      "systemctl restart avahi-daemon"
+      "hostnamectl set-hostname ${var.pxe_server}"
     ]
   }
 }
