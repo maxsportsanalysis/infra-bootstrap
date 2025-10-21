@@ -96,7 +96,7 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev postgresql redis-server locales",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev postgresql-18 redis-server locales",
       "python3 -m venv /opt/ansible-env",
       "/opt/ansible-env/bin/pip install --upgrade pip",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
