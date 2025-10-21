@@ -103,7 +103,9 @@ build {
       "/opt/ansible-env/bin/pip install psycopg2-binary",
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
-      "mkdir -p /root/.ansible/collections"
+      "mkdir -p /root/.ansible/collections",
+      "if [ ! -f /var/lib/postgresql/$(ls /usr/lib/postgresql)/main/PG_VERSION ]; then pg_createcluster $(ls /usr/lib/postgresql) main --start; fi",
+      "pg_ctlcluster $(ls /usr/lib/postgresql) main start"
     ]
   }
 
