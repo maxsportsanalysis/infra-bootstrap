@@ -100,6 +100,7 @@ build {
       "python3 -m venv /opt/ansible-env",
       "/opt/ansible-env/bin/pip install --upgrade pip",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
+      "/opt/ansible-env/bin/pip install psycopg2-binary",
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
       "mkdir -p /root/.ansible/collections"
@@ -124,7 +125,7 @@ build {
     extra_arguments = [
       "--connection=chroot",
       "-e ansible_host=${build.MountPath}",
-      "--extra-vars", "\"nautobot_db_password=${var.rpi_password} ansible_python_interpreter=/usr/bin/python3\""
+      "--extra-vars", "\"nautobot_db_password=${var.rpi_password} ansible_python_interpreter=/opt/ansible-env/bin/python3\""
     ]
   }
 }
