@@ -139,7 +139,6 @@ build {
       <<-EOT
       cat <<EOF >/etc/dnsmasq.d/pxe.conf
       ${templatefile("${path.root}/templates/dnsmasq.pxe.pkrtpl.hcl", {
-        dhcp_range     = var.dhcp_range,
         tftp_root      = var.tftp_root,
         pxe_server     = var.pxe_server
       })}
