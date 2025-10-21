@@ -1,0 +1,5 @@
+---
+db_name: nautobot
+db_user: nautobot
+db_password: "{{ nautobot_db_password }}"  # passed from Packer
+postgres_version: 15

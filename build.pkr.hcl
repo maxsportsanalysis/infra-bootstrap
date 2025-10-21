@@ -91,12 +91,31 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev postgresql",
       "python3 -m venv /opt/ansible-env",
       "/opt/ansible-env/bin/pip install --upgrade pip",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "apt-get update",
+      "apt-get install -y lsb-release curl gpg",
+      "curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg",
+      "chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg",
+      "echo 'deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main' | tee /etc/apt/sources.list.d/redis.list",
+      "apt-get update",
+      "apt-get install -y redis-server"
+    ]
+  }
+
+  provisioner "ansible" {
+    playbook_file   = "playbooks/nautobot-db.yaml"
+    extra_arguments = [
+      "--extra-vars", "nautobot_db_password=${var.rpi_password} ansible_python_interpreter=/usr/bin/python3"
     ]
   }
 }
