@@ -108,6 +108,7 @@ build {
   provisioner "ansible-local" {
     playbook_file   = "ansible/playbooks/nautobot-db.yaml"
     command = "/opt/ansible-env/bin/ansible-playbook"
+    playbook_dir  = "ansible"
     extra_arguments = [
       "--connection=chroot",
       "-e ansible_host=${build.MountPath}",
