@@ -123,8 +123,6 @@ build {
     command = "/opt/ansible-env/bin/ansible-playbook"
     playbook_dir  = "ansible"
     extra_arguments = [
-      "--connection=chroot",
-      "-e ansible_host=${build.MountPath}",
       "--extra-vars", "\"nautobot_db_password=${var.rpi_password} ansible_python_interpreter=/opt/ansible-env/bin/python3\""
     ]
   }
