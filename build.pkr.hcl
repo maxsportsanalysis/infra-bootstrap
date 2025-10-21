@@ -96,7 +96,15 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev postgresql-18 redis-server locales",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev redis-server locales",
+      
+      
+      "wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -",
+      "sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'",
+      "apt-get update",
+      # Install PostgreSQL 18
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-18 postgresql-client-18",
+      
       "python3 -m venv /opt/ansible-env",
       "/opt/ansible-env/bin/pip install --upgrade pip",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
