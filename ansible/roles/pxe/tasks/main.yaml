@@ -1,0 +1,26 @@
+---
+- import_tasks: dhcp.yaml
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - dnsmasq
+      - tftp-hpa
+      - syslinux
+      - pxelinux
+    state: present
+    update_cache: yes
+
+- name: Generate dnsmasq configuration
+  ansible.builtin.template:
+    src: dnsmasq.j2
+    dest: /etc/dnsmasq.d/pxe.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable and restart dnsmasq
+  ansible.builtin.service:
+    name: dnsmasq
+    enabled: yes
+    state: restarted

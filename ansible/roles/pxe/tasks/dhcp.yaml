@@ -1,0 +1,13 @@
+---
+# Detect the subnet dynamically
+- name: Gather network facts
+  ansible.builtin.setup:
+    gather_subset:
+      - network
+
+- name: Set PXE subnet and netmask dynamically
+  set_fact:
+    dhcp_subnet: "{{ ansible_default_ipv4.network }}"
+    dhcp_netmask: "{{ ansible_default_ipv4.netmask }}"
+    dhcp_range_start: "{{ ansible_default_ipv4.address | ipaddr('network') | ipaddr(2) }}"
+    dhcp_range_end: "{{ ansible_default_ipv4.address | ipaddr('network') | ipaddr(-2) }}"

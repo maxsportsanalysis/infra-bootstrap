@@ -1,0 +1,34 @@
+- name: Ensure dependencies are installed
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - python3-pip
+    - python3-venv
+    - libpq-dev
+    - git
+    - postgresql
+    - postgresql-contrib
+
+- name: Setup PostgreSQL DB
+  include_tasks: database.yml
+
+- name: Create Nautobot virtualenv
+  command: python3 -m venv /opt/nautobot
+
+- name: Install Nautobot Python requirements
+  pip:
+    virtualenv: /opt/nautobot
+    name:
+      - nautobot
+      - psycopg2-binary
+
+- name: Generate nautobot_config.py
+  template:
+    src: nautobot_config.py.j2
+    dest: /opt/nautobot/nautobot_config.py
+
+- name: Initialize Nautobot database
+  command: >
+    /opt/nautobot/bin/nautobot-server migrate

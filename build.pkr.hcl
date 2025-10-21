@@ -9,15 +9,15 @@ packer {
   }
 }
 
+variable "ansible_version" {
+  type        = string
+  default     = "2.19.3"
+}
+
 variable "chroot_mounts" {
   type        = list(list(string))
   default     = []
   description = "Host directories to mount into the chroot."
-}
-
-variable "dhcp_range" {
-  type    = string
-  default = "0.0.0.0,proxy"
 }
 
 variable "image_mounts" {
@@ -40,16 +40,6 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
-variable "k8s_ubuntu_version" {
-  type        = string
-  default     = "24.04.3"
-}
-
-variable "pxe_server" {
-  type = string
-  default = "pxe-server"
-}
-
 variable "qemu_binary" {
   type        = string
   default     = "qemu-arm-static"
@@ -66,11 +56,6 @@ variable "rpi_username" {
   sensitive   = true
 }
 
-variable "tftp_root" {
-  type = string
-  default = "/srv/tftpboot"
-}
-
 source "arm-image" "raspberry_pi_os" {
   iso_urls        = [var.iso_url]
   iso_checksum    = var.iso_checksum
@@ -80,16 +65,10 @@ source "arm-image" "raspberry_pi_os" {
   chroot_mounts   = var.chroot_mounts
 }
 
-
-locals {
-  k8s_iso_url = "https://releases.ubuntu.com/${var.k8s_ubuntu_version}/ubuntu-${var.k8s_ubuntu_version}-live-server-amd64.iso"
-}
-
 build {
   name    = "pxe-server-arm64-prod"
   sources = ["source.arm-image.raspberry_pi_os"]
 
-  # Enable SSH on PXE server
   provisioner "file" {
     source      = "/dev/null"
     destination = "/boot/firmware/ssh"
@@ -103,7 +82,6 @@ build {
   # Set PXE server SSH credentials
   provisioner "shell" {
     inline = [
-      "echo '${var.pxe_server}' > /etc/hostname",
       "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh"
@@ -112,81 +90,10 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /etc/nginx/sites-available",
-      "mkdir -p /srv/tftpboot/pxelinux.cfg ${var.tftp_root}/ubuntu/${var.k8s_ubuntu_version} ${var.tftp_root}/ipxe",
-      "mkdir -p /var/www/html/pxe/rescue /var/www/html/ipxe /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version} /var/www/html/autoinstall"
-    ]
-  }
-
-  provisioner "file" {
-    source      = "configs/nginx/pxe.conf"
-    destination = "/etc/nginx/sites-available/pxe.conf"
-  }
-
-  provisioner "file" {
-    source      = "/dev/null"
-    destination = "/var/www/html/autoinstall/vendor-data"
-  }
-
-  provisioner "file" {
-    source      = "/dev/null"
-    destination = "/var/www/html/autoinstall/meta-data"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "mkdir -p /etc/dnsmasq.d",
-      <<-EOT
-      cat <<EOF >/etc/dnsmasq.d/pxe.conf
-      ${templatefile("${path.root}/templates/dnsmasq.pxe.pkrtpl.hcl", {
-        tftp_root      = var.tftp_root,
-        pxe_server     = var.pxe_server
-      })}
-      EOF
-      EOT
-    ]
-  }
-
-  provisioner "file" {
-    source      = "templates/boot.ipxe.pkrtpl.hcl"
-    destination = "${var.tftp_root}/ipxe/boot.ipxe"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "mkdir -p /srv/tftpboot/pxelinux.cfg",
-      <<-EOT
-      cat <<EOF >/srv/tftpboot/pxelinux.cfg/default
-      ${templatefile("${path.root}/templates/pxelinux.cfg/default.pkrtpl.hcl", {
-        k8s_ubuntu_version = var.k8s_ubuntu_version,
-        k8s_iso_url        = local.k8s_iso_url,
-        pxe_server         = var.pxe_server
-      })}
-      EOF
-      EOT
-    ]
-  }
-
-  # Install dependencies and PXE binaries
-  provisioner "shell" {
-    inline = [
-      "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa syslinux-common pxelinux avahi-daemon",
-
-      # iPXE for UEFI boot
-      "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
-
-      "cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftpboot/",
-      "cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftpboot/",
-
-      # Download Ubuntu netboot kernel/initrd
-      "wget -q https://releases.ubuntu.com/${var.k8s_ubuntu_version}/netboot/amd64/linux -O /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version}/vmlinuz",
-      "wget -q https://releases.ubuntu.com/${var.k8s_ubuntu_version}/netboot/amd64/initrd -O /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version}/initrd",
-      "cp /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version}/vmlinuz /srv/tftpboot/ubuntu/${var.k8s_ubuntu_version}/vmlinuz",
-      "cp /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version}/initrd /srv/tftpboot/ubuntu/${var.k8s_ubuntu_version}/initrd",
-
-      "chmod -R 755 /var/www/html",
-      "chmod -R 755 /srv/tftpboot"
+      "apt-get update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip",
+      "pip3 install --upgrade pip",
+      "pipx install ansible-core==${var.ansible_version}"
     ]
   }
 }

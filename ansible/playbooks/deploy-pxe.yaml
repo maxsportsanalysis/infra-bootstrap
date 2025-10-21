@@ -1,0 +1,6 @@
+---
+- name: Deploy PXE server
+  hosts: pxe_servers
+  become: yes
+  roles:
+    - pxe

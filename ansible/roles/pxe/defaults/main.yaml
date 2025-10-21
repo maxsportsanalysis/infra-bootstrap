@@ -1,0 +1,2 @@
+tftp_root: /srv/tftpboot
+pxe_server_hostname: pxe-server
