@@ -91,9 +91,12 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip",
-      "pip3 install --upgrade pip",
-      "pipx install ansible-core==${var.ansible_version}"
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv",
+      "python3 -m venv /opt/ansible-env",
+      "/opt/ansible-env/bin/pip install --upgrade pip",
+      "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
+      "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
+      "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook"
     ]
   }
 }
