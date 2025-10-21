@@ -107,15 +107,17 @@ build {
 
   provisioner "shell" {
     inline = [
-      "apt-get update",
-      "apt-get install -y lsb-release curl gpg",
-      "curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg",
-      "chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg",
-      "echo 'deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main' | tee /etc/apt/sources.list.d/redis.list",
-      "apt-get update",
-      "apt-get install -y redis-server"
+      "apt-get update && \
+      apt-get install -y lsb-release curl gnupg ca-certificates && \
+      curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg && \
+      chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg && \
+      CODENAME=$(lsb_release -cs) && \
+      echo \"deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $CODENAME main\" | tee /etc/apt/sources.list.d/redis.list && \
+      apt-get update && \
+      apt-get install -y redis-server"
     ]
   }
+
 
   provisioner "ansible-local" {
     playbook_file   = "ansible/playbooks/nautobot-db.yaml"
