@@ -44,6 +44,5 @@
     db: "{{ db_name }}"
     roles: "{{ db_user }}"
     type: schema
-    schema: public
     privs: CREATE
     state: present
