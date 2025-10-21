@@ -40,6 +40,11 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
+variable "python_version" {
+  type    = string
+  default = "3.12"
+}
+
 variable "qemu_binary" {
   type        = string
   default     = "qemu-arm-static"
@@ -91,12 +96,27 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv",
-      "python3 -m venv /opt/ansible-env",
-      "/opt/ansible-env/bin/pip install --upgrade pip",
+      "apt-get install -y software-properties-common",
+      "add-apt-repository -y ppa:deadsnakes/ppa || true",
+      "apt-get update",
+      
+      # Install a newer Python version (without changing system default)
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python${var.python_version} python${var.python_version}-venv python${var.python_version}-distutils python${var.python_version}-apt",
+
+      # Create isolated environment for Ansible
+      "python${var.python_version} -m venv /opt/ansible-env",
+
+      # Install pip + Ansible safely inside venv
+      "/opt/ansible-env/bin/pip install --upgrade pip setuptools wheel",
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
-      "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
-      "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook"
+
+      # Optional symlinks (for convenience only — not system-wide overrides)
+      "ln -sf /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
+      "ln -sf /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
+
+      # Sanity check — verify Python and Ansible work correctly
+      "/opt/ansible-env/bin/python --version",
+      "/opt/ansible-env/bin/ansible --version"
     ]
   }
 }
