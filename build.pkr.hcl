@@ -117,7 +117,7 @@ build {
   }
 
   provisioner "ansible" {
-    playbook_file   = "playbooks/nautobot-db.yaml"
+    playbook_file   = "ansible/playbooks/nautobot-db.yaml"
     extra_arguments = [
       "--extra-vars", "nautobot_db_password=${var.rpi_password} ansible_python_interpreter=/usr/bin/python3"
     ]
