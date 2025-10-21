@@ -105,10 +105,20 @@ build {
     ]
   }
 
+  provisioner "file" {
+    source      = "ansible/collections/requirements.yaml"
+    destination = "/root/.ansible/collections/requirements.yaml"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
+    ]
+  }
+
   provisioner "ansible-local" {
     playbook_file   = "ansible/playbooks/nautobot-db.yaml"
     command = "/opt/ansible-env/bin/ansible-playbook"
-    playbook_dir  = "ansible"
     extra_arguments = [
       "--connection=chroot",
       "-e ansible_host=${build.MountPath}",
