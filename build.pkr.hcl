@@ -45,9 +45,9 @@ variable "k8s_ubuntu_version" {
   default     = "24.04.3"
 }
 
-variable "pxe_server_ip" {
+variable "pxe_server" {
   type = string
-  default = ""
+  default = "pxe-server.local"
 }
 
 variable "qemu_binary" {
@@ -140,7 +140,7 @@ build {
       ${templatefile("${path.root}/templates/dnsmasq.pxe.pkrtpl.hcl", {
         dhcp_range     = var.dhcp_range,
         tftp_root      = var.tftp_root,
-        pxe_server_ip  = var.pxe_server_ip
+        pxe_server     = var.pxe_server
       })}
       EOF
       EOT
@@ -160,7 +160,7 @@ build {
       ${templatefile("${path.root}/templates/pxelinux.cfg/default.pkrtpl.hcl", {
         k8s_ubuntu_version = var.k8s_ubuntu_version,
         k8s_iso_url        = local.k8s_iso_url,
-        pxe_server_ip      = var.pxe_server_ip
+        pxe_server         = var.pxe_server
       })}
       EOF
       EOT
@@ -171,7 +171,7 @@ build {
   provisioner "shell" {
     inline = [
       "DEBIAN_FRONTEND=noninteractive apt update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa syslinux-common pxelinux",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq nginx wget tftp-hpa syslinux-common pxelinux avahi-daemon",
 
       # iPXE for UEFI boot
       "wget -q https://boot.ipxe.org/ipxe.efi -O /srv/tftpboot/ipxe/ipxe.efi",
@@ -186,7 +186,9 @@ build {
       "cp /var/www/html/pxe/ubuntu/${var.k8s_ubuntu_version}/initrd /srv/tftpboot/ubuntu/${var.k8s_ubuntu_version}/initrd",
 
       "chmod -R 755 /var/www/html",
-      "chmod -R 755 /srv/tftpboot"
+      "chmod -R 755 /srv/tftpboot",
+      "hostnamectl set-hostname ${var.pxe_server}",
+      "systemctl restart avahi-daemon"
     ]
   }
 }
