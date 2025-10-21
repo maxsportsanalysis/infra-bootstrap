@@ -9,7 +9,6 @@ log-facility=/var/log/dnsmasq-pxe.log
 
 # ProxyDHCP mode (router hands out IPs)
 dhcp-range=0.0.0.0,proxy
-
 dhcp-no-override
 
 # Enable TFTP
@@ -38,4 +37,4 @@ pxe-service=tag:bios,tag:!ipxe,X86PC,"iPXE (BIOS)",ipxe/undionly.kpxe # Legacy B
 pxe-service=tag:efi64,tag:!ipxe,x86-64_EFI,"iPXE (UEFI x64)",ipxe/ipxe.efi # UEFI iPXE x86_64 clients
 
 # Clients already running iPXE send them the script via HTTP
-dhcp-boot=tag:ipxe,http://${pxe_server}/ipxe/boot.ipxe
+dhcp-boot=tag:ipxe,http://192.168.50.251/ipxe/boot.ipxe

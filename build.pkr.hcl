@@ -47,7 +47,7 @@ variable "k8s_ubuntu_version" {
 
 variable "pxe_server" {
   type = string
-  default = "pxe-server.local"
+  default = "pxe-server"
 }
 
 variable "qemu_binary" {
@@ -139,8 +139,7 @@ build {
       <<-EOT
       cat <<EOF >/etc/dnsmasq.d/pxe.conf
       ${templatefile("${path.root}/templates/dnsmasq.pxe.pkrtpl.hcl", {
-        tftp_root      = var.tftp_root,
-        pxe_server     = var.pxe_server
+        tftp_root      = var.tftp_root
       })}
       EOF
       EOT
