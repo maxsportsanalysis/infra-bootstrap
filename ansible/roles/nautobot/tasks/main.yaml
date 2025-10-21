@@ -40,9 +40,12 @@
 
 - name: Grant CREATE on public schema
   become_user: postgres
-  postgresql_privs:
+  community.postgresql.postgresql_privs:
     db: "{{ db_name }}"
     roles: "{{ db_user }}"
     type: schema
+    objs:
+      - public
     privs: CREATE
     state: present
+
