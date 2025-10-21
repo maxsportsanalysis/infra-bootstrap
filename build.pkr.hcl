@@ -96,23 +96,32 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "apt-get install -y software-properties-common",
-      "add-apt-repository -y ppa:deadsnakes/ppa || true",
-      "apt-get update",
-      
-      # Install a newer Python version (without changing system default)
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python${var.python_version} python${var.python_version}-venv python${var.python_version}-distutils python${var.python_version}-apt",
 
-      # Create isolated environment for Ansible
-      "python${var.python_version} -m venv /opt/ansible-env",
+      # Install build dependencies for Python
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential wget curl libssl-dev zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev uuid-dev",
 
-      # Install pip + Ansible safely inside venv
+      # Download Python 3.12 source
+      "cd /usr/src && wget https://www.python.org/ftp/python/3.12.12/Python-3.12.12.tgz",
+      "cd /usr/src && tar xvf Python-3.12.12.tgz",
+
+      # Build and install Python 3.12 into /opt/python3.12 (isolated, non-default)
+      "cd /usr/src/Python-3.12.12 && ./configure --prefix=/opt/python3.12 --enable-optimizations",
+      "cd /usr/src/Python-3.12.12 && make -j$(nproc)",
+      "cd /usr/src/Python-3.12.12 && make altinstall",
+
+      # Create virtual environment for Ansible
+      "/opt/python3.12/bin/python3.12 -m venv /opt/ansible-env",
+
+      # Upgrade pip, setuptools, wheel inside venv
       "/opt/ansible-env/bin/pip install --upgrade pip setuptools wheel",
+
+      # Install Ansible core
       "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
 
-      # Optional symlinks (for convenience only — not system-wide overrides)
+      # Optional convenience symlinks (do NOT override system Python)
       "ln -sf /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -sf /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook"
     ]
   }
+
 }
