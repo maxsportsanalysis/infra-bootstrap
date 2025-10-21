@@ -67,6 +67,7 @@ source "arm-image" "raspberry_pi_os" {
   qemu_binary     = var.qemu_binary
   image_mounts    = var.image_mounts
   chroot_mounts   = var.chroot_mounts
+  image_size      = "4G"
 }
 
 build {
