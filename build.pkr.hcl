@@ -118,7 +118,6 @@ build {
     ]
   }
 
-
   provisioner "ansible-local" {
     playbook_file   = "ansible/playbooks/nautobot-db.yaml"
     extra_arguments = [
