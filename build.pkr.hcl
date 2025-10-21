@@ -113,7 +113,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
+      "/opt/ansible-env/bin/ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
     ]
   }
 
