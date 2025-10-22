@@ -144,7 +144,7 @@ build {
     inline = [
       "mkdir -p /tmp/ansible/vars",
       "echo '${var.ansible_vault_password}' > /tmp/ansible/vault-pass.txt",
-      "/opt/ansible-env/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_postgres_password' --vault-password-file /tmp/ansible/vault-pass.txt > /tmp/ansible/vars/nautobot-vault.yml"
+      "/opt/ansible-env/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file /tmp/ansible/vault-pass.txt > /tmp/ansible/vars/nautobot-vault.yml"
     ]
   }
 
