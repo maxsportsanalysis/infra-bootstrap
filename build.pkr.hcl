@@ -13,6 +13,11 @@ packer {
   }
 }
 
+variable "ansible_vault_password" {
+  type        = string
+  sensitive   = true
+}
+
 variable "ansible_version" {
   type        = string
   default     = "2.19.3"
@@ -42,6 +47,11 @@ variable "iso_checksum" {
 variable "iso_url" {
   type        = string
   description = "URL to the OS image."
+}
+
+variable "nautobot_password" {
+  type        = string
+  sensitive   = true
 }
 
 variable "qemu_binary" {
@@ -102,7 +112,6 @@ build {
       "wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -",
       "sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'",
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-18 postgresql-client-18",
       
       "python3 -m venv /opt/ansible-env",
       "/opt/ansible-env/bin/pip install --upgrade pip",
@@ -130,12 +139,23 @@ build {
     ]
   }
 
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /tmp/ansible/vars",
+      "ANSIBLE_VAULT_PASSWORD=${var.ansible_vault_password} /usr/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_postgres_password' > /tmp/ansible/vars/nautobot-vault.yml"
+    ]
+    environment = {
+      ANSIBLE_VAULT_PASSWORD = var.ansible_vault_password
+    }
+  }
+
   provisioner "ansible-local" {
     playbook_file   = "ansible/playbooks/nautobot-db.yaml"
     command = "/opt/ansible-env/bin/ansible-playbook"
     playbook_dir  = "ansible"
     extra_arguments = [
-      "--extra-vars", "\"nautobot_db_password=${var.rpi_password} ansible_python_interpreter=/opt/ansible-env/bin/python3\""
+      "--vault-password-file", "/dev/stdin"
     ]
+    stdin = var.ansible_vault_password
   }
 }
