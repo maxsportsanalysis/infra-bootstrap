@@ -142,7 +142,7 @@ build {
   provisioner "shell" {
     inline = [
       "mkdir -p /tmp/ansible/vars",
-      "ANSIBLE_VAULT_PASSWORD='${var.ansible_vault_password}' /usr/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_postgres_password' > /tmp/ansible/vars/nautobot-vault.yml"
+      "ANSIBLE_VAULT_PASSWORD='${var.ansible_vault_password}' /opt/ansible-env/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_postgres_password' > /tmp/ansible/vars/nautobot-vault.yml"
     ]
   }
 
