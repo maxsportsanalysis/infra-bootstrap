@@ -142,19 +142,13 @@ build {
   provisioner "shell" {
     inline = [
       "mkdir -p /tmp/ansible/vars",
-      "ANSIBLE_VAULT_PASSWORD='${var.ansible_vault_password}' /opt/ansible-env/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_postgres_password' > /tmp/ansible/vars/nautobot-vault.yml"
+      "echo '${var.ansible_vault_password}' > /tmp/ansible/vault-pass.txt",
+      "/opt/ansible-env/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_postgres_password' --vault-password-file /tmp/ansible/vault-pass.txt > /tmp/ansible/vars/nautobot-vault.yml"
     ]
   }
 
-  provisioner "shell" {
-    inline = ["echo '${var.ansible_vault_password}' > /tmp/ansible/vault-pass.txt"]
-  }
-
-
-
   provisioner "ansible-local" {
-    playbook_file   = "ansible/playbooks/nautobot-db.yaml"
-    command = "/opt/ansible-env/bin/ansible-playbook"
+    playbook_file = "ansible/playbooks/nautobot-db.yaml"
     playbook_dir  = "ansible"
     extra_arguments = [
       "--vault-password-file", "/tmp/ansible/vault-pass.txt"
