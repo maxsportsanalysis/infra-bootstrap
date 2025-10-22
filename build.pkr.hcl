@@ -151,7 +151,8 @@ build {
     playbook_file = "ansible/playbooks/nautobot-db.yaml"
     playbook_dir  = "ansible"
     extra_arguments = [
-      "--vault-password-file", "/tmp/ansible/vault-pass.txt"
+      "--vault-password-file", "/tmp/ansible/vault-pass.txt",
+      "--extra-vars", "ansible_python_interpreter=/opt/ansible-env/bin/python3"
     ]
   }
 
