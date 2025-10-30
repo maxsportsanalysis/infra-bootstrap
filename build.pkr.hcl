@@ -103,6 +103,12 @@ build {
     ]
   }
 
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /root/.ansible/collections"
+    ]
+  }
+
   provisioner "file" {
     source      = "ansible/collections/requirements.yaml"
     destination = "/root/.ansible/collections/requirements.yaml"
