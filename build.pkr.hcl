@@ -13,6 +13,11 @@ packer {
   }
 }
 
+variable "ansible_venv_path" {
+  type        = string
+  default   = "/opt/ansible-venv
+}
+
 variable "ansible_vault_password" {
   type        = string
   sensitive   = true
@@ -108,10 +113,10 @@ build {
       "apt-get update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev",
       
-      "python3 -m venv /opt/ansible-venv",
-      "/opt/ansible-env/bin/pip install --upgrade pip",
-      "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version}",
-      "/opt/ansible-env/bin/pip install psycopg2-binary"
+      "python3 -m venv ${var.ansible_venv_path}",
+      "${var.ansible_venv_path}/bin/pip install --upgrade pip",
+      "${var.ansible_venv_path}/bin/pip install ansible-core==${var.ansible_version}",
+      "${var.ansible_venv_path}/bin/pip install psycopg2-binary"
     ]
   }
 }
