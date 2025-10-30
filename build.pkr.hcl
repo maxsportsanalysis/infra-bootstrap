@@ -111,12 +111,19 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y openssl ca-certificates python3 python3-apt python3-pip python3-venv python3-dev",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y openssl ca-certificates libssl-dev",
+      "update-ca-certificates"
+    ]
+  }
 
-      "python3 -m venv ${var.ansible_venv_path}",
-      "${var.ansible_venv_path}/bin/pip install --upgrade pip",
-      "${var.ansible_venv_path}/bin/pip install ansible-core==${var.ansible_version}",
-      "${var.ansible_venv_path}/bin/pip install psycopg2-binary"
+  provisioner "shell" {
+    inline = [
+      "apt-get update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev",
+
+      "python3 -m venv /opt/ansible-venv",
+      "/opt/ansible-venv/bin/pip install --upgrade pip",
+      "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
 }
