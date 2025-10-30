@@ -103,41 +103,8 @@ build {
     ]
   }
 
-  provisioner "shell" {
-    inline = [
-      "mkdir -p /root/.ansible/collections"
-    ]
-  }
-
-  provisioner "file" {
-    source      = "ansible/collections/requirements.yaml"
-    destination = "/root/.ansible/collections/requirements.yaml"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "/opt/ansible-env/bin/ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      "mkdir -p /tmp/ansible/vars",
-      "echo '${var.ansible_vault_password}' > /tmp/ansible/vault-pass.txt",
-      "/opt/ansible-env/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file /tmp/ansible/vault-pass.txt > /tmp/ansible/vars/nautobot-vault.yml"
-    ]
-  }
-
   provisioner "ansible-local" {
     playbook_file = "ansible/playbooks/nautobot-db.yaml"
     playbook_dir  = "ansible"
-    extra_arguments = [
-      "--vault-password-file", "/tmp/ansible/vault-pass.txt",
-      "--extra-vars", "ansible_python_interpreter=/opt/ansible-env/bin/python3"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = ["rm -f /tmp/ansible/vault-pass.txt /tmp/ansible/vars/nautobot-vault.yml"]
   }
 }
