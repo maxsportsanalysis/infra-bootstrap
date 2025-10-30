@@ -107,10 +107,6 @@ build {
     inline = [
       "apt-get update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev redis-server locales",
-
-      "sed -i 's/^# *\\(en_US.UTF-8\\)/\\1/' /etc/locale.gen",
-      "locale-gen",
-      "update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8",
       
       "wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -",
       "sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'",
@@ -124,6 +120,10 @@ build {
       "ln -s /opt/ansible-env/bin/ansible /usr/local/bin/ansible",
       "ln -s /opt/ansible-env/bin/ansible-playbook /usr/local/bin/ansible-playbook",
       "mkdir -p /root/.ansible/collections",
+      
+      "sed -i 's/^# *\\(en_US.UTF-8\\)/\\1/' /etc/locale.gen",
+      "locale-gen",
+      "update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8",
 
       "if [ ! -f /var/lib/postgresql/$(ls /usr/lib/postgresql)/main/PG_VERSION ]; then pg_createcluster $(ls /usr/lib/postgresql) main --start; fi",
       "pg_ctlcluster $(ls /usr/lib/postgresql) main start"
