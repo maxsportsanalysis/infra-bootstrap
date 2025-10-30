@@ -106,6 +106,14 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates",
+      "update-ca-certificates"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "apt-get update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y locales",
       "sed -i 's/^# *\\(en_US.UTF-8\\)/\\1/' /etc/locale.gen",
       "locale-gen",
