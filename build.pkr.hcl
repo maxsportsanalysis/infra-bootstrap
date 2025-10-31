@@ -110,12 +110,25 @@ build {
 
   provisioner "shell" {
     inline = [
+      # Update and install Python + dev packages
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev ca-certificates",
 
+      # Force pip to use PyPI only (disable piwheels)
+      "mkdir -p /root/.config/pip",
+      "echo '[global]' > /root/.config/pip/pip.conf",
+      "echo 'index-url = https://pypi.org/simple' >> /root/.config/pip/pip.conf",
+      "echo 'trusted-host = pypi.org files.pythonhosted.org' >> /root/.config/pip/pip.conf",
+
+      # Create virtualenv
       "python3 -m venv /opt/ansible-venv",
-      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --no-extra-index-url --upgrade pip",
-      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --no-extra-index-url ansible-core==${var.ansible_version} psycopg2-binary"
+
+      # Upgrade pip, setuptools, wheel inside venv
+      "/opt/ansible-venv/bin/python -m pip install --upgrade pip setuptools wheel",
+
+      # Install Ansible core + dependencies from PyPI only
+      "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
+
 }
