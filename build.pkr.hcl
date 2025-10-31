@@ -114,8 +114,8 @@ build {
       "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev",
 
       "python3 -m venv /opt/ansible-venv",
-      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --upgrade pip",
-      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple ansible-core==${var.ansible_version} psycopg2-binary"
+      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --no-extra-index-url --upgrade pip",
+      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --no-extra-index-url ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
 }
