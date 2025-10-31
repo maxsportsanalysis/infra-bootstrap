@@ -119,7 +119,7 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y git python3 python3-apt python3-pip python3-venv python3-dev",
 
       "python3 -m venv /opt/ansible-venv",
       "/opt/ansible-venv/bin/pip install --upgrade pip",
