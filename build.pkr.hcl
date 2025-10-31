@@ -110,24 +110,25 @@ build {
 
   provisioner "shell" {
     inline = [
-      # Update system and install dependencies (no system pip)
+      # Update system and install Python + venv support
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y curl python3 python3-apt python3-venv python3-dev",
-
-      # Download the official pip bootstrap script
-      "curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py",
-
-      # Install pip using the bootstrap script for the system Python
-      "python3 /tmp/get-pip.py",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y curl python3 python3-venv python3-dev",
 
       # Create virtual environment for Ansible
       "python3 -m venv /opt/ansible-venv",
 
-      # Upgrade pip, setuptools, and wheel inside the venv
-      "/opt/ansible-venv/bin/python -m pip install --upgrade pip setuptools wheel",
+      # Download the pip bootstrapper
+      "curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py",
 
-      # (Optional) Install Ansible and psycopg2 from PyPI only
+      # Install pip *inside* the virtual environment using get-pip.py
+      "/opt/ansible-venv/bin/python /tmp/get-pip.py",
+
+      # Upgrade pip, setuptools, and wheel inside the venv
+      "/opt/ansible-venv/bin/pip install --upgrade pip setuptools wheel",
+
+      # (Optional) Install Ansible and other packages from PyPI
       #"/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
+
 }
