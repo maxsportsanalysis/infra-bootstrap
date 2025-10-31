@@ -112,7 +112,7 @@ build {
     inline = [
       # Update and install Python + dev packages
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev ca-certificates",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev ca-certificates openssl",
 
       # Force pip to use PyPI only (disable piwheels)
       "mkdir -p /root/.config/pip",
