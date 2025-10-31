@@ -119,6 +119,7 @@ build {
 
       # Upgrade pip, setuptools, wheel inside venv
       "/opt/ansible-venv/bin/python -m pip install --upgrade pip setuptools"
+      
 
       #"/opt/ansible-venv/bin/pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org asyncio"
 
