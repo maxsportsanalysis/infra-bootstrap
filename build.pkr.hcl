@@ -117,7 +117,7 @@ build {
       # Force pip to use PyPI only (disable piwheels)
       "mkdir -p /root/.config/pip",
       "echo '[global]' > /root/.config/pip/pip.conf",
-      "echo 'index-url = https://pypi.org/simple' >> /root/.config/pip/pip.conf",
+      "echo 'index-url = http://pypi.org/simple' >> /root/.config/pip/pip.conf",
       "echo 'trusted-host = pypi.org files.pythonhosted.org' >> /root/.config/pip/pip.conf",
 
       # Create virtualenv
