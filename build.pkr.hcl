@@ -112,13 +112,13 @@ build {
     inline = [
       # Update and install Python + dev packages
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y curl python3 python3-apt python3-pip python3-venv python3-dev",
 
       # Create virtualenv
       "python3 -m venv /opt/ansible-venv",
 
       # Upgrade pip, setuptools, wheel inside venv
-      "/opt/ansible-venv/bin/python -m pip install --upgrade pip",
+      "/opt/ansible-venv/bin/python -m pip install --upgrade --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip setuptools",
 
       "/opt/ansible-venv/bin/pip install asyncio"
 
