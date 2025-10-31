@@ -118,7 +118,9 @@ build {
       "python3 -m venv /opt/ansible-venv",
 
       # Upgrade pip, setuptools, wheel inside venv
-      "/opt/ansible-venv/bin/python -m pip install --upgrade pip"
+      "/opt/ansible-venv/bin/python -m pip install --upgrade pip",
+
+      "/opt/ansible-venv/bin/pip install asyncio"
 
       # Install Ansible core + dependencies from PyPI only
       #"/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
