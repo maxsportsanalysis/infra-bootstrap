@@ -120,7 +120,7 @@ build {
       # Upgrade pip, setuptools, wheel inside venv
       "/opt/ansible-venv/bin/python -m pip install --upgrade --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip setuptools",
 
-      "/opt/ansible-venv/bin/pip install asyncio"
+      "/opt/ansible-venv/bin/pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org asyncio"
 
       # Install Ansible core + dependencies from PyPI only
       #"/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
