@@ -112,22 +112,16 @@ build {
     inline = [
       # Update and install Python + dev packages
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev ca-certificates openssl",
-
-      # Force pip to use PyPI only (disable piwheels)
-      "mkdir -p /root/.config/pip",
-      "echo '[global]' > /root/.config/pip/pip.conf",
-      "echo 'index-url = http://pypi.org/simple' >> /root/.config/pip/pip.conf",
-      "echo 'trusted-host = pypi.org files.pythonhosted.org' >> /root/.config/pip/pip.conf",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-apt python3-pip python3-venv python3-dev"
 
       # Create virtualenv
-      "python3 -m venv /opt/ansible-venv",
+      #"python3 -m venv /opt/ansible-venv",
 
       # Upgrade pip, setuptools, wheel inside venv
-      "/opt/ansible-venv/bin/python -m pip install --upgrade pip setuptools wheel",
+      #"/opt/ansible-venv/bin/python -m pip install --upgrade pip",
 
       # Install Ansible core + dependencies from PyPI only
-      "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
+      #"/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
 
