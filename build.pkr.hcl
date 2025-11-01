@@ -128,7 +128,7 @@ build {
       #   libncurses-dev, libreadline-dev, tk-dev    -> Terminal UI, Interactive Input, Tkinter (dev/test only)
       #   inetutils-inetd                            -> On-Demand Service Startup (obsolete use systemd)
 
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y libffi-dev libmpdec-dev libssl-dev libsqlite3-dev uuid-dev",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y libffi-dev libssl-dev libsqlite3-dev uuid-dev",
 
 
       # --- Compression Libraries ---
