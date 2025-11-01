@@ -111,9 +111,13 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y curl python3 python3-venv python3-dev"
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libssl-dev libffi-dev libbz2-dev libreadline-dev libsqlite3-dev zlib1g-dev wget",
+      "wget -P /tmp https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz",
+      "tar -xf /tmp/Python-3.12.0.tgz -C /tmp",
+      "/tmp/Python-3.12.0/configure --enable-optimizations --with-lto --prefix=/usr/local",
+      "make -j$(nproc)",
+      "make altinstall",
+      "rm -rf /tmp/Python-3.12.0 /tmp/Python-3.12.0.tgz"
     ]
   }
-
-
 }
