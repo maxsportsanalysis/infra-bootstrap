@@ -113,7 +113,6 @@ build {
       "apt-get update",
 
       "DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential pkg-config wget",
-      "DEBIAN_FRONTEND=noninteractive apt-get build-dep python3",
 
       # --- Recommended Dependencies ---
       # Default (Required):
