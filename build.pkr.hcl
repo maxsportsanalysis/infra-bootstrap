@@ -111,13 +111,49 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libssl-dev libffi-dev libbz2-dev libreadline-dev libsqlite3-dev zlib1g-dev wget",
-      "wget -P /tmp https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz",
+
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential pkg-config wget",
+      "DEBIAN_FRONTEND=noninteractive apt-get build-dep python3",
+
+      # --- Recommended Dependencies ---
+      # Default (Required):
+      #   libffi-dev                                 -> ctypes (FFI bindings)
+      #   libmpdec-dev                               -> decimal (accurate financial math)
+      #   libssl-dev                                 -> HTTPS/TLS (ssl, hashlib)
+      # Optional:
+      #   libsqlite3-dev                             -> sqlite3 (lightweight DB)
+      #   uuid-dev                                   -> uuid (identifiers, config mgmt)
+      # Excluded (Dev-only / Obsolete):
+      #   gdb, lcov                                  -> Debugger, Code Coverage (dev/test only)
+      #   libgdbm-dev, libgdbm-compat-dev            -> Legacy DB (rarely used)
+      #   libncurses-dev, libreadline-dev, tk-dev    -> Terminal UI, Interactive Input, Tkinter (dev/test only)
+      #   inetutils-inetd                            -> On-Demand Service Startup (obsolete use systemd)
+
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y libffi-dev libmpdec-dev libssl-dev libsqlite3-dev uuid-dev",
+
+
+      # --- Compression Libraries ---
+      # Default (Required):
+      #   zlib1g-dev                                 -> zlib/gzip (essential, fast)
+      #   libzstd-dev                                -> zstd (modern, best speed/ratio tradeoff)
+      # Optional:
+      #   libbz2-dev                                 -> bzip2 (slow, legacy)
+      #   liblzma-dev                                -> xz/lzma (high compression, heavy CPU/RAM)
+      
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y zlib1g-dev libzstd-dev",
+      
+
+      # Build Python Version From Source      
+      "wget --progress=dot:mega -P /tmp https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz",
       "tar -xf /tmp/Python-3.12.0.tgz -C /tmp",
-      "/tmp/Python-3.12.0/configure --enable-optimizations --with-lto --prefix=/usr/local",
+      "/tmp/Python-3.12.0/configure --prefix=/usr/local",
+      #"/tmp/Python-3.12.0/configure --enable-optimizations --with-lto --prefix=/usr/local",
       "make -j$(nproc)",
       "make altinstall",
-      "rm -rf /tmp/Python-3.12.0 /tmp/Python-3.12.0.tgz"
+
+      # Cleanup
+      "apt-get clean",
+      "rm -rf /tmp/Python-3.12.0 /tmp/Python-3.12.0.tgz" # /var/lib/apt/lists/*
     ]
   }
 }
