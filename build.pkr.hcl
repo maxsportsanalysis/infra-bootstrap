@@ -113,12 +113,15 @@ build {
       "apt-get update",
       "DEBIAN_FRONTEND=noninteractive apt-get install -y curl python3 python3-venv python3-dev",
       # Remove Piwheels configuration (causes SSL issues in headless builds)
-      "rm -f /etc/pip.conf",
+      # "rm -f /etc/pip.conf",
       # Create venv and install pip inside
       "python3 -m venv /opt/ansible-venv",
       "curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py",
       "/opt/ansible-venv/bin/python /tmp/get-pip.py",
-      "/opt/ansible-venv/bin/pip install --upgrade pip setuptools wheel"
+      "/opt/ansible-venv/bin/pip install --upgrade pip setuptools wheel",
+      "/opt/ansible-venv/bin/pip install --use-feature=truststore asyncio"
+      
+      #"/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
 
