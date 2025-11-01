@@ -110,7 +110,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "apt-get update"
+      "apt-get update",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -y curl python3 python3-venv python3-dev"
     ]
   }
 
