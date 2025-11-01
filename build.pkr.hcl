@@ -155,4 +155,13 @@ build {
       "rm -rf /tmp/Python-3.12.0 /tmp/Python-3.12.0.tgz" # /var/lib/apt/lists/*
     ]
   }
+
+  provisioner "shell" {
+    inline = [
+      "apt-get update",
+      "/usr/local/bin/python3.12 -m venv /opt/ansible-venv",
+      "/opt/ansible-env/bin/pip install --upgrade pip",
+      "/opt/ansible-env/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
+    ]
+  }
 }
