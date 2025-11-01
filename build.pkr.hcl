@@ -160,8 +160,8 @@ build {
     inline = [
       "apt-get update",
       "/usr/local/bin/python3.12 -m venv /opt/ansible-venv",
-      "/opt/ansible-venv/bin/pip install --upgrade pip",
-      "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
+      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --upgrade pip",
+      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
 }
