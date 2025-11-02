@@ -59,6 +59,11 @@ variable "nautobot_password" {
   sensitive   = true
 }
 
+variable "pypi_url" {
+  type    = string
+  default = "https://pypi.org/simple"
+}
+
 variable "qemu_binary" {
   type        = string
   default     = "qemu-arm-static"
@@ -111,57 +116,10 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential pkg-config wget",
-
-      # --- Recommended Dependencies ---
-      # Default (Required):
-      #   libffi-dev                                 -> ctypes (FFI bindings)
-      #   libmpdec-dev                               -> decimal (accurate financial math)
-      #   libssl-dev                                 -> HTTPS/TLS (ssl, hashlib)
-      # Optional:
-      #   libsqlite3-dev                             -> sqlite3 (lightweight DB)
-      #   uuid-dev                                   -> uuid (identifiers, config mgmt)
-      # Excluded (Dev-only / Obsolete):
-      #   gdb, lcov                                  -> Debugger, Code Coverage (dev/test only)
-      #   libgdbm-dev, libgdbm-compat-dev            -> Legacy DB (rarely used)
-      #   libncurses-dev, libreadline-dev, tk-dev    -> Terminal UI, Interactive Input, Tkinter (dev/test only)
-      #   inetutils-inetd                            -> On-Demand Service Startup (obsolete use systemd)
-
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y libffi-dev libssl-dev libsqlite3-dev uuid-dev",
-
-
-      # --- Compression Libraries ---
-      # Default (Required):
-      #   zlib1g-dev                                 -> zlib/gzip (essential, fast)
-      #   libzstd-dev                                -> zstd (modern, best speed/ratio tradeoff)
-      # Optional:
-      #   libbz2-dev                                 -> bzip2 (slow, legacy)
-      #   liblzma-dev                                -> xz/lzma (high compression, heavy CPU/RAM)
-      
-      "DEBIAN_FRONTEND=noninteractive apt-get install -y zlib1g-dev libzstd-dev",
-      
-
-      # Build Python Version From Source      
-      "wget --progress=dot:mega -P /tmp https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz",
-      "tar -xf /tmp/Python-3.12.0.tgz -C /tmp",
-      "/tmp/Python-3.12.0/configure --prefix=/usr/local",
-      #"/tmp/Python-3.12.0/configure --enable-optimizations --with-lto --prefix=/usr/local",
-      "make -j$(nproc)",
-      "make altinstall",
-
-      # Cleanup
-      "apt-get clean",
-      "rm -rf /tmp/Python-3.12.0 /tmp/Python-3.12.0.tgz" # /var/lib/apt/lists/*
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      "apt-get update",
-      "/usr/local/bin/python3.12 -m venv /opt/ansible-venv",
-      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple --upgrade pip",
-      "/opt/ansible-venv/bin/pip install --index-url https://pypi.org/simple ansible-core==${var.ansible_version} psycopg2-binary"
+      "python3 -m venv /opt/ansible-venv",
+      "/opt/ansible-venv/bin/pip config set global.index-url https://pypi.org/simple",
+      "/opt/ansible-venv/bin/pip install --upgrade pip",
+      "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
 }
