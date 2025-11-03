@@ -23,11 +23,6 @@ variable "ansible_vault_password" {
   sensitive   = true
 }
 
-variable "ansible_version" {
-  type        = string
-  default     = "2.19.3"
-}
-
 variable "chroot_mounts" {
   type        = list(list(string))
   default     = []
@@ -113,13 +108,18 @@ build {
     ]
   }
 
+  provisioner "file" {
+    source      = "requirements.txt"
+    destination = "/tmp/requirements.txt"
+  }
+
   provisioner "shell" {
     inline = [
       "apt-get update",
       "python3 -m venv /opt/ansible-venv",
       "/opt/ansible-venv/bin/pip config --global unset global.extra-index-url",
       "/opt/ansible-venv/bin/pip install --upgrade pip",
-      "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
+      "/opt/ansible-venv/bin/pip install -r /tmp/requirements.txt"
     ]
   }
 
