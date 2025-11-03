@@ -118,7 +118,6 @@ build {
       "apt-get update",
       "python3 -m venv /opt/ansible-venv",
       "/opt/ansible-venv/bin/pip config --global unset global.extra-index-url",
-      "cat /etc/pip.conf",
       "/opt/ansible-venv/bin/pip install --upgrade pip",
       "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
