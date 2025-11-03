@@ -122,4 +122,14 @@ build {
       "/opt/ansible-venv/bin/pip install ansible-core==${var.ansible_version} psycopg2-binary"
     ]
   }
+
+  provisioner "shell" {
+    inline = [
+      "useradd -m -s /bin/bash automation",
+      "chown -R automation:automation /opt/ansible-venv",
+      "chmod -R 750 /opt/ansible-venv",
+      "echo 'export PATH=/opt/ansible-venv/bin:$PATH' >> /home/automation/.bashrc",
+      "chown automation:automation /home/automation/.bashrc"
+    ]
+  }
 }
