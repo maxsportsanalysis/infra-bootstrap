@@ -119,9 +119,9 @@ build {
       # Pip Configuration & Ansible Installation
       "${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
       "${var.ansible_venv_path}/bin/pip install --upgrade pip",
-      "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt"
-
-      #"echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc"
+      "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt",
+      
+      "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc"
     ]
   }
 
@@ -152,7 +152,6 @@ build {
   provisioner "ansible-local" {
     playbook_file = "ansible/playbooks/nautobot-db.yaml"
     playbook_dir  = "ansible"
-    executable     = "${var.ansible_venv_path}/bin/ansible-playbook"
     extra_arguments = [
       "--vault-password-file", "/tmp/ansible-vault-pass.txt",
       "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
