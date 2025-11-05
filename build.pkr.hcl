@@ -119,10 +119,10 @@ build {
       # Pip Configuration & Ansible Installation
       "${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
       "${var.ansible_venv_path}/bin/pip install --upgrade pip",
-      "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt",
+      "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt"
 
-      "mkdir -p /home/${var.os_bootstrap_user}",
-      "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.os_bootstrap_user}/.bashrc"
+      #"mkdir -p /home/${var.os_bootstrap_user}",
+      #"echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.os_bootstrap_user}/.bashrc"
     ]
   }
 
