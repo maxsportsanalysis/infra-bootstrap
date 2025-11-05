@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +e
+set -e
 
 echo "==== firstrun.sh starting at $(date) ===="
 
@@ -20,6 +20,8 @@ XKBOPTIONS=""
 KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
+
+chown -R ${USER}:${USER} /opt/ansible-venv
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh

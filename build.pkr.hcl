@@ -107,32 +107,13 @@ build {
       "chown -R ${var.linux_username}:${var.linux_username} ${var.ansible_venv_path}",
       "chmod -R 750 ${var.ansible_venv_path}",
       
-      # Pip Configuration & Ansible Installation
+      # Pip Configuration & Package Installation
       "${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
       "${var.ansible_venv_path}/bin/pip install --upgrade pip",
       "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt",
       
       "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc",
-      "chown -R ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
+      "chown ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
     ]
   }
-
-  provisioner "shell" {
-    inline = [
-      "mkdir -p /root/.ansible/collections"
-    ]
-  }
-
-  provisioner "file" {
-    source      = "ansible/collections/requirements.yaml"
-    destination = "/root/.ansible/collections/requirements.yaml"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "${var.ansible_venv_path}/bin/ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
-    ]
-  }
-
-
 }

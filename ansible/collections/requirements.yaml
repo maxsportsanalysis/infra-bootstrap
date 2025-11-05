@@ -1,3 +1,4 @@
 # ansible/collections/requirements.yml
 collections:
   - name: community.postgresql
+  - name: networktocode.nautobot
