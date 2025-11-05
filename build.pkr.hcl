@@ -114,7 +114,7 @@ build {
       
       # Virtual Environment Setup
       "python3 -m venv ${var.ansible_venv_path}",
-      "chmod -R 750 ${var.ansible_venv_path}",
+      #"chmod -R 750 ${var.ansible_venv_path}",
       
       # Pip Configuration & Ansible Installation
       "${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",

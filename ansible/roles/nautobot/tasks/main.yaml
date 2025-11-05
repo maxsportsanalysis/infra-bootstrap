@@ -14,7 +14,7 @@
   ansible.builtin.file:
     path: /usr/share/postgresql-common/pgdg
     state: directory
-    mode: 0755
+    mode: 0750
 
 - name: Add Postgres Key and Repo
   block:
@@ -67,7 +67,7 @@
     system: yes
 
 - name: Create Nautobot PostgreSQL database
-  become_user: postgres
+  #become_user: postgres
   community.postgresql.postgresql_db:
     name: nautobot
     owner: postgres
