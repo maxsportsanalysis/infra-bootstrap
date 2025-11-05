@@ -156,8 +156,7 @@ build {
     command = "${var.ansible_venv_path}/bin/ansible-playbook"
     extra_arguments = [
       "--vault-password-file", "/tmp/ansible-vault-pass.txt",
-      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3",
-      "--extra-vars", "os_bootstrap_user=${var.os_bootstrap_user}"
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
     ]
   }
 
