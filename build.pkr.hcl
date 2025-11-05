@@ -123,6 +123,8 @@ build {
 
       "mkdir -p /home/${var.os_bootstrap_user}",
       "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.os_bootstrap_user}/.bashrc"
+      "chown -R ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
+
     ]
   }
 
