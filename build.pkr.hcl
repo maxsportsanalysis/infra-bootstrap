@@ -94,42 +94,45 @@ build {
   }
 
   provisioner "file" {
-    source      = "provisioners/ansible_init.sh"
-    destination = "/usr/local/bin/ansible_init.sh"
+    source      = "requirements.txt"
+    destination = "/tmp/requirements.txt"
   }
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /tmp/ansible/collections"
+      "apt-get update",
+      
+      # Virtual Environment Setup
+      "python3 -m venv ${var.ansible_venv_path}",
+      "chown -R ${var.linux_username}:${var.linux_username} ${var.ansible_venv_path}",
+      "chmod -R 750 ${var.ansible_venv_path}",
+      
+      # Pip Configuration & Ansible Installation
+      "${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
+      "${var.ansible_venv_path}/bin/pip install --upgrade pip",
+      "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt"
+      
+      "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc",
+      "chown ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
     ]
   }
 
-  provisioner "file" {
-    source      = "requirements.txt"
-    destination = "/tmp/ansible/requirements.txt"
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /root/.ansible/collections"
+    ]
   }
 
   provisioner "file" {
     source      = "ansible/collections/requirements.yaml"
-    destination = "/tmp/ansible/collections/requirements.yaml"
+    destination = "/root/.ansible/collections/requirements.yaml"
   }
 
   provisioner "shell" {
     inline = [
-      "apt-get update"
-      
-      # Virtual Environment Setup
-      #"python3 -m venv ${var.ansible_venv_path}",
-      #"chown -R ${var.linux_username}:${var.linux_username} ${var.ansible_venv_path}",
-      #"chmod -R 750 ${var.ansible_venv_path}",
-      
-      # Pip Configuration & Ansible Installation
-      #"${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
-      #"${var.ansible_venv_path}/bin/pip install --upgrade pip",
-      #"${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt"
-      
-      #"echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc",
-      #"chown ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
+      "${var.ansible_venv_path}/bin/ansible-galaxy install -r /root/.anisble/collections/requirements.yaml"
     ]
   }
+
+
 }
