@@ -29,18 +29,18 @@
         filename: pgdg
         state: present
 
-- name: Install default PostgreSQL from OS repo
-  ansible.builtin.apt:
-    update_cache: yes
-    name:
-      - postgresql-{{ postgres_version }}
-      - postgresql-client-{{ postgres_version }}
-      - postgresql-common
-      - redis-server
-    state: present
+#- name: Install default PostgreSQL from OS repo
+#  ansible.builtin.apt:
+#    update_cache: yes
+#    name:
+#      - postgresql-{{ postgres_version }}
+#      - postgresql-client-{{ postgres_version }}
+#      - postgresql-common
+#      - redis-server
+#    state: present
 
 - name: Ensure PostgreSQL is installed
-  apt:
+  ansible.builtin.apt:
     name: "postgresql-{{ postgres_version }},postgresql-client-{{ postgres_version }}"
     state: present
     update_cache: yes
