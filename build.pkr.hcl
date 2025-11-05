@@ -122,8 +122,8 @@ build {
       "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt",
 
       "mkdir -p /home/${var.os_bootstrap_user}",
-      "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.os_bootstrap_user}/.bashrc",
-      "chown -R ${var.os_bootstrap_user}:${var.os_bootstrap_user} /home/${var.os_bootstrap_user}/.bashrc"
+      "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.os_bootstrap_user}/.bashrc"
+      #"chown -R ${var.os_bootstrap_user}:${var.os_bootstrap_user} /home/${var.os_bootstrap_user}/.bashrc"
 
     ]
   }
