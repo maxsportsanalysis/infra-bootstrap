@@ -1,4 +1,12 @@
 ---
+- name: Fix permissions for ansible venv directory
+  file:
+    path: /opt/ansible-venv
+    recurse: yes
+    owner: "{{ os_bootstrap_user }}"
+    group: "{{ os_bootstrap_user }}"
+    mode: '0755'
+
 - name: Install a list of packages
   ansible.builtin.apt:
     update_cache: yes
