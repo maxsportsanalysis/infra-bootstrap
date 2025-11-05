@@ -37,8 +37,6 @@ jobs:
             -var-file=pi.auto.pkrvars.hcl \
             -var "linux_username=${{ secrets.RPI_USERNAME }}" \
             -var "linux_password=${{ secrets.RPI_PASSWORD }}" \
-            -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
-            -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
             build.pkr.hcl
 
       - name: Build image
@@ -47,8 +45,6 @@ jobs:
             -var-file=pi.auto.pkrvars.hcl \
             -var "linux_username=${{ secrets.RPI_USERNAME }}" \
             -var "linux_password=${{ secrets.RPI_PASSWORD }}" \
-            -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
-            -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
             build.pkr.hcl
 
       - name: Upload built image
