@@ -113,7 +113,7 @@ build {
       "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt",
       
       "echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc",
-      "chown ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
+      "chown -R ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
     ]
   }
 
@@ -130,7 +130,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "${var.ansible_venv_path}/bin/ansible-galaxy install -r /root/.anisble/collections/requirements.yaml"
+      "${var.ansible_venv_path}/bin/ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
     ]
   }
 
