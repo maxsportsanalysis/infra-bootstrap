@@ -21,6 +21,12 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
+# --- Run first-time bootstrap ---
+if [ -x /usr/local/bin/ansible_init.sh ]; then
+  echo "Running bootstrap_ansible_env.sh..."
+  /usr/local/bin/ansible_init.sh || echo "Bootstrap failed, check logs."
+fi
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt

@@ -18,11 +18,6 @@ variable "ansible_venv_path" {
   default   = "/opt/ansible-venv"
 }
 
-variable "ansible_vault_password" {
-  type        = string
-  sensitive   = true
-}
-
 variable "chroot_mounts" {
   type        = list(list(string))
   default     = []
@@ -49,28 +44,18 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
-variable "nautobot_password" {
-  type        = string
-  sensitive   = true
-}
-
-variable "pypi_url" {
-  type    = string
-  default = "https://pypi.org/simple"
-}
-
 variable "qemu_binary" {
   type        = string
   default     = "qemu-arm-static"
   description = "Qemu binary to use."
 }
 
-variable "rpi_password" {
+variable "linux_password" {
   type        = string
   sensitive   = true
 }
 
-variable "rpi_username" {
+variable "linux_username" {
   type        = string
   sensitive   = true
 }
@@ -102,34 +87,49 @@ build {
   # Set PXE server SSH credentials
   provisioner "shell" {
     inline = [
-      "echo \"${var.rpi_username}:$(openssl passwd -6 '${var.rpi_password}')\" > /boot/firmware/userconf.txt",
+      "echo \"${var.linux_username}:$(openssl passwd -6 '${var.linux_password}')\" > /boot/firmware/userconf.txt",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh"
     ]
   }
 
   provisioner "file" {
-    source      = "requirements.txt"
-    destination = "/tmp/requirements.txt"
+    source      = "provisioners/ansible_init.sh"
+    destination = "/usr/local/bin/ansible_init.sh"
   }
 
-  provisioner "shell" {
+  provisioner "file" {
     inline = [
-      "apt-get update",
-      "python3 -m venv /opt/ansible-venv",
-      "/opt/ansible-venv/bin/pip config --global unset global.extra-index-url",
-      "/opt/ansible-venv/bin/pip install --upgrade pip",
-      "/opt/ansible-venv/bin/pip install -r /tmp/requirements.txt"
+      "mkdir -p /tmp/ansible/collections"
     ]
   }
 
+  provisioner "file" {
+    source      = "requirements.txt"
+    destination = "/tmp/ansible/requirements.txt"
+  }
+
+  provisioner "file" {
+    source      = "ansible/collections/requirements.yaml"
+    destination = "/tmp/ansible/collections/requirements.yaml"
+  }
+
   provisioner "shell" {
     inline = [
-      "useradd -m -s /bin/bash automation",
-      "chown -R automation:automation /opt/ansible-venv",
-      "chmod -R 750 /opt/ansible-venv",
-      "echo 'export PATH=/opt/ansible-venv/bin:$PATH' >> /home/automation/.bashrc",
-      "chown automation:automation /home/automation/.bashrc"
+      "apt-get update"
+      
+      # Virtual Environment Setup
+      #"python3 -m venv ${var.ansible_venv_path}",
+      #"chown -R ${var.linux_username}:${var.linux_username} ${var.ansible_venv_path}",
+      #"chmod -R 750 ${var.ansible_venv_path}",
+      
+      # Pip Configuration & Ansible Installation
+      #"${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
+      #"${var.ansible_venv_path}/bin/pip install --upgrade pip",
+      #"${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt"
+      
+      #"echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc",
+      #"chown ${var.linux_username}:${var.linux_username} /home/${var.linux_username}/.bashrc"
     ]
   }
 }
