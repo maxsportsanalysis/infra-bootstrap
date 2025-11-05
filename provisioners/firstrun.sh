@@ -21,8 +21,6 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
-chown -R ${USER}:${USER} /opt/ansible-venv
-
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
