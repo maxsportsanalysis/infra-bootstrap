@@ -13,7 +13,7 @@ packer {
   }
 }
 
-variable "ansible_password" {
+variable "ansible_vault_password" {
   type        = string
   sensitive   = true
 }
