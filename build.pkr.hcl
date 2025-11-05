@@ -98,7 +98,7 @@ build {
     destination = "/usr/local/bin/ansible_init.sh"
   }
 
-  provisioner "file" {
+  provisioner "shell" {
     inline = [
       "mkdir -p /tmp/ansible/collections"
     ]
