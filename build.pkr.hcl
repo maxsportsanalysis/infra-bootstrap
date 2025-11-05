@@ -13,6 +13,11 @@ packer {
   }
 }
 
+variable "ansible_password" {
+  type        = string
+  sensitive   = true
+}
+
 variable "ansible_venv_path" {
   type        = string
   default   = "/opt/ansible-venv"
@@ -44,18 +49,23 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
+variable "nautobot_password" {
+  type        = string
+  sensitive   = true
+}
+
 variable "qemu_binary" {
   type        = string
   default     = "qemu-arm-static"
   description = "Qemu binary to use."
 }
 
-variable "linux_password" {
+variable "os_bootstrap_password" {
   type        = string
   sensitive   = true
 }
 
-variable "linux_username" {
+variable "os_bootstrap_user" {
   type        = string
   sensitive   = true
 }
@@ -87,7 +97,7 @@ build {
   # Set PXE server SSH credentials
   provisioner "shell" {
     inline = [
-      "echo \"${var.linux_username}:$(openssl passwd -6 '${var.linux_password}')\" > /boot/firmware/userconf.txt",
+      "echo \"${var.os_bootstrap_user}:$(openssl passwd -6 '${var.os_bootstrap_password}')\" > /boot/firmware/userconf.txt",
       "sed -i 's|$| systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|' /boot/firmware/cmdline.txt",
       "chmod +x /boot/firmware/firstrun.sh"
     ]
@@ -110,7 +120,7 @@ build {
       "${var.ansible_venv_path}/bin/pip config --global unset global.extra-index-url",
       "${var.ansible_venv_path}/bin/pip install --upgrade pip",
       "${var.ansible_venv_path}/bin/pip install -r /tmp/requirements.txt"
-      
+
       #"echo 'export PATH=${var.ansible_venv_path}/bin:$PATH' >> /home/${var.linux_username}/.bashrc"
     ]
   }
@@ -128,7 +138,28 @@ build {
 
   provisioner "shell" {
     inline = [
-      "${var.ansible_venv_path}/bin/ansible-galaxy install -r /root/.ansible/collections/requirements.yaml"
+      "${var.ansible_venv_path}/bin/ansible-galaxy collection install -r /root/.ansible/collections/requirements.yaml"
     ]
   }
+
+  provisioner "shell" {
+    inline = [
+      "echo '${var.ansible_vault_password}' > /tmp/ansible-vault-pass.txt",
+      "${var.ansible_venv_path}/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file /tmp/ansible-vault-pass.txt > /tmp/nautobot-vault.yaml"
+    ]
+  }
+
+  provisioner "ansible-local" {
+    playbook_file = "ansible/playbooks/nautobot-db.yaml"
+    playbook_dir  = "ansible"
+    extra_arguments = [
+      "--vault-password-file", "/tmp/ansible-vault-pass.txt",
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = ["rm -f /tmp/ansible-vault-pass.txt /tmp/nautobot-vault.yaml"]
+  }
+
 }

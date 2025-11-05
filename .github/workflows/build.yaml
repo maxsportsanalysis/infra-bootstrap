@@ -35,16 +35,18 @@ jobs:
         run: |
           sudo packer validate \
             -var-file=pi.auto.pkrvars.hcl \
-            -var "linux_username=${{ secrets.RPI_USERNAME }}" \
-            -var "linux_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
+            -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
             build.pkr.hcl
 
       - name: Build image
         run: |
           sudo packer build \
             -var-file=pi.auto.pkrvars.hcl \
-            -var "linux_username=${{ secrets.RPI_USERNAME }}" \
-            -var "linux_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
+            -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
             build.pkr.hcl
 
       - name: Upload built image

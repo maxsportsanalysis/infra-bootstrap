@@ -4,4 +4,4 @@
   roles:
     - nautobot
   vars_files:
-    - /tmp/ansible/vars/nautobot-vault.yml
+    - /tmp/nautobot-vault.yaml

@@ -5,11 +5,10 @@
     pkg:
     - git
     - python3
-    - python3-apt
     - python3-pip
     - python3-venv
     - python3-dev
-    - locales
+    - redis-server
 
 - name: Add official PostgreSQL repo
   ansible.builtin.file:
@@ -34,32 +33,11 @@
   ansible.builtin.apt:
     update_cache: yes
     name:
-      - postgresql-18
-      - postgresql-client-18
+      - postgresql-{{ postgres_version }}
+      - postgresql-client-{{ postgres_version }}
       - postgresql-common
       - redis-server
     state: present
-
-- name: Ensure Nautobot group exists
-  ansible.builtin.group:
-    name: nautobot
-    system: yes
-    
-- name: Ensure Nautobot system user exists
-  ansible.builtin.user:
-    name: nautobot
-    comment: Nautobot
-    shell: /bin/bash
-    home: "{{ nautobot_home }}"
-    system: yes
-
-- name: Ensure Nautobot home directory has correct permissions
-  ansible.builtin.file:
-    path: "{{ nautobot_home }}"
-    owner: nautobot
-    group: nautobot
-    mode: "0755"
-    state: directory
 
 - name: Ensure PostgreSQL is installed
   apt:
@@ -68,33 +46,47 @@
     update_cache: yes
 
 - name: Ensure PostgreSQL service is running
-  service:
+  ansible.builtin.service:
     name: postgresql
     state: started
     enabled: yes
 
-- name: Create Nautobot database
+- name: Ensure Postgres group exists
+  ansible.builtin.group:
+    name: postgres
+    system: yes
+
+- name: Ensure Postgres system user exists
+  ansible.builtin.user:
+    name: postgres
+    comment: Postgres
+    shell: /bin/bash
+    home: /var/lib/postgresql
+    system: yes
+
+- name: Create Nautobot PostgreSQL database
   become_user: postgres
-  postgresql_db:
-    name: "{{ db_name }}"
+  community.postgresql.postgresql_db:
+    name: nautobot
+    owner: postgres
+    state: present
     encoding: UTF8
     lc_collate: en_US.UTF-8
     lc_ctype: en_US.UTF-8
+
+- name: Create Postgres Nautobot user
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: nautobot
+    password: "{{ nautobot_db_password }}"
+    role_attr_flags: LOGIN # CREATEDB,NOSUPERUSER
     state: present
 
-- name: Create Nautobot user
+- name: Grant all privileges on nautobot database to nautobot user
   become_user: postgres
-  postgresql_user:
-    name: "{{ db_user }}"
-    password: "{{ db_password }}"
-    role_attr_flags: LOGIN
-    state: present
-
-- name: Grant all privileges on database
-  become_user: postgres
-  postgresql_privs:
-    db: "{{ db_name }}"
-    roles: "{{ db_user }}"
+  community.postgresql.postgresql_privs:
+    db: nautobot
+    roles: nautobot
     type: database
     privs: ALL
     state: present
@@ -102,10 +94,63 @@
 - name: Grant CREATE on public schema
   become_user: postgres
   community.postgresql.postgresql_privs:
-    db: "{{ db_name }}"
-    roles: "{{ db_user }}"
+    db: nautobot
+    roles: nautobot
     type: schema
     objs: public
     privs: CREATE
     state: present
 
+- name: Ensure Nautobot group exists
+  ansible.builtin.group:
+    name: nautobot
+    system: yes
+
+- name: Create a nautobot system user
+  ansible.builtin.user:
+    name: nautobot
+    comment: Nautobot
+    create_home: true
+    home: /home/nautobot
+    system: true
+    shell: /bin/bash
+
+- name: Ensure Nautobot home directory has correct permissions
+  ansible.builtin.file:
+    path: /opt/nautobot
+    owner: nautobot
+    group: nautobot
+    mode: "0755"
+    state: directory
+
+- name: Run a module inside a virtual environment
+  block:
+    - name: Ensure the virtual environment exists
+      become_user: nautobot
+      become: True
+      ansible.builtin.pip:
+        name:
+          - pip
+          - wheel
+        virtualenv: /opt/nautobot/venv
+        virtualenv_command: "python3 -m venv"
+        virtualenv_site_packages: yes
+        extra_args: --upgrade
+
+    - name: Add NAUTOBOT_ROOT to the nautobot user .bashrc file
+      ansible.builtin.lineinfile:
+        path: /home/nautobot/.bashrc
+        line: 'export NAUTOBOT_ROOT=/opt/nautobot'
+        create: yes
+        state: present
+        owner: nautobot
+        group: nautobot
+        mode: '0644'
+
+    - name: Install Nautobot for Postgres
+      become_user: nautobot
+      become: True
+      ansible.builtin.pip:
+        name: nautobot
+        virtualenv: /opt/nautobot/venv
+        extra_args: "--no-binary=pyuwsgi"
