@@ -3,8 +3,6 @@
   ansible.builtin.apt:
     update_cache: yes
     pkg:
-    - curl
-    - ca-certificates
     - git
     - python3
     - python3-pip
