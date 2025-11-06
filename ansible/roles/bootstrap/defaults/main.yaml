@@ -1,0 +1,8 @@
+---
+postgres_version: 18
+
+
+db_name: nautobot
+db_user: nautobot
+db_password: "{{ nautobot_password }}"  # passed from Packer
+nautobot_home: /opt/nautobot

@@ -1,0 +1,78 @@
+---
+- name: Install a list of packages
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+    - curl
+    - ca-certificates
+    - git
+    - python3
+    - python3-pip
+    - python3-venv
+    - python3-dev
+    - redis-server
+
+- name: Postgres Configure Apt Repository
+  block:
+    - name: Download PostgreSQL signing key
+      ansible.builtin.get_url:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        dest: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+
+    - name: Add PostgreSQL apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main"
+        filename: pgdg
+        state: present
+
+    - name: Install PostgreSQL
+      ansible.builtin.apt:
+        name: "postgresql-{{ postgres_version }},postgresql-client-{{ postgres_version }}"
+        state: present
+        update_cache: yes
+
+- name: Ensure PostgreSQL is installed but not running
+  ansible.builtin.service:
+    name: postgresql
+    state: stopped
+    enabled: no
+
+- name: Create nautobot system user with /opt/nautobot as home
+  ansible.builtin.user:
+    name: nautobot
+    system: yes
+    shell: /bin/bash
+    create_home: yes
+    home: /opt/nautobot
+
+- name: Ensure /opt/nautobot directory exists and owned by nautobot
+  ansible.builtin.file:
+    path: /opt/nautobot
+    state: directory
+    owner: nautobot
+    group: nautobot
+    mode: '0755'
+
+- name: Create Python virtualenv at /opt/nautobot
+  ansible.builtin.command: python3 -m venv /opt/nautobot
+  become_user: nautobot
+  args:
+    creates: /opt/nautobot/bin/activate
+
+- name: Add NAUTOBOT_ROOT to the nautobot user .bashrc file
+  ansible.builtin.lineinfile:
+    path: /home/nautobot/.bashrc
+    line: 'export NAUTOBOT_ROOT=/opt/nautobot'
+    create: yes
+    state: present
+    owner: nautobot
+    group: nautobot
+    mode: '0644'
+
+- name: Upgrade pip and install wheel in virtualenv
+  ansible.builtin.command: /opt/nautobot/bin/pip install --upgrade pip wheel
+  become_user: nautobot
+
+- name: Install Nautobot with HTTPS-enabled pyuwsgi
+  ansible.builtin.command: /opt/nautobot/bin/pip install --no-binary=pyuwsgi nautobot
+  become_user: nautobot
