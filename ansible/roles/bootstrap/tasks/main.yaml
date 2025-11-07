@@ -1,5 +1,5 @@
 ---
-- name: Install a list of packages
+- name: Install base dependencies
   ansible.builtin.apt:
     update_cache: yes
     pkg:
@@ -12,36 +12,30 @@
       - postgresql-common
     state: present
 
-- name: Postgres Configure Apt Repository
-  block:
-    - name: Add official PostgreSQL Repository
-      ansible.builtin.file:
-        path: /usr/share/postgresql-common/pgdg
-        state: directory
-        mode: 0750
-        
-    - name: Download PostgreSQL signing key
-      ansible.builtin.get_url:
-        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
-        dest: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+- name: Enable PostgreSQL setup script repository installation
+  ansible.builtin.command:
+    cmd: /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+  args:
+    creates: /etc/apt/sources.list.d/pgdg.list
+  register: pgdg_repo
+  changed_when: "'Adding the repository' in pgdg_repo.stdout or 'added' in pgdg_repo.stdout"
 
-    - name: Add PostgreSQL apt repository
-      ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main"
-        filename: pgdg
-        state: present
-
-    - name: Install PostgreSQL
-      ansible.builtin.apt:
-        name: "postgresql-{{ postgres_version }},postgresql-client-{{ postgres_version }}"
-        state: present
-        update_cache: yes
+- name: Install PostgreSQL server and client
+  ansible.builtin.apt:
+    name:
+      - "postgresql-{{ postgres_version }}"
+      - "postgresql-client-{{ postgres_version }}"
+    state: present
+    update_cache: yes
 
 - name: Ensure PostgreSQL is installed but not running
   ansible.builtin.service:
     name: postgresql
     state: stopped
     enabled: no
+
+
+    
 
 - name: Create nautobot system user with /opt/nautobot as home
   ansible.builtin.user:
