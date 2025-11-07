@@ -34,9 +34,6 @@
     state: stopped
     enabled: no
 
-
-    
-
 - name: Create nautobot system user with /opt/nautobot as home
   ansible.builtin.user:
     name: nautobot
@@ -76,3 +73,90 @@
 - name: Install Nautobot with HTTPS-enabled pyuwsgi
   ansible.builtin.command: /opt/nautobot/bin/pip install --no-binary=pyuwsgi nautobot
   become_user: nautobot
+
+- name: Create systemd service for Nautobot
+  copy:
+    dest: /etc/systemd/system/nautobot.service
+    content: |
+      [Unit]
+      Description=Nautobot WSGI Service
+      Documentation=https://docs.nautobot.com/projects/core/en/stable/
+      After=network-online.target redis-server.service postgresql.service
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      Environment="NAUTOBOT_ROOT=/opt/nautobot"
+
+      User=nautobot
+      Group=nautobot
+      PIDFile=/var/tmp/nautobot.pid
+      WorkingDirectory=/opt/nautobot
+      ExecStart=/opt/nautobot/bin/nautobot-server start --pidfile /var/tmp/nautobot.pid --ini /opt/nautobot/uwsgi.ini
+      ExecStop=/opt/nautobot/bin/nautobot-server start --stop /var/tmp/nautobot.pid
+      ExecReload=/opt/nautobot/bin/nautobot-server start --reload /var/tmp/nautobot.pid
+      Restart=on-failure
+      RestartSec=30
+      PrivateTmp=true
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
+
+- name: Create systemd service for Nautobot Celery Worker
+  copy:
+    dest: /etc/systemd/system/nautobot-worker.service
+    content: |
+      [Unit]
+      Description=Nautobot Celery Worker
+      Documentation=https://docs.nautobot.com/projects/core/en/stable/
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=exec
+      Environment="NAUTOBOT_ROOT=/opt/nautobot"
+
+      User=nautobot
+      Group=nautobot
+      PIDFile=/var/tmp/nautobot-worker.pid
+      WorkingDirectory=/opt/nautobot
+
+      ExecStart=/opt/nautobot/bin/nautobot-server celery worker --loglevel INFO --pidfile /var/tmp/nautobot-worker.pid
+
+      Restart=always
+      RestartSec=30
+      PrivateTmp=true
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
+
+- name: Create systemd service for Nautobot Celery Beat Scheduler
+  copy:
+    dest: /etc/systemd/system/nautobot-scheduler.service
+    content: |
+      [Unit]
+      Description=Nautobot Celery Beat Scheduler
+      Documentation=https://docs.nautobot.com/projects/core/en/stable/
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=exec
+      Environment="NAUTOBOT_ROOT=/opt/nautobot"
+
+      User=nautobot
+      Group=nautobot
+      PIDFile=/var/tmp/nautobot-scheduler.pid
+      WorkingDirectory=/opt/nautobot
+
+      ExecStart=/opt/nautobot/bin/nautobot-server celery beat --loglevel INFO --pidfile /var/tmp/nautobot-scheduler.pid
+
+      Restart=always
+      RestartSec=30
+      PrivateTmp=true
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
