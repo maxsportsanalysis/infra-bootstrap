@@ -3,3 +3,8 @@
   become: yes
   roles:
     - bootstrap
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      when: ansible_service_mgr == "systemd"

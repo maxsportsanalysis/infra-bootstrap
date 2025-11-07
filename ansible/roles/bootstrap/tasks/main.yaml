@@ -32,7 +32,7 @@
   ansible.builtin.service:
     name: postgresql
     state: stopped
-    enabled: yes
+    enabled: no
 
 - name: Create nautobot system user with /opt/nautobot as home
   ansible.builtin.user:
@@ -165,16 +165,16 @@
   ansible.builtin.service:
     name: nautobot
     state: stopped
-    enabled: yes
+    enabled: no
 
 - name: Ensure Nautobot worker is enabled but stopped
   ansible.builtin.service:
     name: nautobot-worker
     state: stopped
-    enabled: yes
+    enabled: no
 
 - name: Ensure Nautobot scheduler is enabled but stopped
   ansible.builtin.service:
     name: nautobot-scheduler
     state: stopped
-    enabled: yes
+    enabled: no
