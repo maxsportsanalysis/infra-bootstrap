@@ -3,6 +3,8 @@
   become: yes
   roles:
     - bootstrap
+  #vars:
+  # step_ca_password: "{{ lookup('ansible.builtin.password', '/etc/ansible/secrets/step_ca_password.txt length=32') }}"
   handlers:
     - name: Reload systemd
       ansible.builtin.systemd:

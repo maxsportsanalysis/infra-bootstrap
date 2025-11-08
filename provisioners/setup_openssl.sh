@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -euxo pipefail
 
 # --------- Environment Variables ----------
@@ -107,6 +107,7 @@ liboqs_DIR=$INSTALLDIR_LIBOQS cmake \
 
 
 export PATH="$INSTALLDIR_OPENSSL/bin:$PATH"
+export OPENSSL_MODULES="$INSTALLDIR_OPENSSL/lib64/ossl-modules"
 
 echo "Open SSL Modules: $OPENSSL_MODULES"
 
