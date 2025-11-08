@@ -32,7 +32,7 @@
   ansible.builtin.service:
     name: postgresql
     state: stopped
-    enabled: no
+    enabled: yes
 
 - name: Create nautobot system user with /opt/nautobot as home
   ansible.builtin.user:
