@@ -162,9 +162,9 @@
   notify: Reload systemd
 
 - name: Ensure Nautobot services are enabled but not running
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: stopped
   loop:
     - nautobot
