@@ -208,7 +208,7 @@
     state: present
 
 - name: Enable step-ca service to start on boot
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: step-ca
     enabled: yes
     state: stopped
