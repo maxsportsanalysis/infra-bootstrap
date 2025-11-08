@@ -161,20 +161,12 @@
       WantedBy=multi-user.target
   notify: Reload systemd
 
-- name: Ensure Nautobot is enabled but stopped
+- name: Ensure Nautobot services are enabled but not running
   ansible.builtin.service:
-    name: nautobot
+    name: "{{ item }}"
+    enabled: yes
     state: stopped
-    enabled: no
-
-- name: Ensure Nautobot worker is enabled but stopped
-  ansible.builtin.service:
-    name: nautobot-worker
-    state: stopped
-    enabled: no
-
-- name: Ensure Nautobot scheduler is enabled but stopped
-  ansible.builtin.service:
-    name: nautobot-scheduler
-    state: stopped
-    enabled: no
+  loop:
+    - nautobot
+    - nautobot-worker
+    - nautobot-scheduler
