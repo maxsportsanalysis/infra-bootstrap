@@ -170,3 +170,45 @@
     - nautobot
     - nautobot-worker
     - nautobot-scheduler
+
+### CA SERVER
+
+- name: Install prerequisites for Smallstep
+  ansible.builtin.apt:
+    update_cache: yes
+    name:
+      - curl
+      - vim
+      - gpg
+      - ca-certificates
+    state: present
+    install_recommends: no
+
+- name: Add Smallstep APT repo GPG key
+  ansible.builtin.get_url:
+    url: https://packages.smallstep.com/keys/apt/repo-signing-key.gpg
+    dest: /etc/apt/trusted.gpg.d/smallstep.asc
+    mode: '0644'
+
+- name: Add Smallstep APT repository
+  ansible.builtin.apt_repository:
+    repo: 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main'
+    state: present
+    filename: smallstep
+
+- name: Update apt cache after adding Smallstep repo
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install step-cli and step-ca
+  ansible.builtin.apt:
+    name:
+      - step-cli
+      - step-ca
+    state: present
+
+- name: Enable step-ca service to start on boot
+  ansible.builtin.systemd:
+    name: step-ca
+    enabled: yes
+    state: stopped
