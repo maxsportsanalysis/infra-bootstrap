@@ -7,6 +7,7 @@
     group: root
     mode: '0600'
   when: luks_keyfile_content is defined
+  no_log: true   # hides keyfile content in logs for security
 
 - name: Configure crypttab to use keyfile
   lineinfile:
@@ -14,4 +15,30 @@
     regexp: '^intermediate_ca'
     line: "intermediate_ca UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d /root/luks_keyfile luks"
     create: yes
+    backrefs: no
   when: luks_keyfile_content is defined
+  notify: Reload systemd daemon  # so changes take effect on reboot
+
+- name: Ensure /mnt/intermediate_ca directory exists and owned by root
+  file:
+    path: /mnt/intermediate_ca
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Mount intermediate_ca volume immediately
+  mount:
+    path: /mnt/intermediate_ca
+    src: /dev/mapper/intermediate_ca
+    fstype: ext4
+    state: mounted
+    opts: noatime,nodiratime  # reduce disk writes for performance
+  register: mount_result
+
+- name: Verify mount success
+  assert:
+    that:
+      - mount_result.changed or mount_result.failed == false
+    fail_msg: "Mounting /mnt/intermediate_ca failed!"
+    success_msg: "/mnt/intermediate_ca mounted successfully."
