@@ -21,19 +21,9 @@
 
 - name: Unlock disk with passphrase
   ansible.builtin.command:
-    argv:
-      - cryptsetup
-      - luksOpen
-      - UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d
-      - intermediate_ca
-      - --key-file=-
-    stdin: "{{ luks_keyfile_content }}"
+    cmd: "echo '{{ luks_keyfile_content }}' | cryptsetup luksOpen UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d intermediate_ca --key-file=-"
   no_log: true
-  become: true
-  register: luks_unlock_result
-  changed_when: "'already exists' not in luks_unlock_result.stderr"
-  failed_when: luks_unlock_result.rc != 0 and 'already exists' not in luks_unlock_result.stderr
-
+  
 - name: Ensure /mnt/intermediate_ca directory exists and owned by root
   file:
     path: /mnt/intermediate_ca
