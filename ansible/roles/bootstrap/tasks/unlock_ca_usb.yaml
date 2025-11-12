@@ -1,23 +1,38 @@
 ---
-- name: Write LUKS keyfile from secret
-  copy:
-    content: "{{ luks_keyfile_content }}"
-    dest: /root/luks_keyfile
-    owner: root
-    group: root
-    mode: '0600'
-  when: luks_keyfile_content is defined
-  no_log: true   # hides keyfile content in logs for security
+#- name: Write LUKS keyfile from secret
+#  copy:
+#    content: "{{ luks_keyfile_content }}"
+#    dest: /root/luks_keyfile
+#    owner: root
+#    group: root
+#    mode: '0600'
+#  when: luks_keyfile_content is defined
+#  no_log: true   # hides keyfile content in logs for security
+#
+#- name: Configure crypttab to use keyfile
+#  lineinfile:
+#    path: /etc/crypttab
+#    regexp: '^intermediate_ca'
+#    line: "intermediate_ca UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d /root/luks_keyfile luks"
+#    create: yes
+#    backrefs: no
+#  when: luks_keyfile_content is defined
+#  notify: Reload systemd  # so changes take effect on reboot
 
-- name: Configure crypttab to use keyfile
-  lineinfile:
-    path: /etc/crypttab
-    regexp: '^intermediate_ca'
-    line: "intermediate_ca UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d /root/luks_keyfile luks"
-    create: yes
-    backrefs: no
-  when: luks_keyfile_content is defined
-  notify: Reload systemd  # so changes take effect on reboot
+- name: Unlock disk with passphrase
+  ansible.builtin.command:
+    argv:
+      - cryptsetup
+      - luksOpen
+      - UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d
+      - intermediate_ca
+      - --key-file=-
+    stdin: "{{ luks_keyfile_content }}"
+  no_log: true
+  become: true
+  register: luks_unlock_result
+  changed_when: "'already exists' not in luks_unlock_result.stderr"
+  failed_when: luks_unlock_result.rc != 0 and 'already exists' not in luks_unlock_result.stderr
 
 - name: Ensure /mnt/intermediate_ca directory exists and owned by root
   file:
@@ -26,6 +41,7 @@
     owner: root
     group: root
     mode: '0755'
+  become: true
 
 - name: Mount intermediate_ca volume immediately
   mount:
@@ -33,12 +49,13 @@
     src: /dev/mapper/intermediate_ca
     fstype: ext4
     state: mounted
-    opts: noatime,nodiratime  # reduce disk writes for performance
+    opts: noatime,nodiratime
+  become: true
   register: mount_result
 
 - name: Verify mount success
   assert:
     that:
-      - mount_result.changed or mount_result.failed == false
+      - mount_result.failed == false
     fail_msg: "Mounting /mnt/intermediate_ca failed!"
     success_msg: "/mnt/intermediate_ca mounted successfully."
