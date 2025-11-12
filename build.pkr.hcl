@@ -88,7 +88,6 @@ variable "os_bootstrap_user" {
 locals {
   ansible_firstboot_service = templatefile("templates/ansible-firstboot.service.pkrtpl.hcl", {
     ansible_script_path    = var.ansible_script_path
-    ansible_password_path  = var.ansible_vault_password_path
   })
 }
 
@@ -173,15 +172,6 @@ build {
   provisioner "file" {
     source      = "ansible"
     destination = "/opt/ansible"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "echo '${var.ansible_vault_password}' > '${var.ansible_vault_password_path}'",
-      "chmod 600 ${var.ansible_vault_password_path}",
-      "${var.ansible_venv_path}/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file '${var.ansible_vault_password_path}' > /tmp/nautobot-vault.yaml",
-      "rm -rf ${var.ansible_vault_password_path}"
-    ]
   }
 
   provisioner "file" {
