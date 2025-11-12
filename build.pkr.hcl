@@ -132,6 +132,7 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
+      "apt-get install -y cryptsetup git python3 python3-pip python3-venv python3-dev redis-server postgresql-common postgresql-18 postgresql-client-18",
       
       # Virtual Environment Setup
       "python3 -m venv ${var.ansible_venv_path}",
@@ -183,7 +184,8 @@ build {
     inline = [
       "chmod 644 /etc/systemd/system/ansible-firstboot.service",
       "systemctl daemon-reload",
-      "systemctl enable ansible-firstboot.service"
+      "systemctl enable ansible-firstboot.service",
+      "systemctl enable postgresql"
     ]
   }
 
