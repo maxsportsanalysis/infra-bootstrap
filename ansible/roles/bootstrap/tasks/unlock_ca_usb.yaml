@@ -12,6 +12,6 @@
   lineinfile:
     path: /etc/crypttab
     regexp: '^intermediate_ca'
-    line: "intermediate_ca UUID={{ intermediate_ca_uuid }} /root/luks_keyfile luks"
+    line: "intermediate_ca UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d /root/luks_keyfile luks"
     create: yes
   when: luks_keyfile_content is defined
