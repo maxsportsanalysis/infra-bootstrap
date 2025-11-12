@@ -27,32 +27,32 @@ KBEOF
 fi
 
 # --- Generate random passwords if they don't exist ---
-if [ ! -f "$PASSWORD_FILE" ]; then
-  head -c 32 /dev/urandom | base64 > "$PASSWORD_FILE"
-  chmod 600 "$PASSWORD_FILE"
-  echo "Generated new CA password"
-fi
-
-if [ ! -f "$PROVISIONER_PASSWORD_FILE" ]; then
-  head -c 32 /dev/urandom | base64 > "$PROVISIONER_PASSWORD_FILE"
-  chmod 600 "$PROVISIONER_PASSWORD_FILE"
-  echo "Generated new provisioner password"
-fi
-
-# --- Initialize step-ca if not initialized ---
-if [ ! -f "$STEP_CA_CONFIG" ]; then
-  echo "Initializing step-ca CA..."
-  step ca init \
-    --name "Internal CA" \
-    --dns "ca.internal" \
-    --address ":443" \
-    --provisioner admin \
-    --password-file "$PASSWORD_FILE" \
-    --provisioner-password-file "$PROVISIONER_PASSWORD_FILE"
-  echo "step-ca initialization complete."
-else
-  echo "step-ca already initialized."
-fi
+#if [ ! -f "$PASSWORD_FILE" ]; then
+#  head -c 32 /dev/urandom | base64 > "$PASSWORD_FILE"
+#  chmod 600 "$PASSWORD_FILE"
+#  echo "Generated new CA password"
+#fi
+#
+#if [ ! -f "$PROVISIONER_PASSWORD_FILE" ]; then
+#  head -c 32 /dev/urandom | base64 > "$PROVISIONER_PASSWORD_FILE"
+#  chmod 600 "$PROVISIONER_PASSWORD_FILE"
+#  echo "Generated new provisioner password"
+#fi
+#
+## --- Initialize step-ca if not initialized ---
+#if [ ! -f "$STEP_CA_CONFIG" ]; then
+#  echo "Initializing step-ca CA..."
+#  step ca init \
+#    --name "Internal CA" \
+#    --dns "ca.internal" \
+#    --address ":443" \
+#    --provisioner admin \
+#    --password-file "$PASSWORD_FILE" \
+#    --provisioner-password-file "$PROVISIONER_PASSWORD_FILE"
+#  echo "step-ca initialization complete."
+#else
+#  echo "step-ca already initialized."
+#fi
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
