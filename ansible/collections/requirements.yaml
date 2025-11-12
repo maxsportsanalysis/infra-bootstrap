@@ -4,3 +4,5 @@ collections:
     version: 4.1.0
   - name: networktocode.nautobot
     version: 5.16.1
+  - name: ansible.posix
+    version: 2.1.0

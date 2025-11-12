@@ -7,7 +7,7 @@
       become: true
 
     - name: Mount unlocked volume
-      mount:
+      ansible.posix.mount:
         path: /mnt/intermediate_ca
         src: /dev/mapper/intermediate_ca
         fstype: ext4

@@ -1,15 +1,15 @@
 ---
 - name: Include Apt Dependencies Task
-  import tasks: apt_dependencies.yaml
+  import_tasks: apt_dependencies.yaml
 
 - name: Include Postgresql Task
-  import tasks: postgresql_setup.yaml
+  import_tasks: postgresql_setup.yaml
 
 - name: Include Nautobot Task
-  import tasks: nautobot_setup.yaml
+  import_tasks: nautobot_setup.yaml
 
 - name: Include USB Unlocking Task
-  import tasks: unlock_ca_usb.yaml
+  import_tasks: unlock_ca_usb.yaml
 
 ### CA SERVER
 
