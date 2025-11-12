@@ -3,6 +3,7 @@
   ansible.builtin.apt:
     update_cache: yes
     pkg:
+      - cryptsetup
       - git
       - python3
       - python3-pip
@@ -170,6 +171,23 @@
     - nautobot
     - nautobot-worker
     - nautobot-scheduler
+
+### Intermediate CA Setup
+
+- name: Unlock and mount encrypted USB
+  block:
+    - name: Open LUKS device
+      command: >
+        cryptsetup luksOpen /dev/disk/by-uuid/0c0c73a8-79f9-4554-b241-27636c5d6a9d intermediate_ca
+      become: true
+
+    - name: Mount unlocked volume
+      mount:
+        path: /mnt/intermediate_ca
+        src: /dev/mapper/intermediate_ca
+        fstype: ext4
+        state: mounted
+
 
 ### CA SERVER
 
