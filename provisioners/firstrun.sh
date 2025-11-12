@@ -21,7 +21,7 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
-/opt/nautobot/bin/nautobot-server init
+sudo -u nautobot /opt/nautobot/bin/nautobot-server init
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
