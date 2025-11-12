@@ -85,6 +85,15 @@ variable "os_bootstrap_user" {
   sensitive   = true
 }
 
+data "template_file" "ansible_firstboot_service" {
+  template = file("templates/ansible-firstboot.service.pkrtpl.hcl")
+
+  vars = {
+    ansible_script_path = var.ansible_script_path
+    ansible_password_path = var.ansible_vault_password_path
+  }
+}
+
 source "arm-image" "raspberry_pi_os" {
   iso_urls        = [var.iso_url]
   iso_checksum    = var.iso_checksum
@@ -175,15 +184,6 @@ build {
       "${var.ansible_venv_path}/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file '${var.ansible_vault_password_path}' > /tmp/nautobot-vault.yaml",
       "rm -rf ${var.ansible_vault_password_path}"
     ]
-  }
-
-  data "template_file" "ansible_firstboot_service" {
-    template = file("templates/ansible-firstboot.service.pkrtpl.hcl")
-
-    vars = {
-      ansible_script_path = var.ansible_script_path
-      ansible_password_path = var.ansible_vault_password_path
-    }
   }
 
   provisioner "file" {
