@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart={{ user `ansible_script_path` }}
+ExecStart={{ .ansible_script_path }}
 RemainAfterExit=yes
 
 [Install]
