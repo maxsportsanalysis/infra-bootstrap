@@ -19,11 +19,23 @@
 #  when: luks_keyfile_content is defined
 #  notify: Reload systemd  # so changes take effect on reboot
 
-- name: Unlock disk with passphrase
-  ansible.builtin.command:
-    cmd: "echo '{{ luks_keyfile_content }}' | cryptsetup luksOpen UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d intermediate_ca --key-file=-"
-  no_log: true
-  
+- name: Write LUKS keyfile from secret
+  copy:
+    content: "{{ luks_keyfile_content }}"
+    dest: /root/luks_keyfile
+    owner: root
+    group: root
+    mode: '0600'
+  when: luks_keyfile_content is defined
+
+- name: Configure crypttab to use keyfile
+  lineinfile:
+    path: /etc/crypttab
+    regexp: '^intermediate_ca'
+    line: "intermediate_ca UUID=0c0c73a8-79f9-4554-b241-27636c5d6a9d /root/luks_keyfile luks"
+    create: yes
+  when: luks_keyfile_content is defined
+
 - name: Ensure /mnt/intermediate_ca directory exists and owned by root
   file:
     path: /mnt/intermediate_ca
@@ -31,21 +43,10 @@
     owner: root
     group: root
     mode: '0755'
-  become: true
 
-- name: Mount intermediate_ca volume immediately
-  mount:
-    path: /mnt/intermediate_ca
-    src: /dev/mapper/intermediate_ca
-    fstype: ext4
-    state: mounted
-    opts: noatime,nodiratime
-  become: true
-  register: mount_result
-
-- name: Verify mount success
-  assert:
-    that:
-      - mount_result.failed == false
-    fail_msg: "Mounting /mnt/intermediate_ca failed!"
-    success_msg: "/mnt/intermediate_ca mounted successfully."
+- name: Add fstab entry for intermediate_ca mount
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^/dev/mapper/intermediate_ca'
+    line: "/dev/mapper/intermediate_ca /mnt/intermediate_ca ext4 defaults,noatime,nodiratime 0 2"
+    create: yes
