@@ -2,11 +2,6 @@
 
 set -e
 
-STEP_CA_DIR="/var/lib/step-ca"
-STEP_CA_CONFIG="$STEP_CA_DIR/config/ca.json"
-PASSWORD_FILE="/root/step-ca-password.txt"
-PROVISIONER_PASSWORD_FILE="/root/step-ca-provisioner-password.txt"
-
 echo "==== firstrun.sh starting at $(date) ===="
 
 # --- Keyboard + timezone ---

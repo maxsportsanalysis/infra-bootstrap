@@ -13,9 +13,19 @@ packer {
   }
 }
 
+variable "ansible_script_path" {
+  type    = string
+  default = "/usr/local/bin/ansible-firstboot.sh"
+}
+
 variable "ansible_vault_password" {
   type        = string
   sensitive   = true
+}
+
+variable "ansible_vault_password_path" {
+  type    = string
+  default = "/tmp/ansible-vault-pass.txt"
 }
 
 variable "ansible_venv_path" {
@@ -148,25 +158,45 @@ build {
     ]
   }
 
+  provisioner "file" {
+    source      = "provisioners/ansible-firstboot.sh"
+    destination = "${var.ansible_script_path}"
+  }
+
+  provisioner "file" {
+    source      = "ansible"
+    destination = "/opt/ansible"
+  }
+
   provisioner "shell" {
     inline = [
-      "echo '${var.ansible_vault_password}' > /tmp/ansible-vault-pass.txt",
-      "${var.ansible_venv_path}/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file /tmp/ansible-vault-pass.txt > /tmp/nautobot-vault.yaml"
+      "echo '${var.ansible_vault_password}' > '${var.ansible_vault_password_path}'",
+      "chmod 600 ${var.ansible_vault_password_path}",
+      "${var.ansible_venv_path}/bin/ansible-vault encrypt_string '${var.nautobot_password}' --name 'nautobot_password' --vault-password-file '${var.ansible_vault_password_path}' > /tmp/nautobot-vault.yaml",
+      "rm -rf ${var.ansible_vault_password_path}"
     ]
   }
 
-  provisioner "ansible-local" {
-    playbook_file = "ansible/playbooks/bootstrap.yaml"
-    playbook_dir  = "ansible"
-    command = "${var.ansible_venv_path}/bin/ansible-playbook"
-    extra_arguments = [
-      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3",
-      "--extra-vars", "luks_keyfile_content='${var.luks_keyfile_content}'"
-    ]
+  data "template_file" "ansible_firstboot_service" {
+    template = file("templates/ansible-firstboot.service.pkrtpl.hcl")
+
+    vars = {
+      ansible_script_path = var.ansible_script_path
+      ansible_password_path = var.ansible_vault_password_path
+    }
+  }
+
+  provisioner "file" {
+    content     = data.template_file.ansible_firstboot_service.rendered
+    destination = "/etc/systemd/system/ansible-firstboot.service"
   }
 
   provisioner "shell" {
-    inline = ["rm -f /tmp/ansible-vault-pass.txt /tmp/nautobot-vault.yaml"]
+    inline = [
+      "chmod 644 /etc/systemd/system/ansible-firstboot.service",
+      "systemctl daemon-reload",
+      "systemctl enable ansible-firstboot.service"
+    ]
   }
 
 }
