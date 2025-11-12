@@ -21,6 +21,8 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
+/opt/nautobot/bin/nautobot-server init
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt

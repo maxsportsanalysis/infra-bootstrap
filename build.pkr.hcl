@@ -85,11 +85,11 @@ variable "os_bootstrap_user" {
   sensitive   = true
 }
 
-locals {
-  ansible_firstboot_service = templatefile("templates/ansible-firstboot.service.pkrtpl.hcl", {
-    ansible_script_path    = var.ansible_script_path
-  })
-}
+#locals {
+#  ansible_firstboot_service = templatefile("templates/ansible-firstboot.service.pkrtpl.hcl", {
+#    ansible_script_path    = var.ansible_script_path
+#  })
+#}
 
 source "arm-image" "raspberry_pi_os" {
   iso_urls        = [var.iso_url]
@@ -132,7 +132,6 @@ build {
   provisioner "shell" {
     inline = [
       "apt-get update",
-      "apt-get install -y cryptsetup git python3 python3-pip python3-venv python3-dev redis-server postgresql-common postgresql-18 postgresql-client-18",
       
       # Virtual Environment Setup
       "python3 -m venv ${var.ansible_venv_path}",
@@ -165,28 +164,41 @@ build {
     ]
   }
 
-  provisioner "file" {
-    source      = "provisioners/ansible-firstboot.sh"
-    destination = "${var.ansible_script_path}"
+  provisioner "ansible-local" {
+    playbook_file = "ansible/playbooks/bootstrap.yaml"
+    playbook_dir  = "ansible"
+    command = "${var.ansible_venv_path}/bin/ansible-playbook"
+    extra_arguments = [
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
+    ]
   }
 
-  provisioner "file" {
-    source      = "ansible"
-    destination = "/opt/ansible"
-  }
+  #provisioner "file" {
+  #  source      = "provisioners/ansible-firstboot.sh"
+  #  destination = "${var.ansible_script_path}"
+  #}
 
-  provisioner "file" {
-    content     = local.ansible_firstboot_service
-    destination = "/etc/systemd/system/ansible-firstboot.service"
-  }
+  #provisioner "file" {
+  #  source      = "ansible"
+  #  destination = "/opt/ansible"
+  #}
+
+  #provisioner "file" {
+  #  content     = local.ansible_firstboot_service
+  #  destination = "/etc/systemd/system/ansible-firstboot.service"
+  #}
+
+  #provisioner "shell" {
+  #  inline = [
+  #    "chmod 644 /etc/systemd/system/ansible-firstboot.service",
+  #    "systemctl daemon-reload",
+  #    "systemctl enable ansible-firstboot.service",
+  #    "systemctl enable postgresql"
+  #  ]
+  #}
 
   provisioner "shell" {
-    inline = [
-      "chmod 644 /etc/systemd/system/ansible-firstboot.service",
-      "systemctl daemon-reload",
-      "systemctl enable ansible-firstboot.service",
-      "systemctl enable postgresql"
-    ]
+    inline = ["rm -rf /tmp/*"]
   }
 
 }

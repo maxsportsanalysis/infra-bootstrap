@@ -1,12 +1,6 @@
 ---
-#- name: Include Apt Dependencies Task
-#  import_tasks: apt_dependencies.yaml
-
-#- name: Include USB Unlocking Task
-#  import_tasks: unlock_ca_usb.yaml
-
-#- name: Include Postgresql Task
-#  import_tasks: postgresql_setup.yaml
+- name: Include Apt Dependencies Task
+  import_tasks: apt_dependencies.yaml
 
 - name: Include Nautobot Task
   import_tasks: nautobot_setup.yaml
