@@ -17,7 +17,7 @@
     create: yes
     backrefs: no
   when: luks_keyfile_content is defined
-  notify: Reload systemd daemon  # so changes take effect on reboot
+  notify: Reload systemd  # so changes take effect on reboot
 
 - name: Ensure /mnt/intermediate_ca directory exists and owned by root
   file:
