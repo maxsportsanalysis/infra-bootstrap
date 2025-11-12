@@ -1,4 +1,6 @@
 # ansible/collections/requirements.yml
 collections:
   - name: community.postgresql
+    version: 4.1.0
   - name: networktocode.nautobot
+    version: 5.16.1
