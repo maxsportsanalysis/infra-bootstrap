@@ -1,23 +1,17 @@
 ---
-- name: Check if intermediate CA USB device exists
-  stat:
-    path: "/dev/disk/by-uuid/0c0c73a8-79f9-4554-b241-27636c5d6a9d"
-  register: usb_device
+- name: Write LUKS keyfile from secret
+  copy:
+    content: "{{ luks_keyfile_content }}"
+    dest: /root/luks_keyfile
+    owner: root
+    group: root
+    mode: '0600'
+  when: luks_keyfile_content is defined
 
-- name: Unlock and mount encrypted USB
-  block:
-    - name: Open LUKS device
-      command: >
-        cryptsetup luksOpen /dev/disk/by-uuid/0c0c73a8-79f9-4554-b241-27636c5d6a9d intermediate_ca
-      args:
-        stdin: "{{ intermediate_ca_passphrase }}"
-      become: true
-
-    - name: Mount unlocked volume
-      ansible.posix.mount:
-        path: /mnt/intermediate_ca
-        src: /dev/mapper/intermediate_ca
-        fstype: ext4
-        state: mounted
-  when: usb_device.stat.exists
-  ignore_errors: no
+- name: Configure crypttab to use keyfile
+  lineinfile:
+    path: /etc/crypttab
+    regexp: '^intermediate_ca'
+    line: "intermediate_ca UUID={{ intermediate_ca_uuid }} /root/luks_keyfile luks"
+    create: yes
+  when: luks_keyfile_content is defined

@@ -49,6 +49,11 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
+variable "luks_keyfile_content" {
+  type        = string
+  sensitive   = true
+}
+
 variable "nautobot_password" {
   type        = string
   sensitive   = true
@@ -155,7 +160,8 @@ build {
     playbook_dir  = "ansible"
     command = "${var.ansible_venv_path}/bin/ansible-playbook"
     extra_arguments = [
-      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3",
+      "--extra-vars", "luks_keyfile_content='${var.luks_keyfile_content}'"
     ]
   }
 
