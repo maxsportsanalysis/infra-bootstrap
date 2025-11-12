@@ -85,13 +85,11 @@ variable "os_bootstrap_user" {
   sensitive   = true
 }
 
-data "template_file" "ansible_firstboot_service" {
-  template = file("templates/ansible-firstboot.service.pkrtpl.hcl")
-
-  vars = {
-    ansible_script_path = var.ansible_script_path
-    ansible_password_path = var.ansible_vault_password_path
-  }
+locals {
+  ansible_firstboot_service = templatefile("templates/ansible-firstboot.service.pkrtpl.hcl", {
+    ansible_script_path    = var.ansible_script_path
+    ansible_password_path  = var.ansible_vault_password_path
+  })
 }
 
 source "arm-image" "raspberry_pi_os" {
@@ -187,7 +185,7 @@ build {
   }
 
   provisioner "file" {
-    content     = data.template_file.ansible_firstboot_service.rendered
+    content     = local.ansible_firstboot_service
     destination = "/etc/systemd/system/ansible-firstboot.service"
   }
 
