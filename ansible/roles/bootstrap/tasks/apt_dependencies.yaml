@@ -1,0 +1,14 @@
+---
+- name: Install base dependencies
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+      - cryptsetup
+      - git
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-dev
+      - redis-server
+      - postgresql-common
+    state: present
