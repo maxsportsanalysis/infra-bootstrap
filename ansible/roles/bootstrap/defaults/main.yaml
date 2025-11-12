@@ -1,4 +1,4 @@
 ---
 postgres_version: 18
 nautobot_home: /opt/nautobot
-luks_keyfile_content: "{{ luks_keyfile_content }}""
+luks_keyfile_content: "{{ luks_keyfile_content }}"
