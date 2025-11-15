@@ -22,7 +22,7 @@ KBEOF
 fi
 
 # sudo -u nautobot /opt/nautobot/bin/nautobot-server init
-step ca init
+#step ca init
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
