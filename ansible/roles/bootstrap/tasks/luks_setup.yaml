@@ -5,20 +5,22 @@
     pkg:
       - cryptsetup
     state: present
+
 - name: Check if LUKS keyfile exists
   ansible.builtin.stat:
     path: "{{ luks_keyfile_path }}"
   register: keyfile_stat
 
 - name: Generate random LUKS keyfile (32 bytes)
-  ansible.builtin.command: head -c 32 /dev/urandom
-  register: random_keyfile
+  ansible.builtin.command:
+    cmd: head -c 32 /dev/urandom > "{{ luks_keyfile_path }}"
+  args:
+    creates: "{{ luks_keyfile_path }}"
   when: not keyfile_stat.stat.exists
 
-- name: Write random LUKS keyfile to disk
-  ansible.builtin.copy:
-    dest: "{{ luks_keyfile_path }}"
-    content: "{{ random_keyfile.stdout }}"
+- name: Set permissions on LUKS keyfile
+  ansible.builtin.file:
+    path: "{{ luks_keyfile_path }}"
     mode: '0600'
   when: not keyfile_stat.stat.exists
 
@@ -43,7 +45,7 @@
     state: present
 
 - name: Create systemd unlock service
-  copy:
+  ansible.builtin.copy:
     dest: "{{ systemd_service_path }}"
     content: |
       [Unit]
@@ -61,7 +63,7 @@
       WantedBy=multi-user.target
 
 - name: Create unlock script
-  copy:
+  ansible.builtin.copy:
     dest: "{{ unlock_script_path }}"
     mode: '0755'
     content: |
@@ -88,7 +90,7 @@
       echo "Device unlocked as /dev/mapper/${MAPPER_NAME}"
 
 - name: Enable and start unlock service
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ systemd_service_name }}"
     enabled: yes
     state: stopped
