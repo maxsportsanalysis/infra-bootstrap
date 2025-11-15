@@ -12,10 +12,12 @@
   register: keyfile_stat
 
 - name: Generate random LUKS keyfile (32 bytes)
-  ansible.builtin.command:
-    cmd: head -c 32 /dev/urandom > "{{ luks_keyfile_path }}"
+  ansible.builtin.command: >
+    dd if=/dev/urandom of={{ luks_keyfile_path }} bs=32 count=1 status=none
   args:
     creates: "{{ luks_keyfile_path }}"
+  register: luks_keygen
+  changed_when: luks_keygen.rc == 0
   when: not keyfile_stat.stat.exists
 
 - name: Set permissions on LUKS keyfile
