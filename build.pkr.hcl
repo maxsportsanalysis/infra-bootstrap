@@ -59,7 +59,7 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
-variable "luks_keyfile_content" {
+variable "existing_luks_passphrase" {
   type        = string
   sensitive   = true
 }
@@ -169,33 +169,10 @@ build {
     playbook_dir  = "ansible"
     command = "${var.ansible_venv_path}/bin/ansible-playbook"
     extra_arguments = [
-      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3",
+      "--extra-vars", "existing_luks_passphrase=${var.existing_luks_passphrase}"
     ]
   }
-
-  #provisioner "file" {
-  #  source      = "provisioners/ansible-firstboot.sh"
-  #  destination = "${var.ansible_script_path}"
-  #}
-
-  #provisioner "file" {
-  #  source      = "ansible"
-  #  destination = "/opt/ansible"
-  #}
-
-  #provisioner "file" {
-  #  content     = local.ansible_firstboot_service
-  #  destination = "/etc/systemd/system/ansible-firstboot.service"
-  #}
-
-  #provisioner "shell" {
-  #  inline = [
-  #    "chmod 644 /etc/systemd/system/ansible-firstboot.service",
-  #    "systemctl daemon-reload",
-  #    "systemctl enable ansible-firstboot.service",
-  #    "systemctl enable postgresql"
-  #  ]
-  #}
 
   provisioner "shell" {
     inline = ["rm -rf /tmp/*"]

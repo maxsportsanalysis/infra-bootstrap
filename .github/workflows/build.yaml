@@ -39,7 +39,7 @@ jobs:
             -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
             -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
             -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
-            -var "luks_keyfile_content=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
+            -var "existing_luks_passphrase=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
             build.pkr.hcl
 
       - name: Build image
@@ -50,7 +50,7 @@ jobs:
             -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
             -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
             -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
-            -var "luks_keyfile_content=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
+            -var "existing_luks_passphrase=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
             build.pkr.hcl
 
       - name: Upload built image
