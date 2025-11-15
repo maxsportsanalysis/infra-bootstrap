@@ -34,7 +34,9 @@ jobs:
             ${{ runner.os }}-apt-
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
@@ -42,27 +44,35 @@ jobs:
           version: ${{ env.PACKER_VERSION }}
 
       - name: Initialize Packer configuration
-        run: sudo packer init .
+        run: packer init .
+        shell: bash
 
       - name: Validate Packer config
-        run: sudo packer validate \
-          -var-file=pi.auto.pkrvars.hcl \
-          -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
-          -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
-          -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
-          -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
-          -var "luks_keyfile_content=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
-          build.pkr.hcl
+        run: |
+          packer validate \
+            -var-file=pi.auto.pkrvars.hcl \
+            -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
+            -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "luks_keyfile_content=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
+            build.pkr.hcl
+        shell: bash
 
       - name: Build Packer image
-        run: sudo packer build \
-          -var-file=pi.auto.pkrvars.hcl \
-          -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
-          -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
-          -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
-          -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
-          -var "luks_keyfile_content=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
-          build.pkr.hcl
+        run: |
+          packer build \
+            -var-file=pi.auto.pkrvars.hcl \
+            -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
+            -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "nautobot_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "ansible_vault_password=${{ secrets.RPI_PASSWORD }}" \
+            -var "luks_keyfile_content=${{ secrets.LUKS_KEYFILE_CONTENT }}" \
+            build.pkr.hcl
+        shell: bash
+
+      - name: List built image artifact
+        run: ls -lh raspios-lite-arm64.img
 
       - name: Upload built image artifact
         uses: actions/upload-artifact@v4
