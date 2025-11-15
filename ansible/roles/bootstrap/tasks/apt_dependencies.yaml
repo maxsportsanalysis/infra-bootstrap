@@ -11,6 +11,7 @@
       - redis-server
       - postgresql-common
       - nginx
+      - jq
     state: present
 
 - name: Enable PostgreSQL setup script repository installation
