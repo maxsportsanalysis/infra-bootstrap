@@ -22,11 +22,10 @@ chmod 600 "$OUTPUT_DIR/index.txt" "$OUTPUT_DIR/serial" "$OUTPUT_DIR/crlnumber"
 command -v openssl >/dev/null 2>&1 || { echo "Error: openssl not found."; exit 1; }
 
 if [ ! -f "${OUTPUT_DIR}/root_ca.key" ]; then
-  log "Generating hybrid Root CA private key (p384_mldsa65)..."
+  log "Generating RSA 4096-bit Root CA private key..."
   $OPENSSL_BIN genpkey \
-    -algorithm p384_mldsa65 \
-    -provider oqsprovider \
-    -provider-path "$OQS_PROVIDER_PATH" \
+    -algorithm RSA \
+    -pkeyopt rsa_keygen_bits:4096 \
     -out "${OUTPUT_DIR}/root_ca.key"
   chmod 600 "${OUTPUT_DIR}/root_ca.key"
 else
@@ -108,8 +107,6 @@ if [ ! -f "${OUTPUT_DIR}/root_ca.crt" ]; then
   $OPENSSL_BIN req -x509 -new -key "${OUTPUT_DIR}/root_ca.key" \
     -out "${OUTPUT_DIR}/root_ca.crt" -days 3650 \
     -config "$CONFIG_FILE" -extensions root_ca_ext \
-    -provider oqsprovider \
-    -provider-path "$OQS_PROVIDER_PATH" \
     -sha512
   chmod 644 "${OUTPUT_DIR}/root_ca.crt"
 else
