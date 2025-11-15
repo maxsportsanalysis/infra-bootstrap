@@ -33,136 +33,136 @@
       - step-ca
     state: present
 
-- name: Create step-ca system user with /etc/step-ca as home
-  ansible.builtin.user:
-    name: step
-    system: yes
-    create_home: yes
-    home: /etc/step-ca
-    shell: /bin/false
-    comment: "Smallstep Certificate Authority service user"
-
-- name: Ensure /etc/step-ca directory exists with proper ownership
-  ansible.builtin.file:
-    path: /etc/step-ca
-    state: directory
-    owner: step
-    group: step
-    mode: '0750'
-
-- name: Grant step-ca binary permission to bind to low ports (e.g., 443)
-  ansible.builtin.command: >
-    setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)
-  args:
-    creates: /usr/bin/step-ca
-  become: yes
-
-- name: Move initialized step-ca configuration into /etc/step-ca
-  ansible.builtin.command: >
-    mv $(step path)/* /etc/step-ca
-  args:
-    removes: /etc/step
-  become: yes
-  ignore_errors: yes  # Safe in case it's already moved (e.g., image rebuild)
-
-- name: Ensure CA password file exists and is properly secured
-  ansible.builtin.copy:
-    dest: /etc/step-ca/password.txt
-    content: "{{ step_ca_password | default('change-me') }}"
-    owner: step
-    group: step
-    mode: '0600'
-
-- name: Update defaults.json to use /etc/step-ca path
-  ansible.builtin.command: >
-    jq '.path = "/etc/step-ca"' /etc/step-ca/config/defaults.json > /etc/step-ca/config/defaults.json.tmp
-  become: yes
-  args:
-    creates: /etc/step-ca/config/defaults.json.tmp
-
-- name: Replace updated defaults.json
-  ansible.builtin.command: >
-    mv /etc/step-ca/config/defaults.json.tmp /etc/step-ca/config/defaults.json
-  become: yes
-
-- name: Set ownership of /etc/step-ca recursively
-  ansible.builtin.file:
-    path: /etc/step-ca
-    state: directory
-    recurse: yes
-    owner: step
-    group: step
-    mode: '0750'
-
-- name: Update ca.json to point database to /etc/step-ca/db
-  ansible.builtin.command: >
-    bash -c 'cat <<< $(jq ".db.dataSource = \"/etc/step-ca/db\"" /etc/step-ca/config/ca.json) > /etc/step-ca/config/ca.json'
-  become: yes
-  args:
-    creates: /etc/step-ca/config/ca.json
-
-- name: Create systemd service for step-ca
-  copy:
-    dest: /etc/systemd/system/nautobot-scheduler.service
-    content: |
-      [Unit]
-      Description=step-ca service
-      Documentation=https://smallstep.com/docs/step-ca
-      Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
-      After=network-online.target
-      Wants=network-online.target
-      StartLimitIntervalSec=30
-      StartLimitBurst=3
-      ConditionFileNotEmpty=/etc/step-ca/config/ca.json
-      ConditionFileNotEmpty=/etc/step-ca/password.txt
-
-      [Service]
-      Type=simple
-      User=step
-      Group=step
-      Environment=STEPPATH=/etc/step-ca
-      WorkingDirectory=/etc/step-ca
-      ExecStart=/usr/bin/step-ca config/ca.json --password-file password.txt
-      ExecReload=/bin/kill --signal HUP $MAINPID
-      Restart=on-failure
-      RestartSec=5
-      TimeoutStopSec=30
-      StartLimitInterval=30
-      StartLimitBurst=3
-
-      ; Process capabilities & privileges
-      AmbientCapabilities=CAP_NET_BIND_SERVICE
-      CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-      SecureBits=keep-caps
-      NoNewPrivileges=yes
-
-      ; Sandboxing
-      ProtectSystem=full
-      ProtectHome=true
-      RestrictNamespaces=true
-      RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-      PrivateTmp=true
-      PrivateDevices=true
-      ProtectClock=true
-      ProtectControlGroups=true
-      ProtectKernelTunables=true
-      ProtectKernelLogs=true
-      ProtectKernelModules=true
-      LockPersonality=true
-      RestrictSUIDSGID=true
-      RemoveIPC=true
-      RestrictRealtime=true
-      SystemCallFilter=@system-service
-      SystemCallArchitectures=native
-      MemoryDenyWriteExecute=true
-      ReadWriteDirectories=/etc/step-ca/db
-
-      [Install]
-      WantedBy=multi-user.target
-  notify: Reload systemd
-
-- name: Enable step-ca service to start on boot
-  ansible.builtin.systemd_service:
-    name: step-ca
-    enabled: yes
-    state: stopped
+#- name: Create step-ca system user with /etc/step-ca as home
+#  ansible.builtin.user:
+#    name: step
+#    system: yes
+#    create_home: yes
+#    home: /etc/step-ca
+#    shell: /bin/false
+#    comment: "Smallstep Certificate Authority service user"
+#
+#- name: Ensure /etc/step-ca directory exists with proper ownership
+#  ansible.builtin.file:
+#    path: /etc/step-ca
+#    state: directory
+#    owner: step
+#    group: step
+#    mode: '0750'
+#
+#- name: Grant step-ca binary permission to bind to low ports (e.g., 443)
+#  ansible.builtin.command: >
+#    setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)
+#  args:
+#    creates: /usr/bin/step-ca
+#  become: yes
+#
+#- name: Move initialized step-ca configuration into /etc/step-ca
+#  ansible.builtin.command: >
+#    mv $(step path)/* /etc/step-ca
+#  args:
+#    removes: /etc/step
+#  become: yes
+#  ignore_errors: yes  # Safe in case it's already moved (e.g., image rebuild)
+#
+#- name: Ensure CA password file exists and is properly secured
+#  ansible.builtin.copy:
+#    dest: /etc/step-ca/password.txt
+#    content: "{{ step_ca_password | default('change-me') }}"
+#    owner: step
+#    group: step
+#    mode: '0600'
+#
+#- name: Update defaults.json to use /etc/step-ca path
+#  ansible.builtin.command: >
+#    jq '.path = "/etc/step-ca"' /etc/step-ca/config/defaults.json > /etc/step-ca/config/defaults.json.tmp
+#  become: yes
+#  args:
+#    creates: /etc/step-ca/config/defaults.json.tmp
+#
+#- name: Replace updated defaults.json
+#  ansible.builtin.command: >
+#    mv /etc/step-ca/config/defaults.json.tmp /etc/step-ca/config/defaults.json
+#  become: yes
+#
+#- name: Set ownership of /etc/step-ca recursively
+#  ansible.builtin.file:
+#    path: /etc/step-ca
+#    state: directory
+#    recurse: yes
+#    owner: step
+#    group: step
+#    mode: '0750'
+#
+#- name: Update ca.json to point database to /etc/step-ca/db
+#  ansible.builtin.command: >
+#    bash -c 'cat <<< $(jq ".db.dataSource = \"/etc/step-ca/db\"" /etc/step-ca/config/ca.json) > /etc/step-ca/config/ca.json'
+#  become: yes
+#  args:
+#    creates: /etc/step-ca/config/ca.json
+#
+#- name: Create systemd service for step-ca
+#  copy:
+#    dest: /etc/systemd/system/nautobot-scheduler.service
+#    content: |
+#      [Unit]
+#      Description=step-ca service
+#      Documentation=https://smallstep.com/docs/step-ca
+#      Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+#      After=network-online.target
+#      Wants=network-online.target
+#      StartLimitIntervalSec=30
+#      StartLimitBurst=3
+#      ConditionFileNotEmpty=/etc/step-ca/config/ca.json
+#      ConditionFileNotEmpty=/etc/step-ca/password.txt
+#
+#      [Service]
+#      Type=simple
+#      User=step
+#      Group=step
+#      Environment=STEPPATH=/etc/step-ca
+#      WorkingDirectory=/etc/step-ca
+#      ExecStart=/usr/bin/step-ca config/ca.json --password-file password.txt
+#      ExecReload=/bin/kill --signal HUP $MAINPID
+#      Restart=on-failure
+#      RestartSec=5
+#      TimeoutStopSec=30
+#      StartLimitInterval=30
+#      StartLimitBurst=3
+#
+#      ; Process capabilities & privileges
+#      AmbientCapabilities=CAP_NET_BIND_SERVICE
+#      CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+#      SecureBits=keep-caps
+#      NoNewPrivileges=yes
+#
+#      ; Sandboxing
+#      ProtectSystem=full
+#      ProtectHome=true
+#      RestrictNamespaces=true
+#      RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+#      PrivateTmp=true
+#      PrivateDevices=true
+#      ProtectClock=true
+#      ProtectControlGroups=true
+#      ProtectKernelTunables=true
+#      ProtectKernelLogs=true
+#      ProtectKernelModules=true
+#      LockPersonality=true
+#      RestrictSUIDSGID=true
+#      RemoveIPC=true
+#      RestrictRealtime=true
+#      SystemCallFilter=@system-service
+#      SystemCallArchitectures=native
+#      MemoryDenyWriteExecute=true
+#      ReadWriteDirectories=/etc/step-ca/db
+#
+#      [Install]
+#      WantedBy=multi-user.target
+#  notify: Reload systemd
+#
+#- name: Enable step-ca service to start on boot
+#  ansible.builtin.systemd_service:
+#    name: step-ca
+#    enabled: yes
+#    state: stopped
