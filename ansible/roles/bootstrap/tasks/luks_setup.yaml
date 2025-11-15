@@ -1,0 +1,94 @@
+---
+- name: Install cryptsetup
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+      - cryptsetup
+    state: present
+- name: Check if LUKS keyfile exists
+  ansible.builtin.stat:
+    path: "{{ luks_keyfile_path }}"
+  register: keyfile_stat
+
+- name: Generate random LUKS keyfile (32 bytes)
+  ansible.builtin.command: head -c 32 /dev/urandom
+  register: random_keyfile
+  when: not keyfile_stat.stat.exists
+
+- name: Write random LUKS keyfile to disk
+  ansible.builtin.copy:
+    dest: "{{ luks_keyfile_path }}"
+    content: "{{ random_keyfile.stdout }}"
+    mode: '0600'
+  when: not keyfile_stat.stat.exists
+
+- name: Add keyfile as new LUKS key slot
+  ansible.builtin.shell: |
+    echo -n "{{ existing_luks_passphrase }}" | cryptsetup luksAddKey "{{ luks_device }}" "{{ luks_keyfile_path }}" --key-file=-
+  no_log: true
+  when: not keyfile_stat.stat.exists
+
+- name: Backup crypttab before modifying
+  ansible.builtin.copy:
+    src: "{{ crypttab_path }}"
+    dest: "{{ crypttab_path }}.bak"
+    remote_src: yes
+  when: not keyfile_stat.stat.exists
+
+- name: Configure /etc/crypttab for auto unlock
+  ansible.builtin.lineinfile:
+    path: "{{ crypttab_path }}"
+    regexp: "^{{ luks_mapper_name }}\\b"
+    line: "{{ luks_mapper_name }} UUID={{ luks_device | regex_replace('/dev/disk/by-uuid/', '') }} {{ luks_keyfile_path }} {{ crypttab_options }}"
+    state: present
+
+- name: Create systemd unlock service
+  copy:
+    dest: "{{ systemd_service_path }}"
+    content: |
+      [Unit]
+      Description=Unlock LUKS encrypted {{ luks_mapper_name }} device
+      Wants=network.target
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart={{ unlock_script_path }}
+      TimeoutSec=30
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Create unlock script
+  copy:
+    dest: "{{ unlock_script_path }}"
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+
+      UUID="{{ luks_device | regex_replace('/dev/disk/by-uuid/', '') }}"
+      MAPPER_NAME="{{ luks_mapper_name }}"
+      KEYFILE="{{ luks_keyfile_path }}"
+
+      # Skip if already unlocked
+      if [ -e /dev/mapper/${MAPPER_NAME} ]; then
+        echo "Device /dev/mapper/${MAPPER_NAME} already unlocked."
+        exit 0
+      fi
+
+      DEV=$(blkid -U $UUID)
+      if [ -z "$DEV" ]; then
+        echo "ERROR: Device with UUID $UUID not found!"
+        exit 1
+      fi
+
+      cryptsetup luksOpen "$DEV" "$MAPPER_NAME" --key-file "$KEYFILE"
+      echo "Device unlocked as /dev/mapper/${MAPPER_NAME}"
+
+- name: Enable and start unlock service
+  systemd:
+    name: "{{ systemd_service_name }}"
+    enabled: yes
+    state: stopped

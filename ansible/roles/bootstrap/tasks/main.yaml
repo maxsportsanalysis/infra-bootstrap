@@ -1,4 +1,7 @@
 ---
+- name: LUKS Setup
+  import_tasks: luks_setup.yaml
+
 - name: Include Apt Dependencies Task
   import_tasks: apt_dependencies.yaml
 
