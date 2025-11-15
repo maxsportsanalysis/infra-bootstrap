@@ -61,7 +61,7 @@ jobs:
 
       - name: Build Packer image
         run: |
-          packer build \
+          sudo packer build \
             -var-file=pi.auto.pkrvars.hcl \
             -var "os_bootstrap_user=${{ secrets.RPI_USERNAME }}" \
             -var "os_bootstrap_password=${{ secrets.RPI_PASSWORD }}" \
