@@ -12,6 +12,7 @@
       - postgresql-common
       - nginx
       - jq
+      - tang
     state: present
 
 - name: Enable PostgreSQL setup script repository installation
@@ -34,8 +35,14 @@
       - "postgresql-client-{{ postgres_version }}"
     state: present
 
-#- name: Ensure PostgreSQL is installed but not running
-#  ansible.builtin.service:
-#    name: postgresql
-#    state: stopped
-#    enabled: yes
+- name: Ensure PostgreSQL is installed but not running
+  ansible.builtin.service:
+    name: postgresql
+    state: stopped
+    enabled: yes
+
+- name: Enable and Stop Tang service
+  systemd:
+    name: tang
+    enabled: yes
+    state: stopped

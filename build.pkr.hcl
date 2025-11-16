@@ -169,8 +169,7 @@ build {
     playbook_dir  = "ansible"
     command = "${var.ansible_venv_path}/bin/ansible-playbook"
     extra_arguments = [
-      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3",
-      "--extra-vars", "existing_luks_passphrase=${var.existing_luks_passphrase}"
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
     ]
   }
 

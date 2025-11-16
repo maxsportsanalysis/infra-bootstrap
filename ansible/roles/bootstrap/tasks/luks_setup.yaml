@@ -6,45 +6,45 @@
       - cryptsetup
     state: present
 
-- name: Check if LUKS keyfile exists
-  ansible.builtin.stat:
-    path: "{{ luks_keyfile_path }}"
-  register: keyfile_stat
+#- name: Check if LUKS keyfile exists
+#  ansible.builtin.stat:
+#    path: "{{ luks_keyfile_path }}"
+#  register: keyfile_stat
+#
+#- name: Generate random LUKS keyfile (32 bytes)
+#  ansible.builtin.command: >
+#    dd if=/dev/urandom of={{ luks_keyfile_path }} bs=32 count=1 status=none
+#  args:
+#    creates: "{{ luks_keyfile_path }}"
+#  register: luks_keygen
+#  changed_when: luks_keygen.rc == 0
+#  when: not keyfile_stat.stat.exists
+#
+#- name: Set permissions on LUKS keyfile
+#  ansible.builtin.file:
+#    path: "{{ luks_keyfile_path }}"
+#    mode: '0600'
+#  when: not keyfile_stat.stat.exists
 
-- name: Generate random LUKS keyfile (32 bytes)
-  ansible.builtin.command: >
-    dd if=/dev/urandom of={{ luks_keyfile_path }} bs=32 count=1 status=none
-  args:
-    creates: "{{ luks_keyfile_path }}"
-  register: luks_keygen
-  changed_when: luks_keygen.rc == 0
-  when: not keyfile_stat.stat.exists
-
-- name: Set permissions on LUKS keyfile
-  ansible.builtin.file:
-    path: "{{ luks_keyfile_path }}"
-    mode: '0600'
-  when: not keyfile_stat.stat.exists
-
-- name: Add keyfile as new LUKS key slot
-  ansible.builtin.shell: |
-    echo -n "{{ existing_luks_passphrase }}" | cryptsetup luksAddKey "{{ luks_device }}" "{{ luks_keyfile_path }}" --key-file=-
-  no_log: true
-  when: not keyfile_stat.stat.exists
-
-- name: Backup crypttab before modifying
-  ansible.builtin.copy:
-    src: "{{ crypttab_path }}"
-    dest: "{{ crypttab_path }}.bak"
-    remote_src: yes
-  when: not keyfile_stat.stat.exists
-
-- name: Configure /etc/crypttab for auto unlock
-  ansible.builtin.lineinfile:
-    path: "{{ crypttab_path }}"
-    regexp: "^{{ luks_mapper_name }}\\b"
-    line: "{{ luks_mapper_name }} UUID={{ luks_device | regex_replace('/dev/disk/by-uuid/', '') }} {{ luks_keyfile_path }} {{ crypttab_options }}"
-    state: present
+#- name: Add keyfile as new LUKS key slot
+#  ansible.builtin.shell: |
+#    echo -n "{{ existing_luks_passphrase }}" | cryptsetup luksAddKey "{{ luks_device }}" "{{ luks_keyfile_path }}" --key-file=-
+#  no_log: true
+#  when: not keyfile_stat.stat.exists
+#
+#- name: Backup crypttab before modifying
+#  ansible.builtin.copy:
+#    src: "{{ crypttab_path }}"
+#    dest: "{{ crypttab_path }}.bak"
+#    remote_src: yes
+#  when: not keyfile_stat.stat.exists
+#
+#- name: Configure /etc/crypttab for auto unlock
+#  ansible.builtin.lineinfile:
+#    path: "{{ crypttab_path }}"
+#    regexp: "^{{ luks_mapper_name }}\\b"
+#    line: "{{ luks_mapper_name }} UUID={{ luks_device | regex_replace('/dev/disk/by-uuid/', '') }} {{ luks_keyfile_path }} {{ crypttab_options }}"
+#    state: present
 
 - name: Create systemd unlock service
   ansible.builtin.copy:
@@ -75,6 +75,69 @@
       UUID="{{ luks_device | regex_replace('/dev/disk/by-uuid/', '') }}"
       MAPPER_NAME="{{ luks_mapper_name }}"
       KEYFILE="{{ luks_keyfile_path }}"
+
+
+      echo "Using keyfile path: $KEYFILE"
+      # Check if LUKS keyfile exists
+      if [ -f "$KEYFILE" ]; then
+          echo "LUKS keyfile already exists: $KEYFILE"
+          exit 0
+      else
+          echo "Generating new 32-byte LUKS keyfile..."
+          dd if=/dev/urandom of="$KEYFILE" bs=32 count=1 status=none
+
+          if [ $? -eq 0 ]; then
+              chmod 600 "$KEYFILE"
+              echo "New LUKS keyfile generated at $KEYFILE"
+          else
+              echo "ERROR: Failed to generate LUKS keyfile." >&2
+              exit 1
+          fi
+      fi
+
+      # Check if the keyfile is already a valid LUKS key before adding
+      cryptsetup luksOpen --test-passphrase --key-file /path/to/keyfile /dev/sdX
+      if [ $? -eq 0 ]; then
+        echo "Keyfile already valid, skipping add"
+      else
+        echo "Adding keyfile to LUKS header for $UUID ..."
+        cryptsetup luksAddKey /dev/sdX /path/to/keyfile
+        echo -n "$EXISTING_LUKS_PASSPHRASE" | cryptsetup luksAddKey "$LUKS_DEVICE" "$LUKS_KEYFILE_PATH" --key-file=-
+        echo "LUKS keyfile added successfully."
+      fi
+
+      # -----------------------------
+      # Backup /etc/crypttab
+      # -----------------------------
+      if [ -f "$CRYPTTAB_PATH" ]; then
+          echo "Backing up $CRYPTTAB_PATH to $CRYPTTAB_PATH.bak"
+          cp "$CRYPTTAB_PATH" "$CRYPTTAB_PATH.bak"
+      fi
+
+      # -----------------------------
+      # Update /etc/crypttab
+      # -----------------------------
+      DEVICE_UUID=$(basename "$LUKS_DEVICE")  # Extract UUID from /dev/disk/by-uuid/<uuid>
+
+      # crypttab line format:
+      # mapper_name  UUID=<uuid>  <keyfile_path>  <options>
+      NEW_LINE="$LUKS_MAPPER_NAME UUID=$DEVICE_UUID $LUKS_KEYFILE_PATH $CRYPTTAB_OPTIONS"
+
+      echo "Ensuring crypttab contains correct entry..."
+
+      # If entry exists, replace it; otherwise, append
+      if grep -q "^${LUKS_MAPPER_NAME}\b" "$CRYPTTAB_PATH"; then
+          # Replace existing line
+          sed -i "s|^${LUKS_MAPPER_NAME}.*|$NEW_LINE|" "$CRYPTTAB_PATH"
+      else
+          # Add new line
+          echo "$NEW_LINE" >> "$CRYPTTAB_PATH"
+      fi
+
+      echo "/etc/crypttab updated: $NEW_LINE"
+
+
+
 
       # Skip if already unlocked
       if [ -e /dev/mapper/${MAPPER_NAME} ]; then

@@ -22,8 +22,8 @@ KBEOF
 fi
 
 # sudo -u nautobot /opt/nautobot/bin/nautobot-server init
-
 # step ca init
+#/dev/disk/by-uuid/81fd23be-ebc1-4956-86c7-baa1e20bb6bf
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
