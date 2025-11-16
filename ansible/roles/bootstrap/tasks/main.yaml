@@ -5,8 +5,11 @@
 - name: Include Apt Dependencies Task
   import_tasks: apt_dependencies.yaml
 
-- name: Include Nautobot Task
-  import_tasks: nautobot_setup.yaml
+- name: Clevis Setup
+  import_tasks: clevis_bind_usb.yaml
 
-- name: Include Step Ca
-  import_tasks: step_ca_setup.yaml
+#- name: Include Nautobot Task
+#  import_tasks: nautobot_setup.yaml
+
+#- name: Include Step Ca
+#  import_tasks: step_ca_setup.yaml

@@ -15,6 +15,7 @@
       - tang
       - clevis
       - clevis-luks
+      - clevis-initramfs
     state: present
 
 - name: Enable PostgreSQL setup script repository installation

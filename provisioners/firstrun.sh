@@ -28,24 +28,6 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
-############################################################################
-
-# Function to check if Clevis is already bound
-is_clevis_bound() {
-    cryptsetup luksDump "$LUKS_DEVICE" | grep -q 'Clevis'
-}
-
-# Only bind if not already bound
-if is_clevis_bound; then
-    echo "Clevis keyslot already present. Skipping binding."
-else
-    echo "Binding Clevis keyslot for the first time..."
-    clevis luks bind -d "$LUKS_DEVICE" tang '{"url":"'"$TANG_URL"'"}'
-    echo "Clevis keyslot added successfully."
-fi
-
-############################################################################
-
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt

@@ -1,0 +1,48 @@
+---
+
+- name: Create Clevis systemd config
+  copy:
+    dest: /etc/systemd/system/clevis-bind-usb.service
+    content: |
+      [Unit]
+      Description=Bind Clevis Tang keyslot to encrypted USB
+      After=network-online.target tangd.socket
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/clevis_bind_usb.sh
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
+
+- name: Create Clevis systemd config
+  copy:
+    dest: /usr/local/bin/clevis_bind_usb.sh
+    content: |
+      #!/bin/bash
+      set -e
+
+      LUKS_DEVICE="/dev/disk/by-uuid/64295905-56a0-4b43-bbaa-540492146dce"
+      TANG_URL="http://127.0.0.1"
+
+      if cryptsetup luksDump "$LUKS_DEVICE" | grep -q "Clevis"; then
+          echo "Clevis keyslot already exists"
+          exit 0
+      fi
+
+      echo "Binding Clevis Tang keyslot..."
+      clevis luks bind -d "$LUKS_DEVICE" tang "{\"url\":\"$TANG_URL\"}"
+
+      echo "Clevis bind complete"
+      exit 0
+  notify: Reload systemd
+
+- name: Ensure Clevis services are enabled but not running
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: stopped
+  loop:
+    - clevis-bind-usb.service
