@@ -43,6 +43,6 @@
 
 - name: Enable and Stop Tang service
   systemd:
-    name: tang
+    name: tangd.socket
     enabled: yes
     state: stopped
