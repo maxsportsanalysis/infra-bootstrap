@@ -4,6 +4,13 @@ set -e
 
 echo "==== firstrun.sh starting at $(date) ===="
 
+LUKS_DEVICE="/dev/disk/by-uuid/64295905-56a0-4b43-bbaa-540492146dce"
+CLEVIS_PIN="tang"
+TANG_URL="http://localhost"
+# Adjust your mapping name and device path as needed
+MAPPER_NAME="luksmapper"
+
+
 # --- Keyboard + timezone ---
 if [ -f /usr/lib/raspberrypi-sys-mods/imager_custom ]; then
    /usr/lib/raspberrypi-sys-mods/imager_custom set_keymap "us"
@@ -21,11 +28,32 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
-# sudo -u nautobot /opt/nautobot/bin/nautobot-server init
-# step ca init
-#/dev/disk/by-uuid/81fd23be-ebc1-4956-86c7-baa1e20bb6bf
+############################################################################
+
+# Function to check if Clevis is already bound
+is_clevis_bound() {
+    cryptsetup luksDump "$LUKS_DEVICE" | grep -q 'Clevis'
+}
+
+# Only bind if not already bound
+if is_clevis_bound; then
+    echo "Clevis keyslot already present. Skipping binding."
+else
+    echo "Binding Clevis keyslot for the first time..."
+    clevis luks bind -d "$LUKS_DEVICE" tang '{"url":"'"$TANG_URL"'"}'
+    echo "Clevis keyslot added successfully."
+fi
+
+############################################################################
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 exit 0
+
+
+
+
+# sudo -u nautobot /opt/nautobot/bin/nautobot-server init
+# step ca init
+#/dev/disk/by-uuid/81fd23be-ebc1-4956-86c7-baa1e20bb6bf

@@ -13,6 +13,8 @@
       - nginx
       - jq
       - tang
+      - clevis
+      - clevis-luks
     state: present
 
 - name: Enable PostgreSQL setup script repository installation
