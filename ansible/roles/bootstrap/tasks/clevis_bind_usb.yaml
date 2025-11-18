@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure /var/db/tang directory exists
   file:
     path: /var/db/tang
