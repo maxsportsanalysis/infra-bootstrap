@@ -2,11 +2,11 @@
 - name: Include Apt Dependencies Task
   import_tasks: apt_dependencies.yaml
 
+- name: Clevis Setup
+  import_tasks: clevis_bind_usb.yaml
+
 - name: Systemd Service Initialization
   import_tasks: service_initialization.yaml
-
-#- name: Clevis Setup
-#  import_tasks: clevis_bind_usb.yaml
 
 #- name: Include Nautobot Task
 #  import_tasks: nautobot_setup.yaml
