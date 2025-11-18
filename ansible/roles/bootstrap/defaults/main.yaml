@@ -1,5 +1,6 @@
 ---
-luks_bootstrap_password_uuid: 610cfb26-8b05-4b16-8194-5b2ff8938866
+unencrypted_usb_uuid: af5400eb-23ae-41e8-9c22-06bca21387b6
+encrypted_luks_uuid: 81fd23be-ebc1-4956-86c7-baa1e20bb6bf
 
 #postgres_version: 18
 #nautobot_home: /opt/nautobot

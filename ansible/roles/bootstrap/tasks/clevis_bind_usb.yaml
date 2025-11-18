@@ -17,24 +17,86 @@
       WantedBy=multi-user.target
   notify: Reload systemd
 
-- name: Create Clevis systemd config
+- name: Create Clevis bind script (UUID → UUID)
   copy:
     dest: /usr/local/bin/clevis_bind_usb.sh
+    mode: '0750'
     content: |
       #!/bin/bash
-      set -e
+      set -euo pipefail
 
-      LUKS_DEVICE="/dev/disk/by-uuid/{{ luks_bootstrap_password_uuid }}"
+      #############################################
+      # Device UUIDs (injected by Ansible)
+      #############################################
+      UNENCRYPTED_UUID="{{ unencrypted_usb_uuid }}"
+      LUKS_UUID="{{ encrypted_luks_uuid }}"
+      PASSWORD_FILE="luks_passphrase.txt"
       TANG_URL="http://127.0.0.1"
 
-      if cryptsetup luksDump "$LUKS_DEVICE" | grep -q "Clevis"; then
-          echo "Clevis keyslot already exists"
+      #############################################
+      # Resolve block devices from UUIDs
+      #############################################
+      UNENCRYPTED_DEV="/dev/disk/by-uuid/${UNENCRYPTED_UUID}"
+      LUKS_DEV="/dev/disk/by-uuid/${LUKS_UUID}"
+
+      if [[ ! -b "$UNENCRYPTED_DEV" ]]; then
+          echo "ERROR: Unencrypted USB device not found: $UNENCRYPTED_DEV"
+          exit 1
+      fi
+
+      if [[ ! -b "$LUKS_DEV" ]]; then
+          echo "ERROR: LUKS device not found: $LUKS_DEV"
+          exit 1
+      fi
+
+      #############################################
+      # Create a temporary mount location
+      #############################################
+      TMPDIR="$(mktemp -d /run/unencrypted_usb.XXXXXX)"
+
+      cleanup() {
+          umount "$TMPDIR" || true
+          rm -rf "$TMPDIR"
+      }
+      trap cleanup EXIT
+
+      echo "Mounting unencrypted USB..."
+      mount "$UNENCRYPTED_DEV" "$TMPDIR"
+
+      #############################################
+      # Read password
+      #############################################
+      PASS_PATH="${TMPDIR}/${PASSWORD_FILE}"
+
+      if [[ ! -f "$PASS_PATH" ]]; then
+          echo "ERROR: Password file not found: $PASS_PATH"
+          exit 1
+      fi
+
+      LUKS_PASS="$(cat "$PASS_PATH")"
+
+      if [[ -z "$LUKS_PASS" ]]; then
+          echo "ERROR: Password file is empty!"
+          exit 1
+      fi
+
+      #############################################
+      # Skip if Clevis already bound
+      #############################################
+      if cryptsetup luksDump "$LUKS_DEV" | grep -qi "clevis"; then
+          echo "Clevis keyslot already exists — skipping."
           exit 0
       fi
 
+      #############################################
+      # Bind Clevis/Tang keyslot
+      #############################################
       echo "Binding Clevis Tang keyslot..."
-      clevis luks bind -d "$LUKS_DEVICE" tang "{\"url\":\"$TANG_URL\"}"
+      echo -n "$LUKS_PASS" | clevis luks bind \
+          -d "$LUKS_DEV" \
+          tang "{\"url\":\"${TANG_URL}\"}" \
+          --luks-pass -
 
-      echo "Clevis bind complete"
+      echo "Clevis bind complete."
       exit 0
   notify: Reload systemd
