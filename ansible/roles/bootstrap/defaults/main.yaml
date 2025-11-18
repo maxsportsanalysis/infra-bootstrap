@@ -1,4 +1,5 @@
 ---
-postgres_version: 18
-nautobot_home: /opt/nautobot
-existing_luks_passphrase: "{{ existing_luks_passphrase }}"
+luks_bootstrap_password_uuid: 610cfb26-8b05-4b16-8194-5b2ff8938866
+
+#postgres_version: 18
+#nautobot_home: /opt/nautobot

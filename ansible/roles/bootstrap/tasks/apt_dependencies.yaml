@@ -8,44 +8,13 @@
       - python3-pip
       - python3-venv
       - python3-dev
-      - redis-server
-      - postgresql-common
-      - nginx
+      #- redis-server
+      #- postgresql-common
+      #- nginx
       - jq
       - tang
       - clevis
       - clevis-luks
       - clevis-initramfs
+      - cryptsetup
     state: present
-
-- name: Enable PostgreSQL setup script repository installation
-  ansible.builtin.command:
-    cmd: /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
-  args:
-    creates: /etc/apt/sources.list.d/pgdg.list
-  register: pgdg_repo
-  changed_when: "'Adding the repository' in pgdg_repo.stdout or 'added' in pgdg_repo.stdout"
-
-- name: Update apt cache after adding PostgreSQL repo
-  ansible.builtin.apt:
-    update_cache: yes
-  when: pgdg_repo.changed
-
-- name: Install PostgreSQL server and client
-  ansible.builtin.apt:
-    name:
-      - "postgresql-{{ postgres_version }}"
-      - "postgresql-client-{{ postgres_version }}"
-    state: present
-
-- name: Ensure PostgreSQL is installed but not running
-  ansible.builtin.service:
-    name: postgresql
-    state: stopped
-    enabled: yes
-
-- name: Enable and Stop Tang service
-  systemd:
-    name: tangd.socket
-    enabled: yes
-    state: stopped

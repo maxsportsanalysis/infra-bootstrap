@@ -28,6 +28,8 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
+/usr/libexec/tangd-keygen /var/db/tang
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt

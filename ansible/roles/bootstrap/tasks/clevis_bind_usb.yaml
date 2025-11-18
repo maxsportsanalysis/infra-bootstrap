@@ -24,7 +24,7 @@
       #!/bin/bash
       set -e
 
-      LUKS_DEVICE="/dev/disk/by-uuid/64295905-56a0-4b43-bbaa-540492146dce"
+      LUKS_DEVICE="/dev/disk/by-uuid/{{ luks_bootstrap_password_uuid }}"
       TANG_URL="http://127.0.0.1"
 
       if cryptsetup luksDump "$LUKS_DEVICE" | grep -q "Clevis"; then
@@ -38,11 +38,3 @@
       echo "Clevis bind complete"
       exit 0
   notify: Reload systemd
-
-- name: Ensure Clevis services are enabled but not running
-  ansible.builtin.systemd_service:
-    name: "{{ item }}"
-    enabled: true
-    state: stopped
-  loop:
-    - clevis-bind-usb.service
