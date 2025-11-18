@@ -1,5 +1,6 @@
 ---
 encrypted_luks_uuid: 81fd23be-ebc1-4956-86c7-baa1e20bb6bf
 unencrypted_usb_label: LUKS_PASSWORD
+
 #postgres_version: 18
 #nautobot_home: /opt/nautobot
