@@ -35,7 +35,7 @@
       set -euo pipefail
 
       UNENCRYPTED_UUID=$(blkid -o value -s UUID -t LABEL="{{ unencrypted_usb_label }}" 2>/dev/null)
-      if [ -z "$UUID" ]; then
+      if [ -z "$UNENCRYPTED_UUID" ]; then
         echo "No device found with label"
         exit 1
       fi
