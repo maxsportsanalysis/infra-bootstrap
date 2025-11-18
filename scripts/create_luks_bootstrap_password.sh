@@ -161,9 +161,13 @@ echo -n "Enter LUKS passphrase for mapping '$MAPPING': "
 read -rs LUKS_PASSPHRASE
 echo
 
+# Strip any trailing newlines or carriage returns from passphrase
+LUKS_PASSPHRASE=$(echo -n "$LUKS_PASSPHRASE" | tr -d '\r\n')
+
 [[ -z "$LUKS_PASSPHRASE" ]] && die "Passphrase cannot be empty."
 
-echo -n "$LUKS_PASSPHRASE" > "$PASSFILE_PATH"
+# Write passphrase without newline
+printf '%s' "$LUKS_PASSPHRASE" > "$PASSFILE_PATH"
 chmod 600 "$PASSFILE_PATH"
 
 ###############################################################################

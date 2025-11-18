@@ -4,12 +4,6 @@ set -e
 
 echo "==== firstrun.sh starting at $(date) ===="
 
-LUKS_DEVICE="/dev/disk/by-uuid/64295905-56a0-4b43-bbaa-540492146dce"
-CLEVIS_PIN="tang"
-TANG_URL="http://localhost"
-# Adjust your mapping name and device path as needed
-MAPPER_NAME="luksmapper"
-
 
 # --- Keyboard + timezone ---
 if [ -f /usr/lib/raspberrypi-sys-mods/imager_custom ]; then

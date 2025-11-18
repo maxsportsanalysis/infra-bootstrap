@@ -8,6 +8,18 @@
 - name: Systemd Service Initialization
   import_tasks: service_initialization.yaml
 
+- name: Ensure systemd services are enabled but not running
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: stopped
+  loop:
+    - clevis-bind-usb.service
+    - tangd.socket
+    #- postgresql
+
+
+
 #- name: Include Nautobot Task
 #  import_tasks: nautobot_setup.yaml
 

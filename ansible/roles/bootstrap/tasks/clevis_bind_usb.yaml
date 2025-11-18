@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure /var/db/tang directory exists
+  file:
+    path: /var/db/tang
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Create Clevis systemd config
   copy:
     dest: /etc/systemd/system/clevis-bind-usb.service
@@ -12,6 +20,7 @@
       [Service]
       Type=oneshot
       ExecStart=/usr/local/bin/clevis_bind_usb.sh
+      User=root
 
       [Install]
       WantedBy=multi-user.target
@@ -92,10 +101,7 @@
       # Bind Clevis/Tang keyslot
       #############################################
       echo "Binding Clevis Tang keyslot..."
-      echo -n "$LUKS_PASS" | clevis luks bind \
-          -d "$LUKS_DEV" \
-          tang "{\"url\":\"${TANG_URL}\"}" \
-          --luks-pass -
+      clevis luks bind -d "$LUKS_DEV" tang "{\"url\":\"${TANG_URL}\"}" -k "$PASS_PATH"
 
       echo "Clevis bind complete."
       exit 0
