@@ -1,5 +1,4 @@
 ---
-unencrypted_usb_uuid: e6601ee0-275d-48e0-b19b-c874426e56b1
 encrypted_luks_uuid: 81fd23be-ebc1-4956-86c7-baa1e20bb6bf
 
 #postgres_version: 18

@@ -34,10 +34,15 @@
       #!/bin/bash
       set -euo pipefail
 
+      UNENCRYPTED_UUID=$(blkid -o value -s UUID -t LABEL="{{ unencrypted_usb_label }}" 2>/dev/null)
+      if [ -z "$UUID" ]; then
+        echo "No device found with label"
+        exit 1
+      fi
+
       #############################################
       # Device UUIDs (injected by Ansible)
       #############################################
-      UNENCRYPTED_UUID="{{ unencrypted_usb_uuid }}"
       LUKS_UUID="{{ encrypted_luks_uuid }}"
       PASSWORD_FILE="luks_passphrase.txt"
       TANG_URL="http://127.0.0.1"
@@ -45,7 +50,7 @@
       #############################################
       # Resolve block devices from UUIDs
       #############################################
-      UNENCRYPTED_DEV="/dev/disk/by-uuid/${UNENCRYPTED_UUID}"
+      UNENCRYPTED_DEV="/dev/disk/by-partuuid/${UNENCRYPTED_UUID}"
       LUKS_DEV="/dev/disk/by-uuid/${LUKS_UUID}"
 
       if [[ ! -b "$UNENCRYPTED_DEV" ]]; then
