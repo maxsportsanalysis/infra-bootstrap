@@ -50,7 +50,7 @@
       #############################################
       # Resolve block devices from UUIDs
       #############################################
-      UNENCRYPTED_DEV="/dev/disk/by-partuuid/${UNENCRYPTED_UUID}"
+      UNENCRYPTED_DEV="/dev/disk/by-uuid/${UNENCRYPTED_UUID}"
       LUKS_DEV="/dev/disk/by-uuid/${LUKS_UUID}"
 
       if [[ ! -b "$UNENCRYPTED_DEV" ]]; then
