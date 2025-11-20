@@ -19,7 +19,9 @@
 
       [Service]
       Type=oneshot
-      ExecStart=/usr/local/bin/clevis_bind_usb.sh
+      ExecStart=/usr/local/bin/clevis_bind_usb.sh >> /var/log/clevis_bind_usb.log 2>&1
+      StandardOutput=journal
+      StandardError=journal
       User=root
 
       [Install]
