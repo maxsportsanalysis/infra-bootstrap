@@ -102,6 +102,9 @@
           exit 0
       fi
 
+      echo "Initializing Tang keys..."
+      /usr/libexec/tangd-keygen /var/db/tang
+
       #############################################
       # Bind Clevis/Tang keyslot
       #############################################
