@@ -7,6 +7,13 @@
     group: root
     mode: '0755'
 
+- name: Create clevis_bind_usb log file
+  file:
+    path: /var/log/clevis_bind_usb.log
+    state: touch
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Create Clevis systemd config
   copy:
@@ -19,7 +26,7 @@
 
       [Service]
       Type=oneshot
-      ExecStart=/usr/local/bin/clevis_bind_usb.sh >> /var/log/clevis_bind_usb.log 2>&1
+      ExecStart=/usr/local/bin/clevis_bind_usb.sh
       StandardOutput=journal
       StandardError=journal
       User=root
