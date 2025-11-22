@@ -81,10 +81,10 @@
           umount "$TMPDIR" || true
           rm -rf "$TMPDIR"
       }
-      trap cleanup EXIT
+      # trap cleanup EXIT
 
-      echo "Mounting unencrypted USB..."
-      mount "$UNENCRYPTED_DEV" "$TMPDIR"
+      # echo "Mounting unencrypted USB..."
+      # mount "$UNENCRYPTED_DEV" "$TMPDIR"
 
       #############################################
       # Read password
@@ -118,7 +118,8 @@
       # Bind Clevis/Tang keyslot
       #############################################
       echo "Binding Clevis Tang keyslot..."
-      clevis luks bind -d "$LUKS_DEV" tang "{\"url\":\"${TANG_URL}\"}" -k "$PASS_PATH"
+      clevis luks bind -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}" -k "$PASS_PATH"
+
 
       echo "Clevis bind complete."
       exit 0
