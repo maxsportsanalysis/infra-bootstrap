@@ -83,8 +83,8 @@
       }
       # trap cleanup EXIT
 
-      # echo "Mounting unencrypted USB..."
-      # mount "$UNENCRYPTED_DEV" "$TMPDIR"
+      echo "Mounting unencrypted USB..."
+      mount "$UNENCRYPTED_DEV" "$TMPDIR"
 
       #############################################
       # Read password
