@@ -7,14 +7,6 @@
     group: root
     mode: '0755'
 
-- name: Create clevis_bind_usb log file
-  file:
-    path: /var/log/clevis_bind_usb.log
-    state: touch
-    owner: root
-    group: root
-    mode: '0644'
-
 - name: Create Clevis systemd config
   copy:
     dest: /etc/systemd/system/clevis-bind-usb.service
@@ -27,8 +19,6 @@
       [Service]
       Type=oneshot
       ExecStart=/usr/local/bin/clevis_bind_usb.sh
-      StandardOutput=journal
-      StandardError=journal
       User=root
 
       [Install]
@@ -118,8 +108,7 @@
       # Bind Clevis/Tang keyslot
       #############################################
       echo "Binding Clevis Tang keyslot..."
-      clevis luks bind -k "$PASS_PATH" -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}"
-
+      clevis luks bind -k "$PASS_PATH" -y -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}"
 
       echo "Clevis bind complete."
       exit 0
