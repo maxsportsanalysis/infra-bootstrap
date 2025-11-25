@@ -108,7 +108,12 @@
       # Bind Clevis/Tang keyslot
       #############################################
       echo "Binding Clevis Tang keyslot..."
-      clevis luks bind -k "$PASS_PATH" -y -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}"
+      clevis luks bind -k "$PASS_PATH" -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}" -y
+
+      sudo cryptsetup luksDump "$LUKS_DEV" \
+        | grep -A5 -i "Keyslot" \
+        | sudo tee /boot/luks_keyslots.txt > /dev/null
+
 
       echo "Clevis bind complete."
       exit 0
