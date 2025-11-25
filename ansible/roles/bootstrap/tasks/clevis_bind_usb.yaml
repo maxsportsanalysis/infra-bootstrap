@@ -113,3 +113,12 @@
       echo "Clevis bind complete."
       exit 0
   notify: Reload systemd
+
+- name: Add crypttab entry for Tang auto-unlock
+  lineinfile:
+    path: /etc/crypttab
+    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks,_netdev,clevis=tang:'{\"url\":\"http://127.0.0.1\"}'"
+    create: yes
+
+- name: Rebuild initramfs
+  command: update-initramfs -u
