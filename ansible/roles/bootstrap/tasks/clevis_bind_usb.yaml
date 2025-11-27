@@ -25,7 +25,7 @@
       WantedBy=multi-user.target
   notify: Reload systemd
 
-- name: Create Clevis bind script (UUID → UUID)
+- name: Create Clevis bind script (UUID -> UUID)
   copy:
     dest: /usr/local/bin/clevis_bind_usb.sh
     mode: '0750'
