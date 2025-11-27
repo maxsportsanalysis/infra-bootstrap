@@ -22,7 +22,7 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
-update-initramfs -u -k 'all'
+# update-initramfs -u -k 'all'
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh

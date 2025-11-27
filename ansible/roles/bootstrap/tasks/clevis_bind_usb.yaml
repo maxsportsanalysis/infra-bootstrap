@@ -122,7 +122,7 @@
 - name: Add crypttab entry for Tang auto-unlock
   lineinfile:
     path: /etc/crypttab
-    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks,_netdev,clevis:tang=http://127.0.0.1"
+    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks,_netdev,clevis:tang=127.0.0.1"
     create: yes
 
 - name: Rebuild initramfs
