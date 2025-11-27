@@ -22,6 +22,8 @@ KBEOF
    dpkg-reconfigure -f noninteractive keyboard-configuration
 fi
 
+update-initramfs -u -k 'all'
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
