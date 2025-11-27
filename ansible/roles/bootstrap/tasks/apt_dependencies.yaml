@@ -18,5 +18,5 @@
       - clevis
       - clevis-luks
       - clevis-initramfs
-      - clevis-systemd
+      - clevis-system
     state: present
