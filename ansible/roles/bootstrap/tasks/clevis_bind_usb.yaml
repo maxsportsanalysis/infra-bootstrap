@@ -1,11 +1,4 @@
 ---
-# 1 — Wait for LUKS device to exist (important for Packer builds)
-- name: Wait for LUKS device to appear (Packer may not attach instantly)
-  ansible.builtin.wait_for:
-    path: "{{ luks_device }}"
-    state: present
-    timeout: 30
-
 # 2 — Generate a static keyfile if not present (only used for initial bind)
 - name: Ensure initial LUKS keyfile exists
   ansible.builtin.command: "dd if=/dev/urandom of={{ luks_keyfile_path }} bs=32 count=1"
