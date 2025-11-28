@@ -8,4 +8,6 @@
   loop:
     - clevis-bind-usb.service
     - tangd.socket
+    - remote-cryptsetup.target
+    - crypt-intermediateca-tang.service
     #- postgresql
