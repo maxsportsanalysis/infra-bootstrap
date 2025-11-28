@@ -1,60 +1,134 @@
 ---
-# 2 — Generate a static keyfile if not present (only used for initial bind)
-- name: Ensure initial LUKS keyfile exists
-  ansible.builtin.command: "dd if=/dev/urandom of={{ luks_keyfile_path }} bs=32 count=1"
-  args:
-    creates: "{{ luks_keyfile_path }}"
-
-# 3 — Set keyfile permissions
-- name: Set keyfile permissions
-  ansible.builtin.file:
-    path: "{{ luks_keyfile_path }}"
+- name: Ensure /var/db/tang directory exists
+  file:
+    path: /var/db/tang
+    state: directory
     owner: root
     group: root
-    mode: '0400'
+    mode: '0755'
 
-# 4 — Apply persistent LUKS label so systemd opens it under the correct /dev/mapper name
-- name: Set persistent LUKS label
-  ansible.builtin.command: "cryptsetup config {{ luks_device }} --label intermediateca"
-  register: label_set
-  changed_when: label_set.rc == 0
+- name: Create Clevis systemd config
+  copy:
+    dest: /etc/systemd/system/clevis-bind-usb.service
+    content: |
+      [Unit]
+      Description=Bind Clevis Tang keyslot to encrypted USB
+      After=network-online.target tangd.socket
+      Wants=network-online.target
 
-# 5 — Verify label is present
-- name: Read back LUKS metadata
-  ansible.builtin.command: "cryptsetup luksDump {{ luks_device }}"
-  register: luksdump
-  changed_when: false
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/clevis_bind_usb.sh
+      User=root
 
-- name: Fail if label was not applied
-  ansible.builtin.fail:
-    msg: "LUKS label 'intermediateca' was not set!"
-  when: "'Label: intermediateca' not in luksdump.stdout"
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
 
-# 6 — Check if Clevis is already bound
-- name: Check if Clevis keyslot is already bound
-  ansible.builtin.command: "cryptsetup luksDump {{ luks_device }}"
-  register: clevis_check
-  changed_when: false
+- name: Create Clevis bind script (UUID -> UUID)
+  copy:
+    dest: /etc/systemd/system/crypt-intermediateca-tang.service
+    mode: '0750'
+    content: |
+      #!/bin/bash
+      set -euo pipefail
 
-# 7 — Bind Clevis/Tang to a new keyslot if not already present
-- name: Bind Clevis Tang keyslot
-  ansible.builtin.command: >
-    clevis luks bind -d {{ luks_device }} tang '{"url":"http://127.0.0.1"}' -y
-  when: "'clevis' not in clevis_check.stdout.lower()"
-  register: clevis_bind
-  changed_when: clevis_bind.rc == 0
+      UNENCRYPTED_UUID=$(blkid -o value -s UUID -t LABEL="{{ unencrypted_usb_label }}" 2>/dev/null)
+      if [ -z "$UNENCRYPTED_UUID" ]; then
+        echo "No device found with label"
+        exit 1
+      fi
 
-# 8 — Persist in crypttab so systemd-cryptsetup attach opens it using that label
-- name: Add LUKS USB to crypttab by UUID
-  ansible.builtin.lineinfile:
-    path: "{{ crypttab_path }}"
-    line: "intermediateca {{ encrypted_luks_uuid }} none luks,_netdev"
+      #############################################
+      # Device UUIDs (injected by Ansible)
+      #############################################
+      LUKS_UUID="{{ encrypted_luks_uuid }}"
+      PASSWORD_FILE="luks_passphrase.txt"
+      TANG_URL="http://127.0.0.1"
+
+      #############################################
+      # Resolve block devices from UUIDs
+      #############################################
+      UNENCRYPTED_DEV="/dev/disk/by-uuid/${UNENCRYPTED_UUID}"
+      LUKS_DEV="/dev/disk/by-uuid/${LUKS_UUID}"
+
+      if [[ ! -b "$UNENCRYPTED_DEV" ]]; then
+          echo "ERROR: Unencrypted USB device not found: $UNENCRYPTED_DEV"
+          exit 1
+      fi
+
+      if [[ ! -b "$LUKS_DEV" ]]; then
+          echo "ERROR: LUKS device not found: $LUKS_DEV"
+          exit 1
+      fi
+
+      #############################################
+      # Create a temporary mount location
+      #############################################
+      TMPDIR="$(mktemp -d /run/unencrypted_usb.XXXXXX)"
+
+      cleanup() {
+          umount "$TMPDIR" || true
+          rm -rf "$TMPDIR"
+      }
+      trap cleanup EXIT
+
+      echo "Mounting unencrypted USB..."
+      mount "$UNENCRYPTED_DEV" "$TMPDIR"
+
+      #############################################
+      # Read password
+      #############################################
+      PASS_PATH="${TMPDIR}/${PASSWORD_FILE}"
+
+      if [[ ! -f "$PASS_PATH" ]]; then
+          echo "ERROR: Password file not found: $PASS_PATH"
+          exit 1
+      fi
+
+      LUKS_PASS="$(cat "$PASS_PATH")"
+
+      if [[ -z "$LUKS_PASS" ]]; then
+          echo "ERROR: Password file is empty!"
+          exit 1
+      fi
+
+      #############################################
+      # Skip if Clevis already bound
+      #############################################
+      if cryptsetup luksDump "$LUKS_DEV" | grep -qi "clevis"; then
+          echo "Clevis keyslot already exists — skipping."
+          exit 0
+      fi
+
+      echo "Initializing Tang keys..."
+      /usr/libexec/tangd-keygen /var/db/tang
+
+      #############################################
+      # Bind Clevis/Tang keyslot
+      #############################################
+      echo "Binding Clevis Tang keyslot..."
+      clevis luks bind -k "$PASS_PATH" -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}" -y
+
+      sudo cryptsetup luksDump "$LUKS_DEV" | grep -i "Keyslot" | sudo tee /boot/luks_keyslots.txt > /dev/null
+
+
+      echo "Clevis bind complete."
+      exit 0
+  notify: Reload systemd
+
+- name: Add crypttab entry for Tang auto-unlock
+  lineinfile:
+    path: /etc/crypttab
+    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks"
     create: yes
 
-# 9 — Create systemd unit to unlock at boot using Tang via Clevis
-- name: Create systemd auto-unlock service
-  ansible.builtin.copy:
-    dest: "/etc/systemd/system/crypt-intermediateca-tang.service"
+- name: Rebuild initramfs
+  command: update-initramfs -u -k 'all'
+
+- name: Create a systemd service to unlock it at boot
+  copy:
+    dest: /etc/systemd/system/crypt-intermediateca-tang.service
     content: |
       [Unit]
       Description=Auto unlock LUKS USB using Clevis Tang
@@ -64,42 +138,21 @@
       [Service]
       Type=oneshot
       RemainAfterExit=yes
-      ExecStart=/usr/bin/clevis luks unlock -d {{ luks_device }} --pin tang '{"url":"http://127.0.0.1"}'
-      ExecStop=/usr/bin/cryptsetup close intermediateca
+      ExecStart=clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} --pin tang {"url":"http://127.0.0.1"}
+      ExecStop=/sbin/cryptsetup close intermediateca
 
       [Install]
       WantedBy=remote-cryptsetup.target
+
   notify: Reload systemd
 
-# 10 — Enable required boot units correctly
-- name: Enable Tang socket (required)
-  ansible.builtin.systemd_service:
-    name: tangd.socket
-    enabled: true
-    state: started
 
-- name: Enable LUKS auto-unlock service (required)
+- name: Ensure systemd services are enabled but not running
   ansible.builtin.systemd_service:
-    name: crypt-intermediateca-tang.service
+    name: "{{ item }}"
     enabled: true
     state: stopped
-
-# 11 — Rebuild initramfs to safely embed keyslot metadata (optional but good)
-- name: Rebuild initramfs
-  ansible.builtin.command: "update-initramfs -u -k all"
-  changed_when: true
-
-# 12 — Reboot to apply
-- name: Reboot to apply LUKS auto-unlock
-  ansible.builtin.reboot:
-
-# 13 — Validate after boot
-- name: Confirm mapper exists
-  ansible.builtin.command: "lsblk"
-  register: lsblk_out
-  changed_when: false
-
-- name: Fail if USB did not auto-unlock
-  ansible.builtin.fail:
-    msg: "/dev/mapper/intermediateca was not created — auto unlock failed!"
-  when: "'intermediateca' not in lsblk_out.stdout.lower()"
+  loop:
+    - clevis-bind-usb.service
+    - tangd.socket
+    - crypt-intermediateca-tang.service
