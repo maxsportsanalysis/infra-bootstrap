@@ -146,7 +146,6 @@
 
   notify: Reload systemd
 
-
 - name: Ensure systemd services are enabled but not running
   ansible.builtin.systemd_service:
     name: "{{ item }}"
