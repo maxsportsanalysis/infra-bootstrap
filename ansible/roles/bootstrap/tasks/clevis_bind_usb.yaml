@@ -1,33 +1,7 @@
 ---
-- name: Ensure /var/db/tang directory exists
-  file:
-    path: /var/db/tang
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Create Clevis systemd config
-  copy:
-    dest: /etc/systemd/system/clevis-bind-usb.service
-    content: |
-      [Unit]
-      Description=Bind Clevis Tang keyslot to encrypted USB
-      After=network-online.target tangd.socket
-      Wants=network-online.target
-
-      [Service]
-      Type=oneshot
-      ExecStart=/usr/local/bin/clevis_bind_usb.sh
-      User=root
-
-      [Install]
-      WantedBy=multi-user.target
-  notify: Reload systemd
-
 - name: Create Clevis bind script (UUID -> UUID)
   copy:
-    dest: /etc/systemd/system/crypt-intermediateca-tang.service
+    dest: /usr/local/bin/clevis_bind_usb.sh
     mode: '0750'
     content: |
       #!/bin/bash
@@ -115,35 +89,60 @@
 
       echo "Clevis bind complete."
       exit 0
+
+- name: Install systemd unit to enroll Clevis on USB when device appears (first boot only)
+  copy:
+    dest: /etc/systemd/system/clevis-bind-usb.service
+    content: |
+      [Unit]
+      Description=Enroll Clevis Tang for LUKS USB
+      After=network-online.target tangd.socket
+      Wants=network-online.target
+      ConditionPathExists=!/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/clevis_bind_usb.sh
+
+      [Install]
+      WantedBy=multi-user.target
   notify: Reload systemd
 
-- name: Add crypttab entry for Tang auto-unlock
-  lineinfile:
-    path: /etc/crypttab
-    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks"
-    create: yes
+- name: Ensure /var/db/tang directory exists
+  file:
+    path: /var/db/tang
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
-- name: Rebuild initramfs
-  command: update-initramfs -u -k 'all'
+- name: Create marker file so enrollment runs only once
+  copy:
+    dest: /etc/systemd/system/clevis-enrolled-{{ encrypted_luks_uuid }}
+    content: "Clevis enrolled"
+    owner: root
+    group: root
+    mode: '0644'
 
-- name: Create a systemd service to unlock it at boot
+
+- name: Create real unlock service for future boots (no password prompt)
   copy:
     dest: /etc/systemd/system/crypt-intermediateca-tang.service
     content: |
       [Unit]
-      Description=Auto unlock LUKS USB using Clevis Tang
-      Requires=network-online.target
-      After=network-online.target
+      Description=Auto unlock LUKS USB via Clevis Tang
+      Requires=network-online.target tangd.socket
+      After=network-online.target tangd.socket
+      ConditionPathExists=/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
 
       [Service]
       Type=oneshot
       RemainAfterExit=yes
-      ExecStart=clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} --pin tang {"url":"http://127.0.0.1"}
+      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} --pin tang {\"url\":\"127.0.0.1\"} | cryptsetup luksOpen /dev/disk/by-uuid/{{ encrypted_luks_uuid }} intermediateca"
       ExecStop=/sbin/cryptsetup close intermediateca
 
       [Install]
-      WantedBy=remote-cryptsetup.target
-
+      WantedBy=multi-user.target
   notify: Reload systemd
 
 - name: Ensure systemd services are enabled but not running
@@ -155,3 +154,62 @@
     - clevis-bind-usb.service
     - tangd.socket
     - crypt-intermediateca-tang.service
+
+- name: Rebuild initramfs (important for network + clevis/tang pins to be present at boot)
+  command: update-initramfs -u -k all
+  changed_when: true
+
+
+
+
+
+
+#- name: Create Clevis systemd config
+#  copy:
+#    dest: /etc/systemd/system/clevis-bind-usb.service
+#    content: |
+#      [Unit]
+#      Description=Bind Clevis Tang keyslot to encrypted USB
+#      After=network-online.target tangd.socket
+#      Wants=network-online.target
+#
+#      [Service]
+#      Type=oneshot
+#      ExecStart=/usr/local/bin/clevis_bind_usb.sh
+#      User=root
+#
+#      [Install]
+#      WantedBy=multi-user.target
+#  notify: Reload systemd
+
+
+#- name: Add crypttab entry for Tang auto-unlock
+#  lineinfile:
+#    path: /etc/crypttab
+#    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks"
+#    create: yes
+
+
+#- name: Create a systemd service to unlock it at boot
+#  copy:
+#    dest: /etc/systemd/system/crypt-intermediateca-tang.service
+#    content: |
+#      [Unit]
+#      Description=Auto unlock LUKS USB using Clevis Tang
+#      Requires=network-online.target
+#      After=network-online.target
+#
+#      [Service]
+#      Type=oneshot
+#      RemainAfterExit=yes
+#      ExecStart=clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} --pin tang {"url":"http://127.0.0.1"}
+#      ExecStop=/sbin/cryptsetup close intermediateca
+#
+#      [Install]
+#      WantedBy=remote-cryptsetup.target
+#
+#  notify: Reload systemd
+
+
+#- name: Rebuild initramfs
+#  command: update-initramfs -u -k 'all'
