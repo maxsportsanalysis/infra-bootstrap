@@ -137,13 +137,13 @@
 - name: Add crypttab entry for Tang auto-unlock
   lineinfile:
     path: /etc/crypttab
-    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks" # _netdev?
+    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks,_netdev" # _netdev?
     create: yes
 
 - name: Add fstab entry for Tang auto-unlock
   lineinfile:
     path: /etc/fstab
-    line: "/dev/mapper/intermediateca /mnt/intermediateca ext4 defaults 0 2"
+    line: "/dev/mapper/intermediateca /mnt/intermediateca ext4 defaults,_netdev 0 2"
     create: yes
 
 - name: Ensure systemd services are enabled but not running
