@@ -1,3 +1,16 @@
+### GOALS ###
+# Use a strong keyfile enrolled into the encrypted USB (storing an intermediate CA)
+# Stored on the host filesystem (rootfs) and not on the removable USB
+# Remove the unencrypted USB after enrollment
+
+### Reasoning ###
+# No TPM hardware needed
+# Auto-unlock encrypted USB at boot (via crypttab + keyfile)
+# Unencrypted USB can be removed/wiped after setup
+# Recovery password preserved for future disasters (stored in Slot 0 or a secure vault)
+# No Tang/Clevis network dependency
+# Industry common pattern (keyfile enrollment for removable volumes, vault/airgap for recovery secret)
+
 ---
 - name: Create Clevis bind script (UUID -> UUID)
   copy:
@@ -124,7 +137,7 @@
 
 - name: Create real unlock service for future boots (no password prompt)
   copy:
-    dest: /etc/systemd/system/crypt-intermediateca-tang.service
+    dest: /etc/systemd/system/tangd@80.service
     content: |
       [Unit]
       Description=Auto unlock LUKS USB via Clevis Tang
@@ -135,7 +148,7 @@
       [Service]
       Type=oneshot
       RemainAfterExit=yes
-      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} --pin tang {\"url\":\"127.0.0.1\"} | cryptsetup luksOpen /dev/disk/by-uuid/{{ encrypted_luks_uuid }} intermediateca"
+      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} -n intermediateca"
       ExecStop=/sbin/cryptsetup close intermediateca
 
       [Install]
