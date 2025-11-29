@@ -19,4 +19,5 @@
       - clevis-luks
       - clevis-initramfs
       - clevis-systemd
+      - clevis-udisks2
     state: present
