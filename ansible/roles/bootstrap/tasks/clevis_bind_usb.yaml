@@ -146,6 +146,26 @@
     line: "/dev/mapper/intermediateca /mnt/intermediateca ext4 defaults,_netdev 0 2"
     create: yes
 
+- name: Create real unlock service for future boots (no password prompt)
+  copy:
+    dest: /etc/systemd/system/tangd@80.service
+    content: |
+      [Unit]
+      Description=Auto unlock LUKS USB via Clevis Tang
+      Requires=network-online.target tangd.socket
+      After=network-online.target tangd.socket
+      ConditionPathExists=/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} -n intermediateca"
+      ExecStop=/sbin/cryptsetup close intermediateca
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
+
 - name: Ensure systemd services are enabled but not running
   ansible.builtin.systemd_service:
     name: "{{ item }}"
@@ -156,21 +176,21 @@
     - tangd.socket
     - tangd@80.service
 
-- name: Ensure dracut directory exists
-  file:
-    path: /etc/dracut.conf.d
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Create Dracut Clevis Conf File
-  copy:
-    dest: /etc/dracut.conf.d/clevis.conf
-    content: "hostonly_cmdline=yes"
-    owner: root
-    group: root
-    mode: '0644'
+#- name: Ensure dracut directory exists
+#  file:
+#    path: /etc/dracut.conf.d
+#    state: directory
+#    owner: root
+#    group: root
+#    mode: '0755'
+#
+#- name: Create Dracut Clevis Conf File
+#  copy:
+#    dest: /etc/dracut.conf.d/clevis.conf
+#    content: "hostonly_cmdline=yes"
+#    owner: root
+#    group: root
+#    mode: '0644'
 
 
 
@@ -223,26 +243,6 @@
 
 #- name: Rebuild initramfs
 #  command: update-initramfs -u -k 'all'
-
-#- name: Create real unlock service for future boots (no password prompt)
-#  copy:
-#    dest: /etc/systemd/system/tangd@80.service
-#    content: |
-#      [Unit]
-#      Description=Auto unlock LUKS USB via Clevis Tang
-#      Requires=network-online.target tangd.socket
-#      After=network-online.target tangd.socket
-#      ConditionPathExists=/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
-#
-#      [Service]
-#      Type=oneshot
-#      RemainAfterExit=yes
-#      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} -n intermediateca"
-#      ExecStop=/sbin/cryptsetup close intermediateca
-#
-#      [Install]
-#      WantedBy=multi-user.target
-#  notify: Reload systemd
 
 
 #- name: Rebuild initramfs (important for network + clevis/tang pins to be present at boot)
