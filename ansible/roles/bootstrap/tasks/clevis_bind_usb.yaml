@@ -156,8 +156,21 @@
     - tangd.socket
     - tangd@80.service
 
+- name: Ensure dracut directory exists
+  file:
+    path: /etc/dracut.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
-
+- name: Create Dracut Clevis Conf File
+  copy:
+    dest: /etc/dracut.conf.d/clevis.conf
+    content: "hostonly_cmdline=yes"
+    owner: root
+    group: root
+    mode: '0644'
 
 
 
