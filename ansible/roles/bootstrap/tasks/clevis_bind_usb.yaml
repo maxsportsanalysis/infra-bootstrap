@@ -132,34 +132,14 @@
 - name: Add crypttab entry for Tang auto-unlock
   lineinfile:
     path: /etc/crypttab
-    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks,_netdev" # _netdev?
+    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks" # _netdev?
     create: yes
 
-- name: Add fstab entry for Tang auto-unlock
-  lineinfile:
-    path: /etc/fstab
-    line: "/dev/mapper/intermediateca /mnt/intermediateca ext4 defaults,_netdev 0 2"
-    create: yes
-
-- name: Create real unlock service for future boots (no password prompt)
-  copy:
-    dest: /etc/systemd/system/tangd@80.service
-    content: |
-      [Unit]
-      Description=Auto unlock LUKS USB via Clevis Tang
-      Requires=network-online.target tangd.socket
-      After=network-online.target tangd.socket
-      ConditionPathExists=/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
-
-      [Service]
-      Type=oneshot
-      RemainAfterExit=yes
-      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} -n intermediateca"
-      ExecStop=/sbin/cryptsetup close intermediateca
-
-      [Install]
-      WantedBy=multi-user.target
-  notify: Reload systemd
+#- name: Add fstab entry for Tang auto-unlock
+#  lineinfile:
+#    path: /etc/fstab
+#    line: "/dev/mapper/intermediateca /mnt/intermediateca ext4 defaults,_netdev 0 2"
+#    create: yes
 
 - name: Ensure systemd services are enabled but not running
   ansible.builtin.systemd_service:
@@ -170,6 +150,26 @@
     - clevis-bind-usb.service
     - tangd.socket
     - tangd@80.service
+
+#- name: Create real unlock service for future boots (no password prompt)
+#  copy:
+#    dest: /etc/systemd/system/tangd@80.service
+#    content: |
+#      [Unit]
+#      Description=Auto unlock LUKS USB via Clevis Tang
+#      Requires=network-online.target tangd.socket
+#      After=network-online.target tangd.socket
+#      ConditionPathExists=/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
+#
+#      [Service]
+#      Type=oneshot
+#      RemainAfterExit=yes
+#      ExecStart=/bin/bash -c "clevis luks unlock -d /dev/disk/by-uuid/{{ encrypted_luks_uuid }} -n intermediateca"
+#      ExecStop=/sbin/cryptsetup close intermediateca
+#
+#      [Install]
+#      WantedBy=multi-user.target
+#  notify: Reload systemd
 
 #- name: Create marker file so enrollment runs only once
 #  copy:
