@@ -98,6 +98,9 @@
       clevis luks bind -k "$PASS_PATH" -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}" -y
 
       echo "Clevis bind complete."
+      touch /etc/clevis-enrolled-$LUKS_UUID
+
+      echo "Clevis bind complete."
       exit 0
 
 - name: Install systemd unit to enroll Clevis on USB when device appears (first boot only)
@@ -125,14 +128,6 @@
     owner: root
     group: root
     mode: '0755'
-
-- name: Create marker file so enrollment runs only once
-  copy:
-    dest: /etc/clevis-enrolled-{{ encrypted_luks_uuid }}
-    content: "Clevis enrolled"
-    owner: root
-    group: root
-    mode: '0644'
 
 - name: Add crypttab entry for Tang auto-unlock
   lineinfile:
@@ -175,6 +170,14 @@
     - clevis-bind-usb.service
     - tangd.socket
     - tangd@80.service
+
+#- name: Create marker file so enrollment runs only once
+#  copy:
+#    dest: /etc/clevis-enrolled-{{ encrypted_luks_uuid }}
+#    content: "Clevis enrolled"
+#    owner: root
+#    group: root
+#    mode: '0644'
 
 #- name: Ensure dracut directory exists
 #  file:
