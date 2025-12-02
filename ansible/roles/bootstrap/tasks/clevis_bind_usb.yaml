@@ -131,6 +131,8 @@
 
       [Service]
       Type=oneshot
+      User=root
+      Group=root
       ExecStart=/usr/local/bin/clevis_bind_usb.sh
 
       [Install]
