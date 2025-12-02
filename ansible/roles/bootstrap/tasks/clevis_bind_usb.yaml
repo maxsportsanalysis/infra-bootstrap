@@ -113,8 +113,16 @@
       echo "Binding Clevis Tang keyslot..."
       clevis luks bind -k "$PASS_PATH" -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}" -y
 
-      echo "Clevis bind complete."
-      touch /var/lib/clevis/clevis-enrolled-$LUKS_UUID
+      if [[ ! -d /var/lib/clevis ]]; then
+        echo "/var/lib/clevis does not exist!"
+        exit 1
+      fi
+
+      echo "Attempting to create marker file: /var/lib/clevis/clevis-enrolled-$LUKS_UUID"
+      touch /var/lib/clevis/clevis-enrolled-$LUKS_UUID || { echo "Failed to create marker file"; exit 1; }
+      echo "Marker file created successfully."
+
+      echo "$(date) Clevis bind complete" > /var/lib/clevis/clevis-enrolled-$LUKS_UUID
 
       echo "Clevis bind complete."
       exit 0
@@ -134,6 +142,9 @@
       User=root
       Group=root
       ExecStart=/usr/local/bin/clevis_bind_usb.sh
+      StandardOutput=journal
+      StandardError=journal
+      Restart=no
 
       [Install]
       WantedBy=multi-user.target
