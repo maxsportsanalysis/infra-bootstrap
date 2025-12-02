@@ -12,6 +12,22 @@
 # Industry common pattern (keyfile enrollment for removable volumes, vault/airgap for recovery secret)
 
 ---
+- name: Ensure /var/lib/clevis directory exists
+  file:
+    path: /var/lib/clevis
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure /var/db/tang directory exists
+  file:
+    path: /var/db/tang
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Create Clevis bind script (UUID -> UUID)
   copy:
     dest: /usr/local/bin/clevis_bind_usb.sh
@@ -98,7 +114,7 @@
       clevis luks bind -k "$PASS_PATH" -d "$LUKS_DEV" tang "{\"url\":\"$TANG_URL\"}" -y
 
       echo "Clevis bind complete."
-      touch /etc/clevis-enrolled-$LUKS_UUID
+      touch /var/lib/clevis/clevis-enrolled-$LUKS_UUID
 
       echo "Clevis bind complete."
       exit 0
@@ -111,7 +127,7 @@
       Description=Enroll Clevis Tang for LUKS USB
       After=network-online.target tangd.socket
       Wants=network-online.target
-      ConditionPathExists=!/etc/clevis-enrolled-{{ encrypted_luks_uuid }}
+      ConditionPathExists=!/var/lib/clevis/clevis-enrolled-{{ encrypted_luks_uuid }}
 
       [Service]
       Type=oneshot
@@ -121,13 +137,15 @@
       WantedBy=multi-user.target
   notify: Reload systemd
 
-- name: Ensure /var/db/tang directory exists
-  file:
-    path: /var/db/tang
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
+- name: Ensure systemd services are enabled but not running
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: stopped
+  loop:
+    - clevis-bind-usb.service
+    - tangd.socket
+    - tangd@80.service
 
 #- name: Add crypttab entry for Tang auto-unlock
 #  lineinfile:
@@ -140,16 +158,6 @@
 #    path: /etc/fstab
 #    line: "/dev/mapper/intermediateca /mnt/intermediateca ext4 defaults,_netdev 0 2"
 #    create: yes
-
-- name: Ensure systemd services are enabled but not running
-  ansible.builtin.systemd_service:
-    name: "{{ item }}"
-    enabled: true
-    state: stopped
-  loop:
-    - clevis-bind-usb.service
-    - tangd.socket
-    - tangd@80.service
 
 #- name: Create real unlock service for future boots (no password prompt)
 #  copy:
