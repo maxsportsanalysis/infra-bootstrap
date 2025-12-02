@@ -5,15 +5,6 @@
     - bootstrap
   #vars:
   # step_ca_password: "{{ lookup('ansible.builtin.password', '/etc/ansible/secrets/step_ca_password.txt length=32') }}"
-  vars:
-    luks_device: "/dev/disk/by-uuid/81fd23be-ebc1-4956-86c7-baa1e20bb6bf"  # encrypted partition UUID path
-    luks_keyfile_path: "/root/luks-keyfile"
-    luks_mapper_name: "INTERMEDIATE_CA"
-    crypttab_path: "/etc/crypttab"
-    crypttab_options: "luks"
-    systemd_service_name: "unlock-intermediate-ca.service"
-    systemd_service_path: "/etc/systemd/system/{{ systemd_service_name }}"
-    unlock_script_path: "/usr/local/bin/unlock_intermediate_ca.sh"
   handlers:
     - name: Reload systemd
       ansible.builtin.systemd:

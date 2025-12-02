@@ -2,8 +2,8 @@
 - name: Include Apt Dependencies Task
   import_tasks: apt_dependencies.yaml
 
-- name: Clevis Setup
-  import_tasks: clevis_bind_usb.yaml
+- name: Tang and Clevis Auto Unlock Setup USB
+  import_tasks: decrypt_usb.yaml
 
 # - name: Systemd Service Initialization
 #   import_tasks: service_initialization.yaml

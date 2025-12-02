@@ -1,6 +1,17 @@
 ---
-encrypted_luks_uuid: 81fd23be-ebc1-4956-86c7-baa1e20bb6bf
-unencrypted_usb_label: LUKS_PASSWORD
+encrypted_usb: /dev/disk/by-id/usb-Memorex_Mini_079B1503EC7797C0-0:0-part1
+key_usb: /dev/disk/by-id/usb-General_UDisk-0:0-part1
+key_usb_mount: /mnt/key_usb.XXXXXX
+keyfile_name: luks_passphrase.txt
+tang_key_dir: /var/lib/db
+tang_server: http://127.0.0.1
+clevis_marker_dir: /var/lib/clevis
 
+
+#encrypted_luks_uuid: 81fd23be-ebc1-4956-86c7-baa1e20bb6bf
+#unencrypted_usb_label: LUKS_PASSWORD
+#unencrypted_usb_mnt_dir: /mnt/unencrypted_usb.XXXXXX
+#password_filename: luks_passphrase.txt
+#encrypted_usb_id: usb-Memorex_Mini_079B1503EC7797C0-0:0-part1
 #postgres_version: 18
 #nautobot_home: /opt/nautobot

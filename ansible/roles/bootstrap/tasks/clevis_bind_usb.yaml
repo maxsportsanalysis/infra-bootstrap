@@ -36,11 +36,270 @@
       #!/bin/bash
       set -euo pipefail
 
-      UNENCRYPTED_UUID=$(blkid -o value -s UUID -t LABEL="{{ unencrypted_usb_label }}" 2>/dev/null)
-      if [ -z "$UNENCRYPTED_UUID" ]; then
-        echo "No device found with label"
-        exit 1
+      log()      { printf '[INFO] %s\n' "$*" >&2; }
+      warn()     { printf '[WARN] %s\n' "$*" >&2; }
+      error()    { echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2 }
+      debug()    { [ "$DEBUG" = "1" ] && printf '[DEBUG] %s\n' "$*" >&2; }
+
+      #######################################
+      # Check if a block device is found.
+      # Arguments:
+      #   Block device path.
+      # Returns:
+      #   0 if block device exists; non-zero otherwise.
+      #######################################
+      device_check() {
+        local device_path="$1"
+        if [[ ! -b "${device_path}" ]]; then
+          return 1
+        fi
+        return 0
+      }
+
+      #######################################
+      # Clevis unlock block device.
+      # Arguments:
+      #   Block device path.
+      # Returns:
+      #   0 if device unlocked, non-zero on error.
+      #######################################
+      clevis_unlock_usb() {
+        if clevis luks unlock -d "$1" >/dev/null 2>&1; then
+          return 0
+        fi
+        return 1
+      }
+
+      #######################################
+      # Remove keyslots from block device created by clevis.
+      # Arguments:
+      #   Block device path.
+      # Returns:
+      #   0 if keyslot(s) removed, non-zero on error.
+      #######################################
+      remove_keyslots() {
+        local keyslots
+        keyslots=$(cryptsetup luksDump "$1" | awk '/clevis/ {print $2}')
+        
+        if [[ -n $(keyslots) ]]; then
+          for slot in $(keyslots); do
+            cryptsetup --batch-mode luksKillSlot "$1" "$slot" || {
+              return 1
+            }
+          done
+        fi
+        return 0
+      }
+
+      #######################################
+      # Mount block device.
+      # Arguments:
+      #   Block device path.
+      #   Block device mount path.
+      # Returns:
+      #   0 if mounted successfully, non-zero on error.
+      #######################################
+      mount_block_device() {
+        if [[ ! -d "$2" ]]; then
+          mktemp -d "$2"
+        fi
+
+        if ! mountpoint -q "$2"; then
+          mount "$1" "$2" || {
+            return 1
+          }
+        fi
+        return 0
+      }
+
+      #######################################
+      # Bind Tang and Clevis Keyslot.
+      # Arguments:
+      #   Block device path.
+      #   Unencrypted password path.
+      #   Tang server.
+      # Returns:
+      #   0 if binded successfully, non-zero on error.
+      #######################################
+      bind_clevis_tang_keyslot() {
+        local luks_device=$1
+        local key_file=$2
+        local tang_server=$3
+
+        clevis luks bind -k "$key_file" -d "$luks_device" tang "{\"url\":\"$tang_server\"}" -y || {
+          return 1
+        }
+        return 0
+      }
+
+
+
+      ### MAIN LOGIC ###
+      main() {
+        
+        echo ""
+        
+
+
+
+
+        readonly tangd_keygen_path='/usr/libexec/tangd-keygen'
+        readonly tang_key_dir='/var/db/tang'
+        readonly block_device_marker_file='/var/lib/clevis/clevis-enrolled-{{ encrypted_usb_id }}'
+
+
+        local block_device_path="$1"
+        local unencrypted_block_device_path="$2"
+        local unencrypted_block_device_mount_path ="$3"
+        local unencrypted_block_device_password_filename ="$4"
+        local unencrypted_block_device_password_path = $unencrypted_block_device_mount_path/$unencrypted_block_device_password_filename
+        local tang_server="$5"
+
+
+
+
+
+        if device_check $block_device_path; then
+          log "Block device successfully found: $block_device_path"
+        else
+          error "Block device not found: $block_device_path"
+          exit 1
+        fi
+
+        if clevis_unlock_usb $block_device_path; then
+          log "Unlocked block device: $block_device_path"
+          exit 0
+        fi
+        log "Failed to unlock block device: $block_device_path"
+
+        if remove_keyslots $block_device_path; then
+          log "Keyslots successfully removed"
+        else
+          error "Failed to remove clevis keyslots"
+          exit 1
+        fi
+
+        if device_check $unencrypted_block_device_path; then
+          log "Unencrypted block device successfully found: $unencrypted_block_device_path"
+        else
+          error "Unencrypted block device not found: $unencrypted_block_device_path"
+          exit 1
+        fi
+
+        if mount_block_device $unencrypted_block_device_path $unencrypted_block_device_mount_path; then
+          log "Mounted unencrypted block device"
+          if [[ ! -f "$(unencrypted_block_device_password_path)" ]]; then
+              error "Unencrypted block device is missing password file: $unencrypted_block_device_password_path"
+              exit 1
+          else
+            if [[ -z "$(cat $(unencrypted_block_device_password_path))" ]]; then
+                error "Password file is empty: $unencrypted_block_device_password_path"
+                exit 1
+            fi
+          fi
+        else
+          error "Failed to mount unencrypted block device"
+          exit 1
+        fi
+
+        if [ -d "$tang_key_dir" ] && [ "$(ls -A "$tang_key_dir")" ]; then
+          log "Tang keys already exist, skipping key generation."
+        else
+          log "Initializing tang keys using command: $tangd_keygen_path $tang_key_dir"
+          "$tangd_keygen_path" "$tang_key_dir"
+          log "Initialized tang keys and put them in $tang_key_dir"
+        fi
+
+        if bind_clevis_tang_keyslot $block_device_path $unencrypted_block_device_password_path $tang_server; then
+          log "Successfully binded keyslot to block device:"
+          log "$(cryptsetup luksDump -d $block_device_path)"
+        else
+          error "Failed to bind keyslot with tang and clevis"
+          exit 1
+        fi
+
+        touch "$block_device_marker_file" || { echo "Failed to create marker file: $block_device_marker_file"; exit 1; }
+
+
+
+
+
+
+
+
+
+      
+      }
+
+
+
+
+
+
+
+
+      attempt_clevis_unlock() {
+        echo "INFO: attempting to unlock encrypted usb $1"
+        if clevis luks unlock -d "$1" >/dev/null 2>&1; then
+            echo "Clevis unlock successful — nothing to do."
+            exit 0
+        else
+            echo "ERROR: failed to unlock encrypted usb $1"
+        fi
+      }
+
+      # Ensure unencrypted and encrypted usb devices exists
+      if [[ ! -b "/dev/disk/by-id/{{ unencrypted_usb_id }}" ]]; then
+          echo "ERROR: unencrypted usb device not found by id: {{ unencrypted_usb_id }}"
+          exit 1
       fi
+      if [[ ! -b "/dev/disk/by-id/{{ encrypted_usb_id }}" ]]; then
+          echo "ERROR: encrypted usb device not found by id: {{ encrypted_usb_id }}"
+          exit 1
+      fi
+
+
+      # Ensure unencrypted_usb_mnt_dir exists
+      if [[ ! -d "{{ unencrypted_usb_mnt_dir }}" ]]; then
+          echo "INFO: unencrypted_usb_mnt_dir ({{ unencrypted_usb_mnt_dir }}) does not exist, creating dir."
+          mktemp -d {{ unencrypted_usb_mnt_dir }}
+          echo "INFO: unencrypted_usb_mnt_dir ({{ unencrypted_usb_mnt_dir }}) successfully created."
+      else
+          echo "INFO: unencrypted_usb_mnt_dir ({{ unencrypted_usb_mnt_dir }}) already exists, skipping creation."
+      fi
+
+      # Is the device mounted?
+      if ! mountpoint -q "{{ unencrypted_usb_mnt_dir }}"; then
+          echo "INFO: unencrypted usb not mounted, mounting at {{ unencrypted_usb_id }}"
+          mount "/dev/disk/by-id/{{ unencrypted_usb_id }}" "{{ unencrypted_usb_mnt_dir }}" || {
+              echo "ERROR: failed to mount /dev/disk/by-id/{{ unencrypted_usb_id }} at {{ unencrypted_usb_mnt_dir }}"
+              exit 1
+          }
+      else
+          echo "INFO: unencrypted usb already mounted at {{ unencrypted_usb_mnt_dir }}"
+      fi
+
+
+      # Check for password file
+      if [[ ! -f "{{ unencrypted_usb_mnt_dir }}/{{ password_filename }}" ]]; then
+          echo "ERROR: unencrypted usb password file not found: {{ unencrypted_usb_mnt_dir }}/{{ password_filename }}"
+          exit 1
+      else
+          echo "INFO: successfully located unencrypted usb password file: {{ unencrypted_usb_mnt_dir }}/{{ password_filename }}"
+      fi
+
+      if [[ -z "$(cat {{ unencrypted_usb_mnt_dir }}/{{ password_filename }})" ]]; then
+          echo "ERROR: Password file is empty!"
+          exit 1
+      else
+          echo "INFO: unencrypted usb password file is not empty"
+      fi
+
+
+
+
+
+
 
       #############################################
       # Device UUIDs (injected by Ansible)
@@ -136,7 +395,7 @@
       Type=oneshot
       User=root
       Group=root
-      ExecStart=/usr/local/bin/clevis_bind_usb.sh
+      ExecStart=/usr/local/bin/clevis_bind_usb.sh "/dev/disk/by-id/{{ encrypted_usb_id }}" "/dev/disk/by-id/{{ unencrypted_usb_id }}" "{{ unencrypted_usb_mnt_dir }}"
       StandardOutput=journal
       StandardError=journal
       Restart=no
