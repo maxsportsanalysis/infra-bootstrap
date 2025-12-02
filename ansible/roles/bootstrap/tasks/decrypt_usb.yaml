@@ -181,7 +181,7 @@
             
 - name: Get basename of encrypted_usb path
   ansible.builtin.set_fact:
-    encrypted_usb_name: "{{ encrypted_usb | community.general.basename }}"
+    encrypted_usb_name: "{{ encrypted_usb | basename }}"
 
 - name: Install systemd unit to enroll Clevis on USB when device appears (first boot only)
   ansible.builtin.copy:
