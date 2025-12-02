@@ -129,11 +129,11 @@
     group: root
     mode: '0755'
 
-- name: Add crypttab entry for Tang auto-unlock
-  lineinfile:
-    path: /etc/crypttab
-    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks" # _netdev?
-    create: yes
+#- name: Add crypttab entry for Tang auto-unlock
+#  lineinfile:
+#    path: /etc/crypttab
+#    line: "intermediateca UUID={{ encrypted_luks_uuid }} none luks" # _netdev?
+#    create: yes
 
 #- name: Add fstab entry for Tang auto-unlock
 #  lineinfile:
