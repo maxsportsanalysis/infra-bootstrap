@@ -89,6 +89,7 @@
               return 1
             fi
           done
+        fi  
         return 0
       }
       
