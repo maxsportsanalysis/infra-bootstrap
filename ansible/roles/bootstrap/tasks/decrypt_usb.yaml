@@ -33,6 +33,7 @@
     dest: /usr/local/bin/clevis_bind_usb.sh
     mode: '0750'
     content: |
+      {% raw %}
       #!/bin/bash
       set -o nounset # Disallow expansion of unset variables
       
@@ -177,6 +178,7 @@
       }
 
       main "$@"
+      {% endraw %}
             
 - name: Get basename of encrypted_usb path
   ansible.builtin.set_fact:
