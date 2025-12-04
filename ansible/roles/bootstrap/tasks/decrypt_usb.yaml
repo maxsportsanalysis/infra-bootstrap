@@ -33,7 +33,6 @@
     dest: /usr/local/bin/clevis_bind_usb.sh
     mode: '0750'
     content: |
-      {% raw %}
       #!/bin/bash
       set -o nounset # Disallow expansion of unset variables
       
@@ -84,7 +83,7 @@
         local keyslots
         readarray -t keyslots < <(cryptsetup luksDump "${device_path}" | awk '/clevis/ {print $2}')
         if [ "${#keyslots[@]}" -gt 0 ]; then
-          for slot in $(keyslots); do
+          for slot in "${keyslots[@]}"; do
             if ! cryptsetup --batch-mode luksKillSlot "${device_path}" "$slot"; then
               return 1
             fi
@@ -120,7 +119,7 @@
       
         local key_usb="$2"
         if device_check $key_usb; then
-          log "Block device successfully found: $key_usb"
+          echo "Block device successfully found: $key_usb"
         else
           error "Block device not found: $key_usb"
           exit 1
@@ -178,7 +177,6 @@
       }
 
       main "$@"
-      {% endraw %}
             
 - name: Get basename of encrypted_usb path
   ansible.builtin.set_fact:
