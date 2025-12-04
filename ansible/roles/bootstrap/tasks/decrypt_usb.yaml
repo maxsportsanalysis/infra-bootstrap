@@ -33,8 +33,7 @@
     dest: /usr/local/bin/clevis_bind_usb.sh
     mode: '0750'
     content: |
-      {% raw %}
-      #!/bin/bash
+      {% raw %}#!/bin/bash
       set -o nounset
 
       readonly tangd_keygen_path='/usr/libexec/tangd-keygen'
