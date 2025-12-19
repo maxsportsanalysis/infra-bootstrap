@@ -24,7 +24,7 @@ fi
 
 # update-initramfs -u -k 'all'
 
-/opt/nautobot/bin/nautobot-server init --disable-installation-metrics
+/opt/nautobot/bin/nautobot-server init --disable-installation-metrics --config-path /opt/nautobot/nautobot_config.py
 systemctl daemon-reload
 
 # --- Cleanup ---
