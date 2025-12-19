@@ -16,5 +16,5 @@ nautobot_password: "{{ nautobot_password }}"
 #unencrypted_usb_mnt_dir: /mnt/unencrypted_usb.XXXXXX
 #password_filename: luks_passphrase.txt
 #encrypted_usb_id: usb-Memorex_Mini_079B1503EC7797C0-0:0-part1
-#postgres_version: 18
+postgres_version: 18
 #nautobot_home: /opt/nautobot
