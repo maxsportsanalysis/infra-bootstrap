@@ -46,6 +46,7 @@
       NAUTOBOT_CONFIG=/opt/nautobot/.nautobot/nautobot_config.py
       NAUTOBOT_SECRET_KEY={{ nautobot_secret_key }}
       NAUTOBOT_DB_PASSWORD={{ nautobot_password }}
+      NAUTOBOT_ALLOWED_HOSTS="*"
 
 - name: Install Nautobot with HTTPS-enabled pyuwsgi
   ansible.builtin.command: /opt/nautobot/bin/pip install --no-binary=pyuwsgi nautobot
