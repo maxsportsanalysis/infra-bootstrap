@@ -69,6 +69,11 @@ variable "nautobot_password" {
   sensitive   = true
 }
 
+variable "nautobot_secret_key" {
+  type        = string
+  sensitive   = true
+}
+
 variable "qemu_binary" {
   type        = string
   default     = "qemu-arm-static"
