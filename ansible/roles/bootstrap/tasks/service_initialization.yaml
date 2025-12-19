@@ -6,8 +6,8 @@
     enabled: true
     state: stopped
   loop:
-    - clevis-bind-usb.service
-    - tangd.socket
-    - remote-cryptsetup.target
-    - crypt-intermediateca-tang.service
-    #- postgresql
+    # - clevis-bind-usb.service
+    # - tangd.socket
+    # - remote-cryptsetup.target
+    # - crypt-intermediateca-tang.service
+    - postgresql

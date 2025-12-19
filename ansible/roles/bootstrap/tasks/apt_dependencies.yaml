@@ -9,15 +9,15 @@
       - python3-pip
       - python3-venv
       - python3-dev
-      #- redis-server
-      #- postgresql-common
-      #- nginx
+      - redis-server
+      - postgresql-common
+      - nginx
       - jq
       - cryptsetup
-      - tang
-      - clevis
-      - clevis-luks
-      - clevis-initramfs
-      - clevis-systemd
-      - clevis-udisks2
+      # - tang
+      # - clevis
+      # - clevis-luks
+      # - clevis-initramfs
+      # - clevis-systemd
+      # - clevis-udisks2
     state: present
