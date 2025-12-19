@@ -63,7 +63,7 @@
 
       [Service]
       Type=simple
-      EnvironmentFile=/etc/nautobot/nautobot.env
+      EnvironmentFile=/opt/nautobot/nautobot.env
 
       User=nautobot
       Group=nautobot
@@ -92,7 +92,7 @@
 
       [Service]
       Type=exec
-      EnvironmentFile=/etc/nautobot/nautobot.env
+      EnvironmentFile=/opt/nautobot/nautobot.env
 
       User=nautobot
       Group=nautobot
@@ -121,7 +121,7 @@
 
       [Service]
       Type=exec
-      EnvironmentFile=/etc/nautobot/nautobot.env
+      EnvironmentFile=/opt/nautobot/nautobot.env
 
       User=nautobot
       Group=nautobot
