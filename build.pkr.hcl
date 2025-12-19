@@ -169,7 +169,7 @@ build {
     playbook_dir  = "ansible"
     command = "${var.ansible_venv_path}/bin/ansible-playbook"
     extra_arguments = [
-      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3"
+      "--extra-vars", "ansible_python_interpreter=${var.ansible_venv_path}/bin/python3 nautobot_secret_key=${var.nautobot_secret_key} nautobot_password=${var.nautobot_password}"
     ]
   }
 

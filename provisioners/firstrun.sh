@@ -24,6 +24,9 @@ fi
 
 # update-initramfs -u -k 'all'
 
+/opt/nautobot/bin/nautobot-server init --disable-installation-metrics
+systemctl daemon-reload
+
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt

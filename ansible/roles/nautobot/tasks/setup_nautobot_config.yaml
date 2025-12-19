@@ -1,0 +1,10 @@
+---
+
+- name: Install Nautobot config
+  template:
+    src: nautobot_config.py.j2
+    dest: /opt/nautobot/nautobot_config.py
+    owner: nautobot
+    group: nautobot
+    mode: "0640"
+  notify: Restart nautobot

@@ -35,6 +35,17 @@
   ansible.builtin.command: /opt/nautobot/bin/pip install --upgrade pip wheel
   become_user: nautobot
 
+- name: Create Nautobot environment file
+  copy:
+    dest: /opt/nautobot/nautobot.env
+    owner: nautobot
+    group: nautobot
+    mode: "0600"
+    content: |
+      NAUTOBOT_ROOT=/opt/nautobot
+      NAUTOBOT_SECRET_KEY={{ nautobot_secret_key }}
+      NAUTOBOT_DB_PASSWORD={{ nautobot_password }}
+
 - name: Install Nautobot with HTTPS-enabled pyuwsgi
   ansible.builtin.command: /opt/nautobot/bin/pip install --no-binary=pyuwsgi nautobot
   become_user: nautobot
@@ -51,7 +62,7 @@
 
       [Service]
       Type=simple
-      Environment="NAUTOBOT_ROOT=/opt/nautobot"
+      EnvironmentFile=/etc/nautobot/nautobot.env
 
       User=nautobot
       Group=nautobot
@@ -80,7 +91,7 @@
 
       [Service]
       Type=exec
-      Environment="NAUTOBOT_ROOT=/opt/nautobot"
+      EnvironmentFile=/etc/nautobot/nautobot.env
 
       User=nautobot
       Group=nautobot
@@ -109,7 +120,7 @@
 
       [Service]
       Type=exec
-      Environment="NAUTOBOT_ROOT=/opt/nautobot"
+      EnvironmentFile=/etc/nautobot/nautobot.env
 
       User=nautobot
       Group=nautobot

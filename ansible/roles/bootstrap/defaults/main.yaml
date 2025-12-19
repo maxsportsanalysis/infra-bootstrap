@@ -7,6 +7,9 @@ tang_key_dir: /var/lib/db
 tang_server: http://127.0.0.1
 clevis_marker_dir: /var/lib/clevis
 
+nautobot_secret_key: "{{ nautobot_secret_key }}"
+nautobot_password: "{{ nautobot_password }}"
+
 
 #encrypted_luks_uuid: 81fd23be-ebc1-4956-86c7-baa1e20bb6bf
 #unencrypted_usb_label: LUKS_PASSWORD
