@@ -5,6 +5,9 @@
 #- name: Tang and Clevis Auto Unlock Setup USB
 #  import_tasks: decrypt_usb.yaml
 
+- name: Postgres Installation
+  import_tasks: postgres_installation.yaml
+
 - name: Include Nautobot Task
   import_tasks: nautobot_setup.yaml
 
