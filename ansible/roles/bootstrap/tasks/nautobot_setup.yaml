@@ -13,7 +13,7 @@
     state: directory
     owner: nautobot
     group: nautobot
-    mode: '0755'
+    mode: '0750'
 
 - name: Create Python virtualenv at /opt/nautobot
   ansible.builtin.command: python3 -m venv /opt/nautobot
@@ -146,3 +146,54 @@
     - nautobot
     - nautobot-worker
     - nautobot-scheduler
+
+- name: Create simple NGINX config for HTTP only on port 80
+  ansible.builtin.copy:
+    dest: /etc/nginx/sites-available/nautobot.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+
+          server_name _;
+
+          location / {
+              include uwsgi_params;
+              uwsgi_pass 127.0.0.1:8001;
+              uwsgi_param Host $host;
+              uwsgi_param X-Real-IP $remote_addr;
+              uwsgi_param X-Forwarded-For $proxy_add_x_forwarded_for;
+              uwsgi_param X-Forwarded-Proto $http_x_forwarded_proto;
+          }
+
+          location /static/ {
+              alias /opt/nautobot/static/;
+          }
+
+          client_max_body_size 25m;
+      }
+
+- name: Remove default NGINX site if it exists
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Create symlink for Nautobot NGINX site config
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/nautobot.conf
+    dest: /etc/nginx/sites-enabled/nautobot.conf
+    state: link
+
+- name: Add nginx user www-data to nautobot group
+  ansible.builtin.user:
+    name: www-data
+    groups: nautobot
+    append: yes
+
+- name: Reload NGINX after site configuration changes
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
