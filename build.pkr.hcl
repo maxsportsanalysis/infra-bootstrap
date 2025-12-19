@@ -59,11 +59,6 @@ variable "iso_url" {
   description = "URL to the OS image."
 }
 
-variable "existing_luks_passphrase" {
-  type        = string
-  sensitive   = true
-}
-
 variable "nautobot_password" {
   type        = string
   sensitive   = true
