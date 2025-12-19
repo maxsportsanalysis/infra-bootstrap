@@ -63,7 +63,7 @@
       ; The IP address (typically localhost) and port that the WSGI process should listen on
       socket = 127.0.0.1:8001
 
-      ; Fail to start if any parameter in the configuration file isn’t explicitly understood by uWSGI
+      ; Fail to start if any parameter in the configuration file isn't explicitly understood by uWSGI
       strict = true
 
       ; Enable master process to gracefully re-spawn and pre-fork workers
