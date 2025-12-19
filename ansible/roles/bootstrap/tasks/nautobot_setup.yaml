@@ -43,7 +43,7 @@
     mode: "0600"
     content: |
       NAUTOBOT_ROOT=/opt/nautobot
-      NAUTOBOT_CONFIG=/home/nautobot/.nautobot/nautobot_config.py
+      NAUTOBOT_CONFIG=/opt/nautobot/.nautobot/nautobot_config.py
       NAUTOBOT_SECRET_KEY={{ nautobot_secret_key }}
       NAUTOBOT_DB_PASSWORD={{ nautobot_password }}
 
