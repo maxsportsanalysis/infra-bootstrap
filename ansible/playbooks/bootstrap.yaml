@@ -3,7 +3,6 @@
   become: yes
   roles:
     - bootstrap
-    - nautobot
   #vars:
   # step_ca_password: "{{ lookup('ansible.builtin.password', '/etc/ansible/secrets/step_ca_password.txt length=32') }}"
   handlers:
