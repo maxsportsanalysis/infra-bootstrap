@@ -2,6 +2,19 @@
 - name: Include Apt Dependencies Task
   import_tasks: apt_dependencies.yaml
 
+- name: Install HashiCorp Vault (binary)
+  ansible.builtin.get_url:
+    url: https://releases.hashicorp.com/vault/1.15.5/vault_1.15.5_linux_arm64.zip
+    dest: /tmp/vault.zip
+
+- name: Unzip Vault
+  ansible.builtin.unarchive:
+    src: /tmp/vault.zip
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+
+
 #- name: Tang and Clevis Auto Unlock Setup USB
 #  import_tasks: decrypt_usb.yaml
 
