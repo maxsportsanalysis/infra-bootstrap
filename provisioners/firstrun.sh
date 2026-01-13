@@ -25,8 +25,8 @@ fi
 # update-initramfs -u -k 'all'
 
 # -u nautobot /opt/nautobot/bin/nautobot-server init --disable-installation-metrics --config-path /opt/nautobot/nautobot_config.py
-runuser -l nautobot -c "/opt/nautobot/bin/nautobot-server init --disable-installation-metrics"
-systemctl daemon-reload
+#runuser -l nautobot -c "/opt/nautobot/bin/nautobot-server init --disable-installation-metrics"
+#systemctl daemon-reload
 
 # --- Cleanup ---
 rm -f /boot/firstrun.sh
