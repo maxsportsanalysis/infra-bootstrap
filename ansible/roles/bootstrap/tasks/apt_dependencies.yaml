@@ -9,11 +9,12 @@
       - python3-pip
       - python3-venv
       - python3-dev
-      - redis-server
-      - postgresql-common
-      - nginx
-      - jq
-      - cryptsetup
+      - vault
+      # - redis-server
+      # - postgresql-common
+      # - nginx
+      # - jq
+      # - cryptsetup
       # - tang
       # - clevis
       # - clevis-luks
