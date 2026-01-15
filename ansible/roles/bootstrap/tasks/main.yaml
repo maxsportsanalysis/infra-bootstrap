@@ -33,27 +33,14 @@
     content: |
       [Unit]
       Description=PKI USB Mount
-      After=local-fs.target
+      BindsTo=dev-disk-by-label-PKI_RPI.device
+      After=dev-disk-by-label-PKI_RPI.device
 
       [Mount]
       What=/dev/disk/by-label/PKI_RPI
       Where=/media/pki_rpi
       Type=vfat
       Options=rw,noatime,x-systemd.device-timeout=0
-
-      [Install]
-      WantedBy=multi-user.target
-  notify: Reload systemd
-
-- name: Create systemd service for automounting pki_rpi usb
-  copy:
-    dest: /etc/systemd/system/media-pki_rpi.automount
-    content: |
-      [Unit]
-      Description=PKI USB Automount
-
-      [Automount]
-      Where=/media/pki_rpi
 
       [Install]
       WantedBy=multi-user.target
@@ -66,7 +53,6 @@
     state: stopped
   loop:
     - media-pki_rpi.mount
-    - media-pki_rpi.automount
 
 #- name: Tang and Clevis Auto Unlock Setup USB
 #  import_tasks: decrypt_usb.yaml
