@@ -59,6 +59,15 @@
       WantedBy=multi-user.target
   notify: Reload systemd
 
+- name: Ensure systemd services are enabled but not running
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: stopped
+  loop:
+    - media-pki_rpi.mount
+    - media-pki_rpi.automount
+
 #- name: Tang and Clevis Auto Unlock Setup USB
 #  import_tasks: decrypt_usb.yaml
 
