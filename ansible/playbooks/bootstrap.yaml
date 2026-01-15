@@ -10,3 +10,6 @@
       ansible.builtin.systemd:
         daemon_reload: yes
       when: ansible_service_mgr == "systemd"
+
+    - name: Trigger udev
+      ansible.builtin.command: udevadm trigger

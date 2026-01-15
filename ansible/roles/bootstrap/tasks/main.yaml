@@ -33,18 +33,28 @@
     content: |
       [Unit]
       Description=PKI USB Mount
-      BindsTo=dev-disk-by-label-PKI_RPI.device
-      After=dev-disk-by-label-PKI_RPI.device
+      After=local-fs.target
 
       [Mount]
       What=/dev/disk/by-label/PKI_RPI
       Where=/media/pki_rpi
       Type=vfat
-      Options=rw,noatime,x-systemd.device-timeout=0
+      Options=rw,noatime,uid=1000,gid=1000,umask=007
 
       [Install]
       WantedBy=multi-user.target
   notify: Reload systemd
+
+
+- name: Create udev rule to auto-mount PKI USB when plugged in
+  copy:
+    dest: /etc/udev/rules.d/99-pki_usb.rules
+    content: |
+      ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="PKI_RPI", TAG+="systemd", ENV{SYSTEMD_WANTS}="media-pki_rpi.mount"
+
+- name: Reload udev rules so hot-plug works immediately
+  command: udevadm control --reload
+  notify: Trigger udev
 
 - name: Ensure systemd services are enabled but not running
   ansible.builtin.systemd_service:
@@ -53,6 +63,17 @@
     state: stopped
   loop:
     - media-pki_rpi.mount
+
+- name: Reload systemd daemon after unit changes
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+
+
+
+
+
+
 
 #- name: Tang and Clevis Auto Unlock Setup USB
 #  import_tasks: decrypt_usb.yaml
