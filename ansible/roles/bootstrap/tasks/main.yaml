@@ -39,7 +39,7 @@
       What=/dev/disk/by-label/PKI_RPI
       Where=/media/pki_rpi
       Type=vfat
-      Options=rw,noatime
+      Options=rw,noatime,x-systemd.device-timeout=0
 
       [Install]
       WantedBy=multi-user.target
