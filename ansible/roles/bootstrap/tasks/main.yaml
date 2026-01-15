@@ -29,7 +29,7 @@
 
 - name: Create systemd service for mounting pki_rpi usb
   copy:
-    dest: /etc/systemd/system/pki_usb.mount
+    dest: /etc/systemd/system/media-pki_rpi.mount
     content: |
       [Unit]
       Description=PKI USB Mount
@@ -47,7 +47,7 @@
 
 - name: Create systemd service for automounting pki_rpi usb
   copy:
-    dest: /etc/systemd/system/pki_usb.automount
+    dest: /etc/systemd/system/media-pki_rpi.automount
     content: |
       [Unit]
       Description=PKI USB Automount
