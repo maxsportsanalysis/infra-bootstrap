@@ -14,6 +14,51 @@
     remote_src: yes
     mode: '0755'
 
+- name: Install aws_signing_helper (ARM64 / AArch64)
+  ansible.builtin.get_url:
+    url: https://rolesanywhere.amazonaws.com/releases/1.7.3/Aarch64/Linux/Amzn2023/aws_signing_helper
+    dest: /usr/local/bin/aws_signing_helper
+    mode: '0755'
+    force: no
+
+- name: Ensure /media/pki_rpi directory exists
+  ansible.builtin.file:
+    path: /media/pki_rpi
+    state: directory
+    mode: '0750'
+
+- name: Create systemd service for mounting pki_rpi usb
+  copy:
+    dest: /etc/systemd/system/pki_usb.mount
+    content: |
+      [Unit]
+      Description=PKI USB Mount
+      After=local-fs.target
+
+      [Mount]
+      What=/dev/disk/by-label/PKI_RPI
+      Where=/media/pki_rpi
+      Type=vfat
+      Options=rw,noatime
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
+
+- name: Create systemd service for automounting pki_rpi usb
+  copy:
+    dest: /etc/systemd/system/pki_usb.automount
+    content: |
+      [Unit]
+      Description=PKI USB Automount
+
+      [Automount]
+      Where=/media/pki_rpi
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Reload systemd
+
 
 #- name: Tang and Clevis Auto Unlock Setup USB
 #  import_tasks: decrypt_usb.yaml
