@@ -25,6 +25,30 @@
   ansible.builtin.file:
     path: /media/pki_rpi
     state: directory
+    mode: '0700'
+
+- name: Deploy CSR generation script for PKI USB
+  ansible.builtin.copy:
+    dest: /usr/local/bin/generate_csr.sh
+    content: |
+      #!/bin/bash
+      local usb_mount="/media/pki_rpi"
+      local key_file="${usb_mount}/pki_rpi.key.pem"
+      local csr_file="${usb_mount}/pki_rpi.csr.pem"
+
+      # Only generate if it doesn't exist yet
+      if [ ! -f "$CSR_FILE" ]; then
+          openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "${key_file}"
+          chmod 600 "${key_file}"
+          chown root:root "${key_file}"
+
+          local pi_id
+          pi_id=$(cat /etc/machine-id)
+
+          openssl req -new -key "${key_file}" -out "${csr_file}" -subj "/C=US/O=Max Sports Analysis/CN=raspberrypi-${pi_id}"
+          echo "Inspect CSR"
+          openssl req -in "${csr_file}" -noout -text
+      fi
     mode: '0750'
 
 - name: Create systemd service for mounting pki_rpi usb
@@ -46,11 +70,26 @@
   notify: Reload systemd
 
 
+- name: Create systemd service for mounting pki_rpi usb
+  copy:
+    dest: /etc/systemd/system/pki_usb_csr.service
+    content: |
+      [Unit]
+      Description=Generate CSR on PKI USB
+      After=media-pki_rpi.mount
+      Requires=media-pki_rpi.mount
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/generate_csr.sh
+  notify: Reload systemd
+
+
 - name: Create udev rule to auto-mount PKI USB when plugged in
   copy:
     dest: /etc/udev/rules.d/99-pki_usb.rules
     content: |
-      ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="PKI_RPI", TAG+="systemd", ENV{SYSTEMD_WANTS}="media-pki_rpi.mount"
+      ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="PKI_RPI", TAG+="systemd", ENV{SYSTEMD_WANTS}="media-pki_rpi.mount pki_usb_csr.service"
 
 - name: Reload udev rules so hot-plug works immediately
   command: udevadm control --reload
