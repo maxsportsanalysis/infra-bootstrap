@@ -51,6 +51,8 @@
             echo "Inspect CSR"
             openssl req -in "${csr_file}" -noout -text
         fi
+
+        umount "${usb_mount}"
       }
       main "$@"
     mode: '0750'
