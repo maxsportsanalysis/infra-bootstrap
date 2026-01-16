@@ -149,7 +149,6 @@
       ExecStart=/usr/local/bin/install_cert.sh
   notify: Reload systemd
 
-
 - name: Create udev rule to auto-mount PKI USB when plugged in
   copy:
     dest: /etc/udev/rules.d/99-pki_usb.rules
