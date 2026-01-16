@@ -55,6 +55,52 @@
       main "$@"
     mode: '0750'
 
+- name: Install PKI RPI Certificate
+  ansible.builtin.copy:
+    dest: /usr/local/bin/install_cert.sh
+    content: |
+      #!/bin/bash
+      set -e
+
+      main() {
+        local usb_mount="/media/pki_rpi"
+        local cert_file="${usb_mount}/pki_rpi.cert.pem"
+        local system_cert="/etc/ssl/certs/pki_rpi.pem"
+
+        # Wait for mount
+        for i in {1..10}; do
+          mountpoint -q "${usb_mount}" && break
+          sleep 1
+        done
+
+        if ! mountpoint -q "${usb_mount}"; then
+          echo "USB not mounted"
+          exit 1
+        fi
+
+        # Only proceed if cert exists
+        if [ ! -f "${cert_file}" ]; then
+          echo "Signed cert not found, skipping"
+          exit 0
+        fi
+
+        echo "Installing certificate..."
+        cp "${cert_file}" "${system_cert}"
+        chmod 644 "${system_cert}"
+
+        # Trust it system-wide (Debian/RPi OS)
+        update-ca-certificates
+
+        # Mark system as provisioned
+        touch /tmp/pki_bootstrap_complete
+
+        echo "Certificate installed successfully"
+      }
+
+      main "$@"
+
+    mode: '0750'
+
 - name: Create systemd service for mounting pki_rpi usb
   copy:
     dest: /etc/systemd/system/media-pki_rpi.mount
@@ -88,12 +134,27 @@
       ExecStart=/usr/local/bin/generate_csr.sh
   notify: Reload systemd
 
+- name: Create systemd service for installing pki_rpi certificate
+  copy:
+    dest: /etc/systemd/system/pki_usb_install_cert.service
+    content: |
+      [Unit]
+      Description=Install Signed Certificate from PKI USB
+      After=media-pki_rpi.mount
+      Requires=media-pki_rpi.mount
+      ConditionPathExists=!/tmp/pki_bootstrap_complete
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/install_cert.sh
+  notify: Reload systemd
+
 
 - name: Create udev rule to auto-mount PKI USB when plugged in
   copy:
     dest: /etc/udev/rules.d/99-pki_usb.rules
     content: |
-      ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="PKI_RPI", TAG+="systemd", ENV{SYSTEMD_WANTS}="media-pki_rpi.mount pki_usb_csr.service"
+      ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="PKI_RPI", TAG+="systemd", ENV{SYSTEMD_WANTS}="media-pki_rpi.mount pki_usb_csr.service pki_usb_install_cert.service"
 
 - name: Reload udev rules so hot-plug works immediately
   command: udevadm control --reload
